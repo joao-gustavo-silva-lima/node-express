@@ -1,11 +1,11 @@
 (function () {
-  const req = new Request("http://localhost:5000/user/1", {
-    method: "PUT",
+  const req = new Request("http://localhost:5000/user", {
+    method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      name: "Robert",
-      age: 26,
-      role: "Front End Developer",
+      name: "Mario",
+      age: 23,
+      role: "Back End Developer",
     }),
   });
 
