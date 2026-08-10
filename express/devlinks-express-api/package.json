@@ -2,9 +2,9 @@
   "name": "devlinks-express-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
-    "dev": "tsx watch src/app.ts"
+    "dev": "tsx watch src/server.ts"
   },
   "keywords": [],
   "author": "",
