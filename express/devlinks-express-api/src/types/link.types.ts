@@ -7,7 +7,7 @@ export type Controller = {
 
 export type LinkID = string | UUID;
 
-export interface Link {
+export interface ILink {
   id: LinkID;
   title: string;
   url: string;
