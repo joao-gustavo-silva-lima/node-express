@@ -6,7 +6,7 @@ export function errorMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  res.on("finish", () => console.error(`\n\t${err.message}`));
+  res.on("finish", () => console.error(`\n${err.stack ?? err.message}\n`));
 
   res.status(500).json({ message: `Something bad happened at server side` });
 }

@@ -10,7 +10,7 @@ export function loggerMiddleware(
   res.on("finish", () => {
     const responseTime = performance.now() - requestTime;
 
-    console.log(`\n${req.method} ${req.path} (${responseTime.toFixed(2)} ms)`);
+    console.log(`${req.method} ${req.path} (${responseTime.toFixed(2)} ms)`);
   });
 
   next();
