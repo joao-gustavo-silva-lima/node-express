@@ -1,6 +1,6 @@
-import { ILink, LinkID, Query } from "../types/link.types.js";
+import { Link, LinkID, LinkProperty, Query } from "../types/link.types.js";
 
-const linksRepository = new Map<LinkID, ILink>([
+const linksRepository = new Map<LinkID, Link>([
   [
     "lnk_9f8a2b1c4e",
     {
@@ -17,12 +17,16 @@ const linksRepository = new Map<LinkID, ILink>([
 
 export const LinkService = {
   list: (query: Query) => {
-    const links = linksRepository.values();
+    const links = [...linksRepository.values()];
 
     if (Object.keys(query).length === 0) {
-      return [...links];
+      return links;
     }
 
-    //Validate Query [WIP]
+    const queryEntries = Object.entries(query) as [LinkProperty, unknown][];
+
+    return links.filter((link) =>
+      queryEntries.every(([key, value]) => link[key].toString() === value),
+    );
   },
 };

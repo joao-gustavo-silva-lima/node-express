@@ -1,22 +1,20 @@
 import { RequestHandler } from "express";
-import { UUID } from "node:crypto";
 
 export type Controller = {
   [name: string]: RequestHandler;
 };
 
-export type LinkID = string | UUID;
+export const LINK_DTO = {
+  id: "",
+  title: "",
+  url: "",
+  category: "",
+  tags: [""],
+  clicks: -1,
+  createdAt: "" as string | Date,
+};
 
-export interface ILink {
-  id: LinkID;
-  title: string;
-  url: string;
-  category: string;
-  tags: string[];
-  clicks: number;
-  createdAt: Date | string;
-}
-
-export interface Query {
-  [name: string]: string;
-}
+export type LinkID = string;
+export type Link = typeof LINK_DTO;
+export type LinkProperty = keyof typeof LINK_DTO;
+export type Query = Partial<Link>;
