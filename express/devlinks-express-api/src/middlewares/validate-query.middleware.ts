@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { LINK_DTO } from "../types/link.types.js";
+import { LINK } from "../types/link.types.js";
 
 export function validateQueryMiddleware(
   req: Request,
@@ -13,7 +13,7 @@ export function validateQueryMiddleware(
   }
 
   const invalidQueryParams = queryParams.filter(
-    (param) => !Object.hasOwn(LINK_DTO, param),
+    (param) => !Object.hasOwn(LINK, param),
   );
 
   if (invalidQueryParams.length === 0) {

@@ -1,8 +1,8 @@
-import { Link, LinkID, LinkProperty, Query } from "../types/link.types.js";
+import { Link, LinkProperty, Query } from "../types/link.types.js";
 
-const linksRepository = new Map<LinkID, Link>([
+const linksRepository = new Map<number, Link>([
   [
-    "lnk_9f8a2b1c4e",
+    0,
     {
       id: "lnk_9f8a2b1c4e",
       title: "TypeScript Official Documentation",
@@ -28,5 +28,8 @@ export const LinkService = {
     return links.filter((link) =>
       queryEntries.every(([key, value]) => link[key].toString() === value),
     );
+  },
+  getByID: (id: string) => {
+    return linksRepository.get(Number(id));
   },
 };

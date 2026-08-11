@@ -4,7 +4,7 @@ export type Controller = {
   [name: string]: RequestHandler;
 };
 
-export const LINK_DTO = {
+export const LINK = {
   id: "",
   title: "",
   url: "",
@@ -14,7 +14,6 @@ export const LINK_DTO = {
   createdAt: "" as string | Date,
 };
 
-export type LinkID = string;
-export type Link = typeof LINK_DTO;
-export type LinkProperty = keyof typeof LINK_DTO;
+export type Link = typeof LINK;
 export type Query = Partial<Link>;
+export type LinkProperty = keyof typeof LINK;
