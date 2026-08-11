@@ -8,5 +8,5 @@ export function errorMiddleware(
 ) {
   res.on("finish", () => console.error(`\n${err.stack ?? err.message}\n`));
 
-  res.status(500).json({ message: `Something bad happened at server side` });
+  res.status(500).json({ message: `Internal Server Error` });
 }

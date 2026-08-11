@@ -1,9 +1,3 @@
-import { RequestHandler } from "express";
-
-export type Controller = {
-  [name: string]: RequestHandler;
-};
-
 export const LINK = {
   id: "",
   title: "",
