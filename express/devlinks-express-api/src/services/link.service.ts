@@ -27,7 +27,7 @@ export class LinkService {
   ]);
 
   public static list(query: Query) {
-    const links = [...this.linksRepository.values()];
+    const links = [...this.linksRepository.values()].map((obj) => ({ ...obj }));
 
     if (Object.keys(query).length === 0) {
       return links;
@@ -38,14 +38,6 @@ export class LinkService {
     return links.filter((link) =>
       queryEntries.every(([key, value]) => link[key].toString() === value),
     );
-  }
-
-  private static _getByID(id: LinkID): Link {
-    if (!this.linksRepository.has(id)) {
-      throw new StatefulError(404, `Link within ID '${id}' not found`);
-    }
-
-    return this.linksRepository.get(id)!;
   }
 
   public static register(linkPrototype: ProtoLink) {
@@ -71,6 +63,14 @@ export class LinkService {
     this.linksRepository.set(newLink.id, newLink);
 
     return { ...newLink };
+  }
+
+  private static _getByID(id: LinkID): Link {
+    if (!this.linksRepository.has(id)) {
+      throw new StatefulError(404, `Link within ID '${id}' not found`);
+    }
+
+    return this.linksRepository.get(id)!;
   }
 
   public static getByID(id: LinkID): Link {
