@@ -1,12 +1,14 @@
-import { Link, LinkProperty, Query } from "../types/link.types.js";
+import { Link, LinkID, LinkProperty, Query } from "../types/link.types.js";
 import { StatefulError } from "../utils/stateful-error.utils.js";
 
+const MOCK_UUID = "d9b05985-ba18-498e-9a92-daf0a5e4c893";
+
 export class LinkService {
-  private static readonly linksRepository = new Map<number, Link>([
+  private static readonly linksRepository = new Map<LinkID, Link>([
     [
-      0,
+      MOCK_UUID,
       {
-        id: "lnk_9f8a2b1c4e",
+        id: MOCK_UUID,
         title: "TypeScript Official Documentation",
         url: "https://www.typescriptlang.org/docs/",
         category: "Development",
@@ -31,7 +33,7 @@ export class LinkService {
     );
   }
 
-  private static _getByID(id: number): Link {
+  private static _getByID(id: LinkID): Link {
     if (!this.linksRepository.has(id)) {
       throw new StatefulError(404, `Link within ID '${id}' not found`);
     }
@@ -39,16 +41,18 @@ export class LinkService {
     return this.linksRepository.get(id)!;
   }
 
-  public static getByID(id: number) {
+  //public static register(link: Link) {}
+
+  public static getByID(id: LinkID): Link {
     return { ...this._getByID(id) };
   }
 
-  public static deleteByID(id: number) {
+  public static deleteByID(id: LinkID) {
     this._getByID(id);
-    return this.linksRepository.delete(id);
+    this.linksRepository.delete(id);
   }
 
-  public static redirectByID(id: number) {
+  public static redirectByID(id: LinkID): string {
     const link = this._getByID(id);
 
     link.clicks++;

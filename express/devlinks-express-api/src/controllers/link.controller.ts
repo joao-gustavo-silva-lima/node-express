@@ -1,17 +1,27 @@
 import { LinkService } from "../services/link.service.js";
 import { Request, Response } from "express";
+import { LinkID } from "../types/link.types.js";
 
 export class LinkController {
   public static list(req: Request, res: Response) {
     res.json(LinkService.list(req.query));
   }
 
+  public static register(req: Request, res: Response) {
+    //const newLink = LinkService.register(req.body);
+
+    res.json({
+      message: `The link was created successfully`,
+      //link: newLink
+    });
+  }
+
   public static getByID(req: Request, res: Response) {
-    res.json(LinkService.getByID(Number(req.params.id)));
+    res.json(LinkService.getByID(req.params.id as LinkID));
   }
 
   public static deleteByID(req: Request, res: Response) {
-    LinkService.deleteByID(Number(req.params.id));
+    LinkService.deleteByID(req.params.id as LinkID);
 
     res.json({
       message: `The link within ID '${req.params.id}' was deleted successfully`,
@@ -19,6 +29,6 @@ export class LinkController {
   }
 
   public static redirectByID(req: Request, res: Response) {
-    res.redirect(LinkService.redirectByID(Number(req.params.id)));
+    res.redirect(LinkService.redirectByID(req.params.id as LinkID));
   }
 }

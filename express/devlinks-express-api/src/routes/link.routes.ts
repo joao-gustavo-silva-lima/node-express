@@ -1,16 +1,14 @@
-import express, { Router } from "express";
+import express from "express";
 import { LinkController } from "../controllers/link.controller.js";
 import { validateQueryMiddleware } from "../middlewares/validate-query.middleware.js";
-import { validateIDMiddleware } from "../middlewares/validate-id.middleware.js";
+import { validateLinkMiddleware } from "../middlewares/validate-link.middleware.js";
 
 export const router = express.Router();
 
 router.get("/", validateQueryMiddleware, LinkController.list);
-
-router.use("/:id", validateIDMiddleware);
+router.post("/", validateLinkMiddleware, LinkController.register);
 
 router.get("/:id", LinkController.getByID);
-
 router.delete("/:id", LinkController.deleteByID);
 
 router.get("/:id/redirect", LinkController.redirectByID);
