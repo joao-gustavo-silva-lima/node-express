@@ -1,9 +1,11 @@
 import { randomUUID } from "node:crypto";
 import {
+  EMPTY_LINK,
   Link,
   LinkID,
-  LinkProperty,
+  LinkKeys,
   ProtoLink,
+  ProtoLinkKeys,
   Query,
 } from "../types/link.types.js";
 import { StatefulError } from "../utils/stateful-error.utils.js";
@@ -33,24 +35,34 @@ export class LinkService {
       return links;
     }
 
-    const queryEntries = Object.entries(query) as [LinkProperty, unknown][];
+    const queryEntries = Object.entries(query) as [LinkKeys, unknown][];
 
     return links.filter((link) =>
       queryEntries.every(([key, value]) => link[key].toString() === value),
     );
   }
 
-  public static register(linkPrototype: ProtoLink) {
-    if (
-      this.linksRepository
-        .values()
-        .some((link) => link.url === linkPrototype.url)
-    ) {
+  private static validatePrototypeUniqueness(
+    parsingLink: ProtoLink,
+    exceptiveOwnId?: LinkID,
+  ) {
+    for (const link of this.linksRepository.values()) {
+      if (
+        link.url !== parsingLink.url ||
+        (exceptiveOwnId ? link.id === exceptiveOwnId : false)
+      ) {
+        continue;
+      }
+
       throw new StatefulError(
         409,
-        `Register Conflict: A link within URL '${linkPrototype.url}' already exists`,
+        `Write Conflict: A link within URL '${parsingLink.url}' already exists`,
       );
     }
+  }
+
+  public static register(linkPrototype: ProtoLink) {
+    this.validatePrototypeUniqueness(linkPrototype);
 
     const newID = randomUUID();
 
@@ -91,6 +103,22 @@ export class LinkService {
   public static deleteByID(id: LinkID) {
     this._getByID(id);
     this.linksRepository.delete(id);
+  }
+
+  public static updateByID(id: LinkID, modifyingPrototype: ProtoLink) {
+    this.validatePrototypeUniqueness(modifyingPrototype, id);
+
+    const updatingLink = {
+      ...this.getByID(id),
+      ...Object.fromEntries(
+        Object.entries(modifyingPrototype).map(([key, value]) => [
+          key,
+          value ?? EMPTY_LINK[key as LinkKeys],
+        ]),
+      ),
+    };
+
+    this.linksRepository.set(id, updatingLink);
   }
 
   public static redirectByID(id: LinkID): string {

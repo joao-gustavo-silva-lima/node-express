@@ -10,5 +10,6 @@ router.post("/", validateLinkMiddleware, LinkController.register);
 
 router.get("/:id", LinkController.getByID);
 router.delete("/:id", LinkController.deleteByID);
+router.put("/:id", validateLinkMiddleware, LinkController.updateByID);
 
 router.get("/:id/redirect", LinkController.redirectByID);

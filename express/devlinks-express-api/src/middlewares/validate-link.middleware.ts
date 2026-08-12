@@ -15,6 +15,6 @@ export function validateLinkMiddleware(
 
   throw new StatefulError(
     400,
-    "Invalidly Formatted Object: The link is invalid and could not be registered",
+    "Invalidly Formatted Object: The link is invalid so the action could not be concluded",
   );
 }

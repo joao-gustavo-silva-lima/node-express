@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { LINK_KEYS, LinkProperty } from "../types/link.types.js";
+import { LINK_KEYS, LinkKeys } from "../types/link.types.js";
 import { StatefulError } from "../utils/stateful-error.utils.js";
 
 export function validateQueryMiddleware(
@@ -14,7 +14,7 @@ export function validateQueryMiddleware(
   }
 
   const invalidQueryArgs = queryKeys.filter(
-    (key) => !LINK_KEYS.has(key as LinkProperty),
+    (key) => !LINK_KEYS.has(key as LinkKeys),
   );
 
   if (invalidQueryArgs.length === 0) {
