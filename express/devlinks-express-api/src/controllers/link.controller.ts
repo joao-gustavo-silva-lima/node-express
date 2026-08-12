@@ -1,5 +1,5 @@
 import { LinkService } from "../services/link.service.js";
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 
 export class LinkController {
   public static list(req: Request, res: Response) {

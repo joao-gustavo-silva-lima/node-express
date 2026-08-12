@@ -1,4 +1,5 @@
 import { Link, LinkProperty, Query } from "../types/link.types.js";
+import { StatefulError } from "../utils/stateful-error.utils.js";
 
 export class LinkService {
   private static readonly linksRepository = new Map<number, Link>([
@@ -32,7 +33,7 @@ export class LinkService {
 
   private static _getByID(id: number): Link {
     if (!this.linksRepository.has(id)) {
-      throw new Error(`Not Found: Link within ID '${id}' not found`);
+      throw new StatefulError(404, `Link within ID '${id}' not found`);
     }
 
     return this.linksRepository.get(id)!;
