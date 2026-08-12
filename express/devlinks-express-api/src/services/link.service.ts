@@ -41,12 +41,23 @@ export class LinkService {
   }
 
   public static register(linkPrototype: ProtoLink) {
+    if (
+      this.linksRepository
+        .values()
+        .some((link) => link.url === linkPrototype.url)
+    ) {
+      throw new StatefulError(
+        409,
+        `Register Conflict: A link within URL '${linkPrototype.url}' already exists`,
+      );
+    }
+
     const newID = randomUUID();
 
     if (this.linksRepository.has(newID)) {
       throw new StatefulError(
         500,
-        `Unlikely UUID collision occurred for ID '${newID}'`,
+        `Server Internal Error: The server-side generated ID '${newID}' collided a pre-existent one`,
       );
     }
 
