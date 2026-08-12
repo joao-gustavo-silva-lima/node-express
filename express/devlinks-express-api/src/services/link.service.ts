@@ -1,4 +1,11 @@
-import { Link, LinkID, LinkProperty, Query } from "../types/link.types.js";
+import { randomUUID } from "node:crypto";
+import {
+  Link,
+  LinkID,
+  LinkProperty,
+  ProtoLink,
+  Query,
+} from "../types/link.types.js";
 import { StatefulError } from "../utils/stateful-error.utils.js";
 
 const MOCK_UUID = "d9b05985-ba18-498e-9a92-daf0a5e4c893";
@@ -41,7 +48,30 @@ export class LinkService {
     return this.linksRepository.get(id)!;
   }
 
-  //public static register(link: Link) {}
+  public static register(linkPrototype: ProtoLink) {
+    const newID = randomUUID();
+
+    if (this.linksRepository.has(newID)) {
+      throw new StatefulError(
+        500,
+        `Unlikely UUID collision occurred for ID '${newID}'`,
+      );
+    }
+
+    const newLink: Link = {
+      id: newID,
+      title: linkPrototype.title,
+      url: linkPrototype.url,
+      category: linkPrototype.category ?? "",
+      tags: linkPrototype.tags ?? [],
+      clicks: 0,
+      createdAt: new Date(),
+    };
+
+    this.linksRepository.set(newLink.id, newLink);
+
+    return { ...newLink };
+  }
 
   public static getByID(id: LinkID): Link {
     return { ...this._getByID(id) };

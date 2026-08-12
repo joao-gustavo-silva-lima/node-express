@@ -7,7 +7,7 @@ export function errorMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  const isInternalError = err.status === undefined || err.status === 500;
+  const isInternalError = err.status === undefined;
 
   res.status(err.status ?? 500).json({
     message: isInternalError ? `Internal Server Error` : err.message,

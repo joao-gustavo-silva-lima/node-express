@@ -8,11 +8,9 @@ export class LinkController {
   }
 
   public static register(req: Request, res: Response) {
-    //const newLink = LinkService.register(req.body);
-
     res.json({
       message: `The link was created successfully`,
-      //link: newLink
+      link: LinkService.register(req.body),
     });
   }
 
