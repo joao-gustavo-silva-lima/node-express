@@ -1,16 +1,34 @@
-import { UUID } from "node:crypto";
+import { z } from "zod";
 
-export const LINK = {
-  id: "" as string | UUID,
-  title: "",
-  url: "",
-  category: "",
-  tags: [""],
-  clicks: -1,
-  createdAt: "" as string | Date,
-};
+const linkSchema = z.object({
+  id: z.union([z.string(), z.uuid()]),
+  title: z.string(),
+  url: z.url(),
+  category: z.string(),
+  tags: z.array(z.string()),
+  clicks: z.number().int(),
+  createdAt: z.union([z.string(), z.date()]),
+});
 
-export type Link = typeof LINK;
+export const LINK_KEYS = new Set(
+  Object.keys(linkSchema.shape),
+) as Set<LinkProperty>;
+
+export type Link = z.infer<typeof linkSchema>;
+export type LinkProperty = keyof Link;
+export type LinkID = Link["id"];
+
+export const protoLinkSchema = linkSchema
+  .omit({
+    id: true,
+    clicks: true,
+    createdAt: true,
+  })
+  .partial({
+    category: true,
+    tags: true,
+  });
+
+export type ProtoLink = z.infer<typeof protoLinkSchema>;
+
 export type Query = Partial<Link>;
-export type LinkID = typeof LINK.id;
-export type LinkProperty = keyof typeof LINK;
