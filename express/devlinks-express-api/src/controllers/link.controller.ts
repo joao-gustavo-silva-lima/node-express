@@ -10,7 +10,15 @@ export class LinkController {
     res.json(LinkService.getByID(Number(req.params.id)));
   }
 
-  public static getByIDAndRedirect(req: Request, res: Response) {
-    res.redirect(LinkService.getByIDAndRedirect(Number(req.params.id)));
+  public static deleteByID(req: Request, res: Response) {
+    LinkService.deleteByID(Number(req.params.id));
+
+    res.json({
+      message: `The link within ID '${req.params.id}' was deleted successfully`,
+    });
+  }
+
+  public static redirectByID(req: Request, res: Response) {
+    res.redirect(LinkService.redirectByID(Number(req.params.id)));
   }
 }
