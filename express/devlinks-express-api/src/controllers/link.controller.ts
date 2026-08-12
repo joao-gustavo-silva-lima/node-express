@@ -10,7 +10,7 @@ export class LinkController {
     res.json(LinkService.getByID(Number(req.params.id)));
   }
 
-  public static redirectByID(req: Request, res: Response) {
-    res.redirect(LinkService.redirectByID(Number(req.params.id)));
+  public static getByIDAndRedirect(req: Request, res: Response) {
+    res.redirect(LinkService.getByIDAndRedirect(Number(req.params.id)));
   }
 }

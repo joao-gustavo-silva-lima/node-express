@@ -7,13 +7,13 @@ export function errorMiddleware(
   res: Response,
   next: NextFunction,
 ) {
+  const isInternalError = err.status === undefined || err.status === 500;
+
   res.status(err.status ?? 500).json({
-    message: /[^\s]{1,}/.test(err.message)
-      ? err.message
-      : `Internal Server Error`,
+    message: isInternalError ? `Internal Server Error` : err.message,
   });
 
-  if (!err.status || err.status === 500) {
+  if (isInternalError) {
     res.on("finish", () => console.error(`\n${err.stack ?? err.message}\n`));
   }
 }

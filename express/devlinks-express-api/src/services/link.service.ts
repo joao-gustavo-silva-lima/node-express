@@ -43,7 +43,7 @@ export class LinkService {
     return { ...this._getByID(id) };
   }
 
-  public static redirectByID(id: number) {
+  public static getByIDAndRedirect(id: number) {
     const link = this._getByID(id);
 
     link.clicks++;

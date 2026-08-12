@@ -11,4 +11,4 @@ router.use("/:id", validateIDMiddleware);
 
 router.get("/:id", LinkController.getByID);
 
-router.get("/:id/redirect", LinkController.redirectByID);
+router.get("/:id/redirect", LinkController.getByIDAndRedirect);
