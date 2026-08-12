@@ -8,7 +8,7 @@ export class LinkController {
   }
 
   public static register(req: Request, res: Response) {
-    res.json({
+    res.status(201).json({
       message: `The link was created successfully`,
       link: LinkService.register(req.body),
     });
@@ -21,7 +21,7 @@ export class LinkController {
   public static deleteByID(req: Request, res: Response) {
     LinkService.deleteByID(req.params.id as LinkID);
 
-    res.json({
+    res.status(204).json({
       message: `The link within ID '${req.params.id}' was deleted successfully`,
     });
   }

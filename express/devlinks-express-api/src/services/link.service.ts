@@ -5,28 +5,12 @@ import {
   LinkID,
   LinkKeys,
   ProtoLink,
-  ProtoLinkKeys,
   Query,
 } from "../types/link.types.js";
 import { StatefulError } from "../utils/stateful-error.utils.js";
 
-const MOCK_UUID = "d9b05985-ba18-498e-9a92-daf0a5e4c893";
-
 export class LinkService {
-  private static readonly linksRepository = new Map<LinkID, Link>([
-    [
-      MOCK_UUID,
-      {
-        id: MOCK_UUID,
-        title: "TypeScript Official Documentation",
-        url: "https://www.typescriptlang.org/docs/",
-        category: "Development",
-        tags: ["typescript", "javascript", "docs", "frontend"],
-        clicks: 1420,
-        createdAt: new Date("2026-01-15T10:30:00Z"),
-      },
-    ],
-  ]);
+  private static readonly linksRepository = new Map<LinkID, Link>();
 
   public static list(query: Query) {
     const links = [...this.linksRepository.values()].map((obj) => ({ ...obj }));
@@ -119,6 +103,8 @@ export class LinkService {
     };
 
     this.linksRepository.set(id, updatingLink);
+
+    return { ...updatingLink };
   }
 
   public static redirectByID(id: LinkID): string {
