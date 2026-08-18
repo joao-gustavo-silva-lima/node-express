@@ -21,7 +21,7 @@ export class LinkController {
   public static deleteByID(req: Request, res: Response) {
     LinkService.deleteByID(req.params.id as LinkID);
 
-    res.status(204).json({
+    res.json({
       message: `The link within ID '${req.params.id}' was deleted successfully`,
     });
   }
@@ -34,6 +34,8 @@ export class LinkController {
   }
 
   public static redirectByID(req: Request, res: Response) {
-    res.redirect(LinkService.redirectByID(req.params.id as LinkID));
+    res.json({
+      redirectURL: LinkService.redirectByID(req.params.id as LinkID),
+    });
   }
 }
