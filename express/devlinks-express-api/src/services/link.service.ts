@@ -15,15 +15,22 @@ export class LinkService {
   public static list(query: Query) {
     const links = [...this.linksRepository.values()].map((obj) => ({ ...obj }));
 
-    if (Object.keys(query).length === 0) {
-      return links;
-    }
+    return links.filter((link) => {
+      const matchesTitle =
+        !query.title ||
+        query.title === "" ||
+        link.title.toLowerCase().includes(query.title.toLowerCase());
 
-    const queryEntries = Object.entries(query) as [LinkKeys, unknown][];
+      const matchesTags =
+        !query.tags || query.tags.some((tag) => link.tags.includes(tag));
 
-    return links.filter((link) =>
-      queryEntries.every(([key, value]) => link[key].toString() === value),
-    );
+      const matchesCategory =
+        !query.category ||
+        query.category === "" ||
+        link.category.toLowerCase() === query.category.toLowerCase();
+
+      return matchesTitle && matchesTags && matchesCategory;
+    });
   }
 
   private static validatePrototypeUniqueness(

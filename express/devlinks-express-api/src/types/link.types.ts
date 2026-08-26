@@ -34,4 +34,4 @@ export const protoLinkSchema = linkSchema
 export type ProtoLink = z.infer<typeof protoLinkSchema>;
 export type ProtoLinkKeys = keyof ProtoLink;
 
-export type Query = Partial<Link>;
+export type Query = Partial<Pick<Link, "title" | "category" | "tags">>;
