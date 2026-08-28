@@ -2,23 +2,24 @@
   "name": "devlinks-express-api",
   "version": "1.0.0",
   "description": "",
-  "main": "src/server.js",
+  "main": "src/server.ts",
   "scripts": {
-    "dev": "tsx watch src/server.ts"
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
-  "devDependencies": {
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/node": "^26.2.0",
-    "tsx": "^4.23.12"
-  },
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "tsx": "^4.23.12",
     "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.2.0"
   }
 }
