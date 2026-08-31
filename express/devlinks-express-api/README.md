@@ -1,134 +1,132 @@
-# 🔗 DevLinks & Bookmark API
+# DevLinks Express API
 
-Uma API RESTful para gerenciamento de links e _bookmarks_ técnicos desenvolvida com **Node.js**, **Express 5** e **TypeScript**.
+Welcome to my DevLinks API project! This repository represents a hands-on exploration of building a robust, scalable API using Express.js and TypeScript. Here, I'm focusing on implementing best practices for API development, including clean architecture, comprehensive error handling, and middleware patterns.
 
-O projeto faz parte do repositório [`node-express`](https://github.com/joao-gustavo-silva-lima/node-express) e foi construído aplicando arquitetura em camadas, validação rigorosa de esquemas com **Zod**, gerenciamento de dados em memória via `Map` e um pipeline centralizado de tratamento de exceções HTTP.
+## 🚀 Repository Overview
 
----
+This project is a REST API built with Express.js and TypeScript, designed to handle link management operations. The application demonstrates modern backend development patterns including middleware chaining, service-oriented architecture, and type-safe implementations.
 
-## 🚀 Tecnologias e Dependências
+### 📁 Project Structure
 
-- **Runtime:** Node.js (`v20+`)
-- **Framework Web:** Express.js (`v5.2.1`)
-- **Linguagem:** TypeScript (`ESNext` / `NodeNext`)
-- **Validação e Schemas:** Zod (`v4.4.3`)
-- **Executor Dev:** `tsx` (`v4.23.12`)
-- **Persistência:** Repositório em memória (`Map<LinkID, Link>`)
-
----
-
-## 🏛️ Arquitetura e Estrutura do Código
-
-A aplicação utiliza uma **arquitetura em camadas** bem definida para garantir desacoplamento e testabilidade:
+The project follows a clean, modular architecture that separates concerns across different layers. Here's the directory breakdown:
 
 ```text
 devlinks-express-api/
 ├── src/
-│   ├── controllers/            # Adaptação HTTP (extrai inputs, invoca Service e envia Resposta)
-│   ├── services/               # Regras de negócio puras e manipulação da memória (Map)
-│   ├── middlewares/            # Interceptadores (Logger, Validador de Body e de Query)
-│   ├── routes/                 # Definição de endpoints e encadeamento de middlewares
-│   ├── types/                  # Contratos de dados, Schemas Zod e tipos estáticos do TS
-│   ├── utils/                  # Classes utilitárias (Exceção customizada StatefulError)
-│   ├── app.ts                  # Configuração da aplicação Express e middlewares globais
-│   └── server.ts               # Ponto de entrada e inicialização do servidor HTTP
-├── package.json
-└── tsconfig.json
-
+│   ├── app.ts                      # Express application setup and middleware initialization
+│   ├── server.ts                   # Server entry point and listener configuration
+│   ├── controllers/
+│   │   └── link.controller.ts      # Request handlers and business logic orchestration
+│   ├── middlewares/
+│   │   ├── error.middleware.ts     # Centralized error handling and response formatting
+│   │   ├── logger.middleware.ts    # Request/response logging and debugging
+│   │   ├── validate-link.middleware.ts   # Link payload validation logic
+│   │   └── validate-query.middleware.ts  # Query parameter validation logic
+│   ├── routes/
+│   │   └── link.routes.ts          # API endpoint definitions and route mapping
+│   ├── services/
+│   │   └── link.service.ts         # Business logic and data processing layer
+│   ├── types/
+│   │   └── link.types.ts           # TypeScript type definitions and interfaces
+│   └── utils/
+│       └── stateful-error.utils.ts # Custom error class implementations
+├── package.json                    # Scripts and dependencies definition
+├── tsconfig.json                   # TypeScript compilation settings
+└── README.md                       # This file
 ```
-
-### Destaques de Design e Decisões Técnicas
-
-1. **Express 5 Native Async Handling:** Aproveita o suporte nativo do Express 5 ao tratamento de exceções em rotas assíncronas, dispensando o uso de blocos `try/catch` redundantes nos _controllers_.
-2. **Exceções Orientadas a Estado (`StatefulError`):** A classe de erro customizada estende `Error` carregando o código HTTP (`status`). Erros são lançados no `LinkService` e formatados centralizadamente no `errorMiddleware`.
-3. **Mecanismo Fail-Fast via Middlewares:** Requisições com payloads ou queries que violam o contrato das entidades são barradas na borda pelo Zod (`validateLinkMiddleware` / `validateQueryMiddleware`) com resposta `400 Bad Request`.
-4. **Proteção contra Conflitos de URL:** O `LinkService` garante que URLs duplicadas sejam bloqueadas em rotas de criação e atualização, retornando status `409 Conflict`.
-5. **Garantia de Imutabilidade Externa:** O repositório expõe apenas cópias dos objetos salvos (`{ ...obj }`), impedindo mutações acidentais fora da camada de serviço.
 
 ---
 
-## 🛠️ Como Executar este Módulo Localmente
+## 🔑 Core Files & Their Purpose
 
-A partir do diretório raiz do repositório ou diretamente desta pasta:
+When navigating this codebase, here are the essential files you should understand:
+
+1. 📝 **`app.ts`**: The heart of the Express application. Configures middleware stack, routes, and application-wide settings.
+2. 🚀 **`server.ts`**: Entry point that starts the HTTP server and binds it to the configured port.
+3. 🛣️ **`link.routes.ts`**: Defines all API endpoints related to link operations (GET, POST, PUT, DELETE, etc.).
+4. 🎮 **`link.controller.ts`**: Handles incoming requests, delegates to services, and formats responses.
+5. ⚙️ **`link.service.ts`**: Contains the core business logic and data manipulation operations.
+6. 📊 **`link.types.ts`**: Centralized TypeScript interfaces and type definitions for type safety.
+7. 🛡️ **`error.middleware.ts`**: Provides consistent error handling and error response formatting.
+
+---
+
+## 🛠️ Getting Started & How to Run
+
+To run the API locally and explore the implementation, ensure you have **Node.js** and **npm** installed.
+
+### 1. Clone the Repository
 
 ```bash
-# 1. Acesse o diretório do projeto
-cd express/devlinks-express-api
+git clone https://github.com/joao-gustavo-silva-lima/node-express.git
+cd node-express/express/devlinks-express-api
+```
 
-# 2. Instale as dependências
+### 2. Install Dependencies
+
+Install all required packages:
+
+```bash
 npm install
+```
 
-# 3. Inicie o servidor em modo de desenvolvimento (Watch Mode)
+### 3. Build TypeScript
+
+Compile TypeScript to JavaScript:
+
+```bash
+npm run build
+```
+
+### 4. Start the Server
+
+Run the API server in development mode:
+
+```bash
 npm run dev
-
 ```
 
-O servidor estará escutando em **`http://localhost:5000`**.
+The server will typically start on `http://localhost:3000` (or the configured port). You should see log output confirming the server is running.
 
 ---
 
-## 📚 Documentação dos Endpoints
+## 📈 Learning Goals & Objectives
 
-Base Path: `/api/v1/links`
-
-| Método   | Endpoint        | Descrição                                                             | Status Sucesso |
-| -------- | --------------- | --------------------------------------------------------------------- | -------------- |
-| `GET`    | `/`             | Lista links. Aceita filtros via Query Params (ex: `?category=Dev`)    | `200 OK`       |
-| `POST`   | `/`             | Cadastra um novo link. Gera `id` (UUID), `clicks: 0` e `createdAt`    | `201 Created`  |
-| `GET`    | `/:id`          | Retorna os detalhes de um link específico                             | `200 OK`       |
-| `PUT`    | `/:id`          | Atualiza os dados de um link preservando os metadados fixos           | `200 OK`       |
-| `DELETE` | `/:id`          | Remove o link do repositório                                          | `200 OK`       |
-| `GET`    | `/:id/redirect` | Incrementa o contador de `clicks` em +1 e executa HTTP Redirect (302) | `302 Found`    |
+- **Type Safety**: Leveraging TypeScript's strong type system to catch errors at compile time and ensure API contracts are properly defined.
+- **Clean Architecture**: Separating concerns across controllers, services, and middleware layers for maintainability and testability.
+- **Error Handling**: Implementing comprehensive error handling strategies with custom error utilities and centralized middleware.
+- **Middleware Mastery**: Understanding middleware composition, middleware chaining, and how to build reusable request processing pipelines.
+- **API Best Practices**: Following REST conventions, proper HTTP status codes, and consistent response formatting.
 
 ---
 
-### Exemplo de Payload para Criação (`POST /api/v1/links`)
+## 🚦 API Endpoints
 
-**Request Body:**
+The API exposes link management endpoints following RESTful conventions:
 
-```json
-{
-  "title": "TypeScript Official Documentation",
-  "url": "https://www.typescriptlang.org/docs/",
-  "category": "Development",
-  "tags": ["typescript", "javascript", "docs"]
-}
-```
+| Method   | Endpoint                  | Description                             |
+| -------- | ------------------------- | --------------------------------------- |
+| `GET`    | `/api/links`              | Retrieve all links                      |
+| `GET`    | `/api/links/:id`          | Retrieve a specific link                |
+| `GET`    | `/api/links/:id/redirect` | Retrieve a specific link's redirect URL |
+| `POST`   | `/api/links`              | Create a new link                       |
+| `PUT`    | `/api/links/:id`          | Update an existing link                 |
+| `DELETE` | `/api/links/:id`          | Delete a link                           |
 
-**Response (`201 Created`):**
-
-```json
-{
-  "message": "The link was created successfully",
-  "link": {
-    "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-    "title": "TypeScript Official Documentation",
-    "url": "https://www.typescriptlang.org/docs/",
-    "category": "Development",
-    "tags": ["typescript", "javascript", "docs"],
-    "clicks": 0,
-    "createdAt": "2026-08-12T23:00:00.000Z"
-  }
-}
-```
+Each endpoint is validated, logged, and includes proper error handling through the middleware stack.
 
 ---
 
-## ⚠️ Mapeamento de Erros da API
+## 🎓 Development Workflow
 
-| Status Code              | Contexto                                                                   |
-| ------------------------ | -------------------------------------------------------------------------- |
-| **`400 Bad Request`**    | Formato de corpo inválido ou chaves de busca desconhecidas em `req.query`. |
-| **`404 Not Found`**      | ID de link não localizado no repositório.                                  |
-| **`409 Conflict`**       | Tentativa de registrar/atualizar uma URL que já pertence a outro registro. |
-| **`500 Internal Error`** | Erro não mapeado do servidor (gera log interno de _stack trace_).          |
+This project follows a structured development approach:
+
+1. **Define Types First**: Start with clear TypeScript interfaces in `link.types.ts`
+2. **Build Services**: Implement business logic in the service layer
+3. **Create Controllers**: Wire services to HTTP request/response handling
+4. **Add Validation**: Use middleware for input validation and sanitization
+5. **Test & Iterate**: Validate implementations and refactor for clarity and performance
 
 ---
 
-## 👤 Autor
-
-Desenvolvido por **[João Gustavo Silva Lima](https://www.google.com/search?q=https://github.com/joao-gustavo-silva-lima)** no repositório [`node-express`](https://www.google.com/url?sa=E&source=gmail&q=https://github.com/joao-gustavo-silva-lima/node-express).
-
-```
-
-```
+Enjoy coding! 🚀
