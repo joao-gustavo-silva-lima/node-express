@@ -7,7 +7,7 @@ const DB_ADDRESS = path.join(
   "../database/routines.db.json",
 );
 
-class DatabaseConnection {
+export default class DatabaseConnection {
   public static async read() {
     return readFile(DB_ADDRESS, {
       encoding: "utf-8",
