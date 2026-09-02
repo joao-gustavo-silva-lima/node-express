@@ -12,7 +12,8 @@
   "type": "module",
   "dependencies": {
     "express": "^5.2.1",
-    "tsx": "^4.23.13"
+    "tsx": "^4.23.13",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@types/express": "^5.0.6"
