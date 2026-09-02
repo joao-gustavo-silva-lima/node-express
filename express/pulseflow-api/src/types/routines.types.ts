@@ -16,7 +16,13 @@ export const subTaskSchema = z.object({
     .min(1, "O título da sub-tarefa não pode estar vazio.")
     .min(2, "A sub-tarefa deve ter pelo menos 2 caracteres.")
     .max(60, "A sub-tarefa deve ter no máximo 60 caracteres."),
-  isCompleted: z.boolean().default(false),
+  completedDates: z
+    .array(isoDateStringSchema)
+    .refine(
+      (dates) => new Set(dates).size === dates.length,
+      "O histórico de conclusões não pode conter datas duplicadas.",
+    )
+    .default([]),
 });
 
 export const habitSchema = z.object({
@@ -77,3 +83,9 @@ export const routineSchema = z.object({
 export type SubTask = z.infer<typeof subTaskSchema>;
 export type Habit = z.infer<typeof habitSchema>;
 export type Routine = z.infer<typeof routineSchema>;
+
+export interface Database {
+  subtasks: SubTask[];
+  habits: Habit[];
+  routines: Routine[];
+}
