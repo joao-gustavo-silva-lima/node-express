@@ -19,45 +19,45 @@ const isoDateStringSchema = z
 
 export const subTaskSchema = z.object({
   id: z
-    .uuid("ID de sub-tarefa inválido.")
+    .uuid("Invalid sub-task ID.")
     .optional()
     .transform((id) => id ?? `sub-task-${crypto.randomUUID()}`),
   title: z
-    .string({ error: "O título da sub-tarefa é obrigatório." })
+    .string({ error: "The sub-task title is required." })
     .trim()
-    .min(1, "O título da sub-tarefa não pode estar vazio.")
-    .min(2, "A sub-tarefa deve ter pelo menos 2 caracteres.")
-    .max(60, "A sub-tarefa deve ter no máximo 60 caracteres."),
+    .min(1, "The sub-task title cannot be empty.")
+    .min(2, "The sub-task must be at least 2 characters long.")
+    .max(60, "The sub-task must be at most 60 characters long."),
   completedDates: z
     .array(isoDateStringSchema)
     .optional()
     .transform((array) => array ?? [])
     .refine(
       (dates) => new Set(dates).size === dates.length,
-      "O histórico de conclusões não pode conter datas duplicadas.",
+      "The completion history cannot contain duplicate dates.",
     ),
 });
 
 export const habitSchema = z.object({
   id: z
-    .uuid("ID de hábito inválido.")
+    .uuid("Invalid habit ID.")
     .optional()
     .transform((id) => id ?? `habit-${crypto.randomUUID()}`),
 
   title: z
-    .string({ error: "O título do hábito é obrigatório." })
+    .string({ error: "The habit title is required." })
     .trim()
-    .min(1, "O título do hábito é obrigatório.")
-    .min(3, "O título deve ter pelo menos 3 caracteres visíveis.")
-    .max(50, "O título é muito longo (máximo de 50 caracteres)."),
+    .min(1, "The habit title is required.")
+    .min(3, "The title must be at least 3 visible characters long.")
+    .max(50, "The title is too long (maximum 50 characters)."),
 
   category: z.enum(PREDEFINED_CATEGORIES, {
-    error: "A categoria do hábito é inválida",
+    error: "The habit category is invalid",
   }),
 
   subTasks: z
     .array(subTaskSchema)
-    .max(10, "Você pode adicionar no máximo 10 sub-tarefas por hábito.")
+    .max(10, "You can add at most 10 sub-tasks per habit.")
     .optional()
     .transform((array) => array ?? []),
 
@@ -67,27 +67,27 @@ export const habitSchema = z.object({
     .transform((array) => array ?? [])
     .refine(
       (dates) => new Set(dates).size === dates.length,
-      "O histórico de conclusões não pode conter datas duplicadas.",
+      "The completion history cannot contain duplicate dates.",
     ),
 });
 
 export const routineSchema = z.object({
   id: z
-    .uuid("ID de rotina inválido.")
+    .uuid("Invalid routine ID.")
     .optional()
     .transform((id) => id ?? `routine-${crypto.randomUUID()}`),
 
   title: z
-    .string({ error: "O título da rotina é obrigatório." })
+    .string({ error: "The routine title is required." })
     .trim()
-    .min(1, "O título da rotina é obrigatório.")
-    .min(3, "O título da rotina deve ter pelo menos 3 caracteres.")
-    .max(40, "O título da rotina é muito longo (máximo de 40 caracteres)."),
+    .min(1, "The routine title is required.")
+    .min(3, "The routine title must be at least 3 characters long.")
+    .max(40, "The routine title is too long (maximum 40 characters)."),
 
   habits: z
     .array(habitSchema)
-    .min(1, "A rotina deve conter pelo menos 1 hábito cadastrado.")
-    .max(15, "Uma rotina pode conter no máximo 15 hábitos."),
+    .min(1, "The routine must contain at least 1 registered habit.")
+    .max(15, "A routine can contain at most 15 habits."),
 
   completedDates: z
     .array(isoDateStringSchema)
@@ -95,7 +95,7 @@ export const routineSchema = z.object({
     .transform((array) => array ?? [])
     .refine(
       (dates) => new Set(dates).size === dates.length,
-      "O histórico de conclusões não pode conter datas duplicadas.",
+      "The completion history cannot contain duplicate dates.",
     ),
 });
 
