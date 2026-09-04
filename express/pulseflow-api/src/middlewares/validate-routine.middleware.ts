@@ -7,6 +7,13 @@ export default function ValidateRoutineMiddleware(
   res: Response,
   next: NextFunction,
 ) {
+  if (req.headers["content-type"] !== "application/json") {
+    throw new StatefulError(
+      400,
+      "The 'content-type: application/json' request header was expected",
+    );
+  }
+
   const validation = routineSchema.safeParse(req.body);
 
   if (validation.success) {
@@ -23,7 +30,7 @@ export default function ValidateRoutineMiddleware(
 
   throw new StatefulError(
     400,
-    "The payload format is not a valid routine.",
+    "The payload format is not a valid routine",
     errors,
   );
 }
