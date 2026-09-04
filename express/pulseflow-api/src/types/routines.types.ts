@@ -19,9 +19,9 @@ const isoDateStringSchema = z
 
 export const subTaskSchema = z.object({
   id: z
-    .uuid("Invalid sub-task ID.")
+    .string("Invalid sub-task ID.")
     .optional()
-    .transform((id) => `sub-task-${id ?? crypto.randomUUID()}`),
+    .default(`sub-task-${crypto.randomUUID()}`),
   title: z
     .string({ error: "The sub-task title is required." })
     .trim()
@@ -42,9 +42,9 @@ export const subTaskSchema = z.object({
 
 export const habitSchema = z.object({
   id: z
-    .uuid("Invalid habit ID.")
+    .string("Invalid habit ID.")
     .optional()
-    .transform((id) => `habit-${id ?? crypto.randomUUID()}`),
+    .default(`habit-${crypto.randomUUID()}`),
 
   title: z
     .string({ error: "The habit title is required." })
@@ -84,9 +84,9 @@ export const habitSchema = z.object({
 
 export const routineSchema = z.object({
   id: z
-    .uuid("Invalid routine ID.")
+    .string("Invalid routine ID.")
     .optional()
-    .transform((id) => `routine-${id ?? crypto.randomUUID()}`),
+    .default(`routine-${crypto.randomUUID()}`),
 
   title: z
     .string({ error: "The routine title is required." })

@@ -3,6 +3,12 @@ import { Routine } from "../types/routines.types.js";
 import { StatefulError } from "../utils/stateful-error.utils.js";
 
 export default class RoutinesService {
+  public static async readRoutines() {
+    const data = await DatabaseConnection.read();
+
+    return Object.values(data);
+  }
+
   public static async createRoutine(routineDTO: Routine) {
     const data = await DatabaseConnection.read();
 

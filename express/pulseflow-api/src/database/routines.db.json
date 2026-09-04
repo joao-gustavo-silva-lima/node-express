@@ -20,5 +20,49 @@
     "completionDates": [
       "2026-09-04"
     ]
+  },
+  "routine-72b933eb-49ca-41b8-987b-992ef0267c00": {
+    "id": "routine-72b933eb-49ca-41b8-987b-992ef0267c00",
+    "title": "Rotina Vespertina",
+    "habits": [
+      {
+        "id": "habit-44c0dfd3-19a0-429e-9b7c-08c471dedae3",
+        "title": "Beber água",
+        "category": "Saúde",
+        "subTasks": [
+          {
+            "id": "sub-task-8dd6cef5-382b-40e2-a991-9581c19d4962",
+            "title": "Encher a garrafa",
+            "completionDates": []
+          }
+        ],
+        "completionDates": []
+      }
+    ],
+    "completionDates": [
+      "2026-09-04"
+    ]
+  },
+  "routine-92b96889-f629-4d97-b511-c8ae3506eb9d": {
+    "id": "routine-92b96889-f629-4d97-b511-c8ae3506eb9d",
+    "title": "Rotina Noturna",
+    "habits": [
+      {
+        "id": "habit-5882cb5c-7fa5-461f-99e8-f2ab786767f9",
+        "title": "Beber água",
+        "category": "Saúde",
+        "subTasks": [
+          {
+            "id": "sub-task-d03e514e-b5e0-4699-b97a-7265a19a81cd",
+            "title": "Encher a garrafa",
+            "completionDates": []
+          }
+        ],
+        "completionDates": []
+      }
+    ],
+    "completionDates": [
+      "2026-09-04"
+    ]
   }
 }
