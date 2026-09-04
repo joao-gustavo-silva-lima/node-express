@@ -104,7 +104,5 @@ export type Habit = z.infer<typeof habitSchema>;
 export type Routine = z.infer<typeof routineSchema>;
 
 export interface Database {
-  subtasks: SubTask[];
-  habits: Habit[];
-  routines: Routine[];
+  [k: string]: Routine;
 }
