@@ -29,7 +29,9 @@ export const subTaskSchema = z.object({
     .min(2, "The sub-task must be at least 2 characters long.")
     .max(60, "The sub-task must be at most 60 characters long."),
   completedDates: z
-    .array(isoDateStringSchema)
+    .array(isoDateStringSchema, {
+      error: "A sub-task completion dates must be contained in an array",
+    })
     .optional()
     .transform((array) => array ?? [])
     .refine(
@@ -56,13 +58,22 @@ export const habitSchema = z.object({
   }),
 
   subTasks: z
-    .array(subTaskSchema)
+    .array(subTaskSchema, {
+      error: "A habit's sub-tasks must be contained in an array",
+    })
     .max(10, "You can add at most 10 sub-tasks per habit.")
     .optional()
-    .transform((array) => array ?? []),
+    .transform((array) => array ?? [])
+    .refine(
+      (subTasks) =>
+        new Set(subTasks.map((subTask) => subTask.id)).size === subTasks.length,
+      "A habit cannot contain duplicate sub-tasks.",
+    ),
 
   completedDates: z
-    .array(isoDateStringSchema)
+    .array(isoDateStringSchema, {
+      error: "A habit's completion dates must be contained in an array",
+    })
     .optional()
     .transform((array) => array ?? [])
     .refine(
@@ -85,12 +96,19 @@ export const routineSchema = z.object({
     .max(40, "The routine title is too long (maximum 40 characters)."),
 
   habits: z
-    .array(habitSchema)
+    .array(habitSchema, { error: "A routine must contain habits." })
     .min(1, "The routine must contain at least 1 registered habit.")
-    .max(15, "A routine can contain at most 15 habits."),
+    .max(15, "A routine can contain at most 15 habits.")
+    .refine(
+      (habits) =>
+        new Set(habits.map((habit) => habit.id)).size === habits.length,
+      "A routine cannot contain duplicate habits.",
+    ),
 
-  completedDates: z
-    .array(isoDateStringSchema)
+  completionDates: z
+    .array(isoDateStringSchema, {
+      error: "A routine's completion dates must be contained in an array",
+    })
     .optional()
     .transform((array) => array ?? [])
     .refine(
