@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { routineSchema } from "../types/routines.types.js";
 import { StatefulError } from "../utils/stateful-error.utils.js";
 
-export default function ValidateRoutineMiddleware(
+export default function validateRoutineMiddleware(
   req: Request,
   res: Response,
   next: NextFunction,
@@ -28,9 +28,7 @@ export default function ValidateRoutineMiddleware(
     {},
   );
 
-  throw new StatefulError(
-    400,
-    "The payload format is not a valid routine",
-    errors,
-  );
+  throw new StatefulError(400, "The payload format is not a valid routine", {
+    errors: errors,
+  });
 }

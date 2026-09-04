@@ -1,8 +1,8 @@
 import express from "express";
-import ValidateRoutineMiddleware from "../middlewares/validate-routine.middleware.js";
+import validateRoutineMiddleware from "../middlewares/validate-routine.middleware.js";
 
 export const router = express.Router();
 
-router.post("/", ValidateRoutineMiddleware, (req, res) => {
+router.post("/", validateRoutineMiddleware, (req, res) => {
   res.send({ message: "registered" });
 });
