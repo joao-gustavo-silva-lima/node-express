@@ -7,10 +7,14 @@ export default function errorHandlerMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  if (!(error instanceof StatefulError)) {
-    res.status(500).json({ message: "Internal server error" });
+  if (error instanceof StatefulError) {
+    res
+      .status(error.status)
+      .json({ message: error.message, ...error.appendix });
     return;
   }
 
-  res.status(error.status).json({ message: error.message, ...error.appendix });
+  res.on("finish", () => console.error(error.stack ?? error.message));
+
+  res.status(500).json({ message: "Internal server error" });
 }

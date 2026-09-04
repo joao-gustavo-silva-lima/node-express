@@ -18,6 +18,7 @@ export default function validateRoutineMiddleware(
 
   if (validation.success) {
     next();
+    return;
   }
 
   const errors = validation.error!.issues.reduce(
