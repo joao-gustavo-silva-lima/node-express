@@ -28,7 +28,7 @@ export const subTaskSchema = z.object({
     .min(1, "The sub-task title cannot be empty.")
     .min(2, "The sub-task must be at least 2 characters long.")
     .max(60, "The sub-task must be at most 60 characters long."),
-  completedDates: z
+  completionDates: z
     .array(isoDateStringSchema, {
       error: "A sub-task completion dates must be contained in an array",
     })
@@ -70,7 +70,7 @@ export const habitSchema = z.object({
       "A habit cannot contain duplicate sub-tasks.",
     ),
 
-  completedDates: z
+  completionDates: z
     .array(isoDateStringSchema, {
       error: "A habit's completion dates must be contained in an array",
     })

@@ -17,6 +17,7 @@ export default function validateRoutineMiddleware(
   const validation = routineSchema.safeParse(req.body);
 
   if (validation.success) {
+    req.body = validation.data;
     next();
     return;
   }

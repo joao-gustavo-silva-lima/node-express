@@ -1,5 +1,24 @@
 {
-  "subtasks": {},
-  "habits": {},
-  "routines": {}
+  "routine-c3fc4609-0d36-42e9-bd9f-41a54664350d": {
+    "id": "routine-c3fc4609-0d36-42e9-bd9f-41a54664350d",
+    "title": "Rotina matinal",
+    "habits": [
+      {
+        "id": "habit-4e7a1dac-4adc-4380-b326-750805d87754",
+        "title": "Beber água",
+        "category": "Saúde",
+        "subTasks": [
+          {
+            "id": "sub-task-7205d310-a077-4af4-abdb-8c5ba10b5f38",
+            "title": "Encher a garrafa",
+            "completionDates": []
+          }
+        ],
+        "completionDates": []
+      }
+    ],
+    "completionDates": [
+      "2026-09-04"
+    ]
+  }
 }

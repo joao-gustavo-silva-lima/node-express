@@ -2,7 +2,7 @@ import DatabaseConnection from "../database/connection.db.js";
 import { Routine } from "../types/routines.types.js";
 import { StatefulError } from "../utils/stateful-error.utils.js";
 
-class RoutinesService {
+export default class RoutinesService {
   public static async createRoutine(routineDTO: Routine) {
     const data = await DatabaseConnection.read();
 
@@ -19,5 +19,7 @@ class RoutinesService {
     data[routineDTO.id] = routineDTO;
 
     await DatabaseConnection.write(data);
+
+    return routineDTO;
   }
 }
