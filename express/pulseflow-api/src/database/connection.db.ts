@@ -1,6 +1,7 @@
 import { Database } from "../types/routines.types.js";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { StatefulError } from "../utils/stateful-error.utils.js";
 
 const DB_ADDRESS = path.join(
   import.meta.dirname,
@@ -15,7 +16,7 @@ export default class DatabaseConnection {
       .then((strDatabase) => JSON.parse(strDatabase) as Database)
       .catch((error) => {
         console.error(error);
-        throw new Error("Database connection failed.");
+        throw new StatefulError(500, "Database connection failed.");
       });
   }
 
@@ -23,7 +24,8 @@ export default class DatabaseConnection {
     return writeFile(DB_ADDRESS, JSON.stringify(writeContent, null, 2)).catch(
       (error) => {
         console.error(error);
-        throw new Error(
+        throw new StatefulError(
+          500,
           "Database writing failed. Connection ended with no writing",
         );
       },

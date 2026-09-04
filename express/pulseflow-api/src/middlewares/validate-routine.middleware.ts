@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { routineSchema } from "../types/routines.types.js";
+import { StatefulError } from "../utils/stateful-error.utils.js";
 
 export default function ValidateRoutineMiddleware(
   req: Request,
@@ -20,5 +21,9 @@ export default function ValidateRoutineMiddleware(
     {},
   );
 
-  //Use custom error class thrown to error handler middleware
+  throw new StatefulError(
+    400,
+    "The payload format is not a valid routine.",
+    errors,
+  );
 }

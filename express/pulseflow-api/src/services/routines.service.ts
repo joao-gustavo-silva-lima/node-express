@@ -1,5 +1,6 @@
 import DatabaseConnection from "../database/connection.db.js";
 import { Routine } from "../types/routines.types.js";
+import { StatefulError } from "../utils/stateful-error.utils.js";
 
 class RoutinesService {
   public static async createRoutine(routineDTO: Routine) {
@@ -12,7 +13,7 @@ class RoutinesService {
           routineDTO.title.trim().toLowerCase(),
       )
     ) {
-      throw new Error("Routines cannot have duplicate titles.");
+      throw new StatefulError(409, "Routines cannot have duplicate titles.");
     }
 
     data[routineDTO.id] = routineDTO;
