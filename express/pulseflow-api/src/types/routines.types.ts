@@ -21,7 +21,7 @@ export const subTaskSchema = z.object({
   id: z
     .uuid("Invalid sub-task ID.")
     .optional()
-    .transform((id) => id ?? `sub-task-${crypto.randomUUID()}`),
+    .transform((id) => `sub-task-${id ?? crypto.randomUUID()}`),
   title: z
     .string({ error: "The sub-task title is required." })
     .trim()
@@ -44,7 +44,7 @@ export const habitSchema = z.object({
   id: z
     .uuid("Invalid habit ID.")
     .optional()
-    .transform((id) => id ?? `habit-${crypto.randomUUID()}`),
+    .transform((id) => `habit-${id ?? crypto.randomUUID()}`),
 
   title: z
     .string({ error: "The habit title is required." })
@@ -86,7 +86,7 @@ export const routineSchema = z.object({
   id: z
     .uuid("Invalid routine ID.")
     .optional()
-    .transform((id) => id ?? `routine-${crypto.randomUUID()}`),
+    .transform((id) => `routine-${id ?? crypto.randomUUID()}`),
 
   title: z
     .string({ error: "The routine title is required." })

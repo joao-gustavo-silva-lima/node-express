@@ -20,7 +20,7 @@ export default class DatabaseConnection {
   }
 
   public static async write(writeContent: Database) {
-    return writeFile(DB_ADDRESS, JSON.stringify(writeContent)).catch(
+    return writeFile(DB_ADDRESS, JSON.stringify(writeContent, null, 2)).catch(
       (error) => {
         console.error(error);
         throw new Error(
