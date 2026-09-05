@@ -5,5 +5,6 @@ import RoutinesController from "../controllers/routines.controller.js";
 export const router = express.Router();
 
 router.get("/", RoutinesController.readRoutines);
-
 router.post("/", validateRoutineMiddleware, RoutinesController.createRoutine);
+
+router.delete("/:routineId", RoutinesController.deleteRoutineById);

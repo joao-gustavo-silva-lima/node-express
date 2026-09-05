@@ -12,4 +12,14 @@ export default class RoutinesController {
       data: await RoutinesService.createRoutine(req.body),
     });
   }
+
+  public static async deleteRoutineById(req: Request, res: Response) {
+    const { routineId } = req.params;
+
+    await RoutinesService.deleteRoutineById(routineId as string);
+
+    res.json({
+      message: `The routine with ID '${routineId}' was deleted successfully`,
+    });
+  }
 }

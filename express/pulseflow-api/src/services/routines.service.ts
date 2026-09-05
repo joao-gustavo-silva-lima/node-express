@@ -28,4 +28,19 @@ export default class RoutinesService {
 
     return routineDTO;
   }
+
+  public static async deleteRoutineById(routineId: string) {
+    const data = await DatabaseConnection.read();
+
+    if (data[routineId] === undefined) {
+      throw new StatefulError(
+        404,
+        `A routine with ID '${routineId}' was not found`,
+      );
+    }
+
+    delete data[routineId];
+
+    await DatabaseConnection.write(data);
+  }
 }
