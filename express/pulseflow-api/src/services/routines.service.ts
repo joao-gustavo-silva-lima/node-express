@@ -1,5 +1,5 @@
 import DatabaseConnection from "../database/connection.db.js";
-import { Routine } from "../types/routines.types.js";
+import { Database, Routine } from "../types/routines.types.js";
 import { StatefulError } from "../utils/stateful-error.utils.js";
 
 export default class RoutinesService {
@@ -12,15 +12,7 @@ export default class RoutinesService {
   public static async createRoutine(routineDTO: Routine) {
     const data = await DatabaseConnection.read();
 
-    if (
-      Object.values(data).some(
-        (routine) =>
-          routine.title.trim().toLowerCase() ===
-          routineDTO.title.trim().toLowerCase(),
-      )
-    ) {
-      throw new StatefulError(409, "Routines cannot have duplicate titles.");
-    }
+    this.checkRoutineUniqueness(routineDTO, data);
 
     data[routineDTO.id] = routineDTO;
 
@@ -29,18 +21,49 @@ export default class RoutinesService {
     return routineDTO;
   }
 
+  public static async updateRoutineById(routineId: string, newTitle: string) {
+    const data = await DatabaseConnection.read();
+
+    this.checkRoutineExistence(routineId, data);
+    this.checkRoutineUniqueness({ id: routineId, title: newTitle }, data);
+
+    data[routineId]!.title = newTitle;
+
+    await DatabaseConnection.write(data);
+  }
+
   public static async deleteRoutineById(routineId: string) {
     const data = await DatabaseConnection.read();
 
+    this.checkRoutineExistence(routineId, data);
+
+    delete data[routineId];
+
+    await DatabaseConnection.write(data);
+  }
+
+  private static checkRoutineExistence(routineId: string, data: Database) {
     if (data[routineId] === undefined) {
       throw new StatefulError(
         404,
         `A routine with ID '${routineId}' was not found`,
       );
     }
+  }
 
-    delete data[routineId];
+  private static checkRoutineUniqueness(
+    routineDTO: Partial<Routine>,
+    data: Database,
+  ) {
+    const isTitleUnique = !Object.values(data).some(
+      (routine) =>
+        (routineDTO.id ? routine.id !== routineDTO.id : true) &&
+        routine.title.trim().toLowerCase() ===
+          routineDTO.title?.trim().toLowerCase(),
+    );
 
-    await DatabaseConnection.write(data);
+    if (!isTitleUnique) {
+      throw new StatefulError(409, "Routines cannot have duplicate titles.");
+    }
   }
 }

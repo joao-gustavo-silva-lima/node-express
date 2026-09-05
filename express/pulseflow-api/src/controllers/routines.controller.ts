@@ -13,6 +13,19 @@ export default class RoutinesController {
     });
   }
 
+  public static async updateRoutineById(req: Request, res: Response) {
+    const { routineId } = req.params;
+    const { title: newTitle } = req.body;
+
+    res.json({
+      message: `The routine with ID '${routineId}' was updated successfully`,
+      data: await RoutinesService.updateRoutineById(
+        routineId as string,
+        newTitle as string,
+      ),
+    });
+  }
+
   public static async deleteRoutineById(req: Request, res: Response) {
     const { routineId } = req.params;
 
