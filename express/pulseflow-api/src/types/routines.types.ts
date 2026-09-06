@@ -58,17 +58,22 @@ export const habitSchema = z.object({
   }),
 
   subTasks: z
-    .array(subTaskSchema, {
-      error: "A habit's sub-tasks must be contained in an array",
+    .record(z.string(), subTaskSchema, {
+      error: "A habit's sub-tasks must be contained in a record",
     })
-    .max(10, "You can add at most 10 sub-tasks per habit.")
-    .optional()
-    .transform((array) => array ?? [])
     .refine(
-      (subTasks) =>
-        new Set(subTasks.map((subTask) => subTask.id)).size === subTasks.length,
+      (subTasks) => Object.keys(subTasks).length <= 10,
+      "You can add at most 10 sub-tasks per habit.",
+    )
+    .refine(
+      (subtasks) =>
+        new Set(Object.values(subtasks).map((subtask) => subtask.title))
+          .size !==
+        Object.values(subtasks).map((subtask) => subtask.title).length,
       "A habit cannot contain duplicate sub-tasks.",
-    ),
+    )
+    .optional()
+    .default({}),
 
   completionDates: z
     .array(isoDateStringSchema, {
@@ -91,18 +96,27 @@ export const routineSchema = z.object({
   title: z
     .string({ error: "The routine title is required." })
     .trim()
-    .min(1, "The routine title is required.")
+    .min(1, "The routine title  is required.")
     .min(3, "The routine title must be at least 3 characters long.")
     .max(40, "The routine title is too long (maximum 40 characters)."),
 
   habits: z
-    .array(habitSchema, { error: "A routine must contain habits." })
-    .min(1, "The routine must contain at least 1 registered habit.")
-    .max(15, "A routine can contain at most 15 habits.")
+    .record(z.string(), habitSchema, {
+      error: "A routine's habits must be contained in a record.",
+    })
+    .refine(
+      (habits) => Object.keys(habits).length > 0,
+      "A routine must contain at least 1 registered habit.",
+    )
     .refine(
       (habits) =>
-        new Set(habits.map((habit) => habit.id)).size === habits.length,
+        new Set(Object.values(habits).map((habit) => habit.title)).size !==
+        Object.values(habits).map((habit) => habit.title).length,
       "A routine cannot contain duplicate habits.",
+    )
+    .refine(
+      (habits) => Object.keys(habits).length <= 15,
+      "A routine can contain at most 15 habits.",
     ),
 
   completionDates: z
