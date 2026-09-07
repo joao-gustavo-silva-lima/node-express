@@ -1,5 +1,5 @@
 import DatabaseConnection from "../database/connection.db.js";
-import { Database, Habit, Routine, SubTask } from "../types/routines.types.js";
+import { Habit, Routine, SubTask } from "../types/routines.types.js";
 import { StatefulError } from "../utils/stateful-error.utils.js";
 
 export default class RoutinesService {
@@ -11,11 +11,11 @@ export default class RoutinesService {
 
   public static async updateRoutineById(routineId: string, newTitle: string) {
     const data = await DatabaseConnection.read();
+    const routine = this.checkExistence("routine", routineId, data) as Routine;
 
-    this.checkRoutineExistence(routineId, data);
-    this.checkRoutineUniqueness({ id: routineId, title: newTitle }, data);
+    this.checkTitleAvailability("habit", newTitle, routine.habits);
 
-    data[routineId]!.title = newTitle;
+    routine.title = newTitle;
 
     await DatabaseConnection.write(data);
   }
@@ -23,7 +23,7 @@ export default class RoutinesService {
   public static async deleteRoutineById(routineId: string) {
     const data = await DatabaseConnection.read();
 
-    this.checkRoutineExistence(routineId, data);
+    this.checkExistence("routine", routineId, data);
 
     delete data[routineId];
 
@@ -38,8 +38,8 @@ export default class RoutinesService {
     const data = await DatabaseConnection.read();
 
     if (routineId === undefined) {
-      this.checkIDAvailability(DTO, data);
-      this.checkTitleAvailability(DTO, data);
+      this.checkIDAvailability("routine", DTO.id, data);
+      this.checkTitleAvailability("routine", DTO.title, data);
 
       data[DTO.id] = DTO as Routine;
     } else if (habitId === undefined) {
@@ -49,8 +49,8 @@ export default class RoutinesService {
         data,
       )! as Routine;
 
-      this.checkIDAvailability(DTO, routine.habits);
-      this.checkTitleAvailability(DTO, routine.habits);
+      this.checkIDAvailability("habit", DTO.id, routine.habits);
+      this.checkTitleAvailability("habit", DTO.title, routine.habits);
 
       routine.habits[DTO.id] = DTO as Habit;
     } else {
@@ -65,8 +65,8 @@ export default class RoutinesService {
         routine.habits,
       )! as Habit;
 
-      this.checkIDAvailability(DTO, habit.subTasks);
-      this.checkTitleAvailability(DTO, habit.subTasks);
+      this.checkIDAvailability("sub-task", DTO.id, habit.subTasks);
+      this.checkTitleAvailability("sub-task", DTO.title, habit.subTasks);
 
       habit.subTasks[DTO.id] = DTO as SubTask;
     }
@@ -92,68 +92,27 @@ export default class RoutinesService {
   }
 
   private static checkIDAvailability<T extends Routine | Habit | SubTask>(
-    DTO: T,
+    DTOType: string,
+    id: string,
     checkingResources: Record<string, T>,
   ) {
-    if (checkingResources[DTO.id] !== undefined) {
-      throw new StatefulError(
-        409,
-        `A ${this.getDTOType(DTO).toLowerCase()}'s ID has to be unique`,
-      );
+    if (checkingResources[id] !== undefined) {
+      throw new StatefulError(409, `A ${DTOType}'s ID has to be unique`);
     }
   }
 
   private static checkTitleAvailability<T extends Routine | Habit | SubTask>(
-    DTO: T,
+    DTOType: string,
+    title: string,
     checkingResources: Record<string, T>,
   ) {
     if (
       Object.values(checkingResources).some(
         (element) =>
-          element.title.trim().toLowerCase() === DTO.title.trim().toLowerCase(),
+          element.title.trim().toLowerCase() === title.trim().toLowerCase(),
       )
     ) {
-      throw new StatefulError(
-        409,
-        `${this.getDTOType(DTO)}s cannot have duplicate titles`,
-      );
-    }
-  }
-
-  private static getDTOType(DTO: Routine | Habit | SubTask) {
-    if (Object.hasOwn(DTO, "habits")) {
-      return "Routine";
-    }
-
-    if (Object.hasOwn(DTO, "subTasks")) {
-      return "Habit";
-    }
-
-    return "Sub-task";
-  }
-
-  private static checkRoutineExistence(routineId: string, data: Database) {
-    if (data[routineId] === undefined) {
-      throw new StatefulError(
-        404,
-        `A routine with ID '${routineId}' was not found`,
-      );
-    }
-  }
-
-  private static checkRoutineUniqueness(
-    routineDTO: Partial<Routine>,
-    data: Database,
-  ) {
-    const isTitleUnique = !Object.values(data).some(
-      (routine) =>
-        (routineDTO.id ? routine.id !== routineDTO.id : true) &&
-        routine.title.trim().toLowerCase() ===
-          routineDTO.title?.trim().toLowerCase(),
-    );
-
-    if (!isTitleUnique) {
-      throw new StatefulError(409, "Routines cannot have duplicate titles.");
+      throw new StatefulError(409, `${DTOType}s cannot have duplicate titles`);
     }
   }
 }

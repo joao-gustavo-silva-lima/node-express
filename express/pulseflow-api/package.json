@@ -4,7 +4,8 @@
   "description": "",
   "main": "./src/server.js",
   "scripts": {
-    "dev": "tsx watch ./src/server.ts"
+    "dev": "tsx watch ./src/server.ts",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +17,29 @@
     "zod": "^4.5.4"
   },
   "devDependencies": {
-    "@types/express": "^5.0.6"
+    "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.10.1",
+    "@types/supertest": "^6.0.3",
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.5"
+  },
+  "jest": {
+    "preset": "ts-jest/presets/default-esm",
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
+    "testMatch": [
+      "**/tests.ignore.ts"
+    ],
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
+    "globals": {
+      "ts-jest": {
+        "useESM": true
+      }
+    }
   }
 }
