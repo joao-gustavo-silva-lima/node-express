@@ -9,7 +9,7 @@ export default class RoutinesController {
   public static async createRoutine(req: Request, res: Response) {
     res.status(201).json({
       message: "The routine was created successfully.",
-      data: await RoutinesService.createRoutine(req.body),
+      data: await RoutinesService.create(req.body),
     });
   }
 
@@ -41,10 +41,7 @@ export default class RoutinesController {
 
     res.json({
       message: `The new habit was created successfully at routine with id '${routineId}'`,
-      data: await RoutinesService.createHabitByRoutineId(
-        routineId as string,
-        req.body,
-      ),
+      data: await RoutinesService.create(req.body, routineId as string),
     });
   }
 }

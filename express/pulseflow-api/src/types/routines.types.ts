@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { transform, z } from "zod";
 
 export const PREDEFINED_CATEGORIES = [
   "Saúde",
@@ -21,7 +21,7 @@ export const subTaskSchema = z.object({
   id: z
     .string("Invalid sub-task ID.")
     .optional()
-    .default(`sub-task-${crypto.randomUUID()}`),
+    .default(() => `sub-task-${crypto.randomUUID()}`),
   title: z
     .string({ error: "The sub-task title is required." })
     .trim()
@@ -44,7 +44,7 @@ export const habitSchema = z.object({
   id: z
     .string("Invalid habit ID.")
     .optional()
-    .default(`habit-${crypto.randomUUID()}`),
+    .default(() => `habit-${crypto.randomUUID()}`),
 
   title: z
     .string({ error: "The habit title is required." })
@@ -58,8 +58,8 @@ export const habitSchema = z.object({
   }),
 
   subTasks: z
-    .record(z.string(), subTaskSchema, {
-      error: "A habit's sub-tasks must be contained in a record",
+    .array(subTaskSchema, {
+      error: "A habit's sub-tasks must be contained in an array",
     })
     .refine(
       (subTasks) => Object.keys(subTasks).length <= 10,
@@ -73,7 +73,14 @@ export const habitSchema = z.object({
       "A habit cannot contain duplicate sub-tasks.",
     )
     .optional()
-    .default({}),
+    .default([])
+    .transform(
+      (subTasks) =>
+        subTasks.reduce(
+          (acc, subTask) => ({ ...acc, [subTask.id]: subTask }),
+          {},
+        ) as Record<string, SubTask>,
+    ),
 
   completionDates: z
     .array(isoDateStringSchema, {
@@ -91,7 +98,7 @@ export const routineSchema = z.object({
   id: z
     .string("Invalid routine ID.")
     .optional()
-    .default(`routine-${crypto.randomUUID()}`),
+    .default(() => `routine-${crypto.randomUUID()}`),
 
   title: z
     .string({ error: "The routine title is required." })
@@ -101,8 +108,8 @@ export const routineSchema = z.object({
     .max(40, "The routine title is too long (maximum 40 characters)."),
 
   habits: z
-    .record(z.string(), habitSchema, {
-      error: "A routine's habits must be contained in a record.",
+    .array(habitSchema, {
+      error: "A routine's habits must be contained in an array.",
     })
     .refine(
       (habits) => Object.keys(habits).length > 0,
@@ -117,6 +124,13 @@ export const routineSchema = z.object({
     .refine(
       (habits) => Object.keys(habits).length <= 15,
       "A routine can contain at most 15 habits.",
+    )
+    .transform(
+      (habits) =>
+        habits.reduce(
+          (acc, habit) => ({ ...acc, [habit.id]: habit }),
+          {},
+        ) as Record<string, Habit>,
     ),
 
   completionDates: z

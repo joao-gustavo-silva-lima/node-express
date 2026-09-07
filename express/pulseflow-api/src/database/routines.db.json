@@ -1,37 +1,41 @@
 {
-  "routine-de69b31d-819b-4ff9-b5c9-5ad39bb83d8d": {
-    "id": "routine-de69b31d-819b-4ff9-b5c9-5ad39bb83d8d",
-    "title": "Rotina matinal",
+  "routine-e60a4ff7-e8b1-48e9-ab05-7bdedb0e72a5": {
+    "id": "routine-e60a4ff7-e8b1-48e9-ab05-7bdedb0e72a5",
+    "title": "Rotina de Teste",
     "habits": {
-      "habit-1": {
-        "id": "habit-0121d0c0-79f0-4309-b2e1-6c19b7788408",
-        "title": "Beber água",
+      "habit-5b441983-8644-4787-aa78-239fef0c208a": {
+        "id": "habit-5b441983-8644-4787-aa78-239fef0c208a",
+        "title": "Beber 3L de água",
+        "category": "Saúde",
+        "subTasks": {},
+        "completionDates": []
+      },
+      "habit-3127b456-3ba2-4033-b783-faaecbeecb7b": {
+        "id": "habit-3127b456-3ba2-4033-b783-faaecbeecb7b",
+        "title": "Beber +3L de água",
+        "category": "Saúde",
+        "subTasks": {},
+        "completionDates": []
+      },
+      "habit-75bb37d2-97b9-4e0c-a58d-289304cbd384": {
+        "id": "habit-75bb37d2-97b9-4e0c-a58d-289304cbd384",
+        "title": "Treinar Pernas",
         "category": "Saúde",
         "subTasks": {
-          "sub-task-1": {
-            "id": "sub-task-4c073467-4beb-4c25-b1ab-cf13edaa1620",
-            "title": "Encher a garrafa",
-            "completionDates": [
-              "2026-09-04"
-            ]
+          "sub-task-696c9d02-88bb-4294-bc8d-0052bdc87a8f": {
+            "id": "sub-task-696c9d02-88bb-4294-bc8d-0052bdc87a8f",
+            "title": "Cadeira Extensora",
+            "completionDates": []
+          },
+          "sub-task-e7fe32b4-572d-485b-bf4f-b89edf2531e9": {
+            "id": "sub-task-e7fe32b4-572d-485b-bf4f-b89edf2531e9",
+            "title": "Agachamento Smith",
+            "completionDates": []
           }
         },
-        "completionDates": [
-          "2026-09-04"
-        ]
-      },
-      "habit-0121d0c0-79f0-4309-b2e1-6c19b7788408": {
-        "id": "habit-0121d0c0-79f0-4309-b2e1-6c19b7788408",
-        "title": "Estudar",
-        "category": "Estudos",
-        "subTasks": {},
-        "completionDates": [
-          "2026-09-04"
-        ]
+        "completionDates": []
       }
     },
-    "completionDates": [
-      "2026-09-04"
-    ]
+    "completionDates": []
   }
 }
