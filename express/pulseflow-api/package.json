@@ -31,7 +31,7 @@
       ".ts"
     ],
     "testMatch": [
-      "**/tests.ignore.ts"
+      "**/tests.ts"
     ],
     "moduleNameMapper": {
       "^(\\.{1,2}/.*)\\.js$": "$1"

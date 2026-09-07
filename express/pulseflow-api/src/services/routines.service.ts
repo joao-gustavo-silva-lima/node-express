@@ -1,5 +1,5 @@
 import DatabaseConnection from "../database/connection.db.js";
-import { Habit, Routine, SubTask } from "../types/routines.types.js";
+import { Database, Habit, Routine, SubTask } from "../types/routines.types.js";
 import { StatefulError } from "../utils/stateful-error.utils.js";
 
 export default class RoutinesService {
@@ -9,21 +9,10 @@ export default class RoutinesService {
     return Object.values(data);
   }
 
-  public static async updateRoutineById(routineId: string, newTitle: string) {
-    const data = await DatabaseConnection.read();
-    const routine = this.checkExistence("routine", routineId, data) as Routine;
-
-    this.checkTitleAvailability("habit", newTitle, routine.habits);
-
-    routine.title = newTitle;
-
-    await DatabaseConnection.write(data);
-  }
-
   public static async deleteRoutineById(routineId: string) {
     const data = await DatabaseConnection.read();
 
-    this.checkExistence("routine", routineId, data);
+    this.checkExistence(data, routineId);
 
     delete data[routineId];
 
@@ -43,27 +32,14 @@ export default class RoutinesService {
 
       data[DTO.id] = DTO as Routine;
     } else if (habitId === undefined) {
-      const routine = this.checkExistence(
-        "routine",
-        routineId,
-        data,
-      )! as Routine;
+      const routine = this.checkExistence(data, routineId) as Routine;
 
       this.checkIDAvailability("habit", DTO.id, routine.habits);
       this.checkTitleAvailability("habit", DTO.title, routine.habits);
 
       routine.habits[DTO.id] = DTO as Habit;
     } else {
-      const routine = this.checkExistence(
-        "routine",
-        routineId,
-        data,
-      )! as Routine;
-      const habit = this.checkExistence(
-        "habit",
-        habitId,
-        routine.habits,
-      )! as Habit;
+      const habit = this.checkExistence(data, routineId, habitId) as Habit;
 
       this.checkIDAvailability("sub-task", DTO.id, habit.subTasks);
       this.checkTitleAvailability("sub-task", DTO.title, habit.subTasks);
@@ -76,19 +52,65 @@ export default class RoutinesService {
     return DTO;
   }
 
-  private static checkExistence(
-    DTOType: string,
-    id: string,
-    checkingResources: Record<string, unknown>,
+  public static async patch(
+    DTO: { title: string },
+    routineId: string,
+    habitId?: string,
+    subTaskId?: string,
   ) {
-    if (checkingResources[id] === undefined) {
-      throw new StatefulError(
-        404,
-        `A ${DTOType} with ID '${id}' was not found`,
-      );
-    }
+    const data = await DatabaseConnection.read();
+    const patchingProperty = this.checkExistence(
+      data,
+      routineId,
+      habitId,
+      subTaskId,
+    );
 
-    return checkingResources[id]!;
+    patchingProperty.title = DTO.title;
+
+    await DatabaseConnection.write(data);
+
+    return patchingProperty;
+  }
+
+  private static checkExistence(
+    checkingResources: Database,
+    routineId: string,
+    habitId?: string,
+    subTaskId?: string,
+  ) {
+    const routine =
+      checkingResources[routineId] ||
+      (() => {
+        throw new StatefulError(
+          404,
+          `A routine with ID '${routineId}' was not found`,
+        );
+      })();
+
+    if (!habitId) return routine;
+
+    const habit =
+      routine.habits[habitId] ||
+      (() => {
+        throw new StatefulError(
+          404,
+          `A habit with ID '${habitId}' was not found`,
+        );
+      })();
+
+    if (!subTaskId) return habit;
+
+    const subtask =
+      habit.subTasks[subTaskId] ||
+      (() => {
+        throw new StatefulError(
+          404,
+          `A subtask with ID '${subTaskId}' was not found`,
+        );
+      })();
+
+    return subtask;
   }
 
   private static checkIDAvailability<T extends Routine | Habit | SubTask>(
