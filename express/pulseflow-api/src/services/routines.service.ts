@@ -1,5 +1,5 @@
 import DatabaseConnection from "../database/connection.db.js";
-import { Database, Routine } from "../types/routines.types.js";
+import { Database, Habit, Routine } from "../types/routines.types.js";
 import { StatefulError } from "../utils/stateful-error.utils.js";
 
 export default class RoutinesService {
@@ -40,6 +40,36 @@ export default class RoutinesService {
     delete data[routineId];
 
     await DatabaseConnection.write(data);
+  }
+
+  public static async createHabitByRoutineId(
+    routineId: string,
+    habitDTO: Habit,
+  ) {
+    const data = await DatabaseConnection.read();
+
+    this.checkRoutineExistence(routineId, data);
+
+    const habits = Object.values(data[routineId]!.habits);
+
+    if (
+      habits.some(
+        (habit) =>
+          habit.title.trim().toLowerCase() ===
+          habitDTO.title.trim().toLowerCase(),
+      )
+    ) {
+      throw new StatefulError(
+        409,
+        `A routine must not contain duplicate habits`,
+      );
+    }
+
+    data[routineId]!.habits[habitDTO.id] = habitDTO;
+
+    await DatabaseConnection.write(data);
+
+    return habitDTO;
   }
 
   private static checkRoutineExistence(routineId: string, data: Database) {

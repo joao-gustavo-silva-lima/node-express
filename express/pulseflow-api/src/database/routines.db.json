@@ -1,44 +1,35 @@
 {
-  "routine-c3fc4609-0d36-42e9-bd9f-41a54664350d": {
-    "id": "routine-c3fc4609-0d36-42e9-bd9f-41a54664350d",
+  "routine-de69b31d-819b-4ff9-b5c9-5ad39bb83d8d": {
+    "id": "routine-de69b31d-819b-4ff9-b5c9-5ad39bb83d8d",
     "title": "Rotina matinal",
-    "habits": [
-      {
-        "id": "habit-4e7a1dac-4adc-4380-b326-750805d87754",
+    "habits": {
+      "habit-1": {
+        "id": "habit-0121d0c0-79f0-4309-b2e1-6c19b7788408",
         "title": "Beber água",
         "category": "Saúde",
-        "subTasks": [
-          {
-            "id": "sub-task-7205d310-a077-4af4-abdb-8c5ba10b5f38",
+        "subTasks": {
+          "sub-task-1": {
+            "id": "sub-task-4c073467-4beb-4c25-b1ab-cf13edaa1620",
             "title": "Encher a garrafa",
-            "completionDates": []
+            "completionDates": [
+              "2026-09-04"
+            ]
           }
-        ],
-        "completionDates": []
+        },
+        "completionDates": [
+          "2026-09-04"
+        ]
+      },
+      "habit-0121d0c0-79f0-4309-b2e1-6c19b7788408": {
+        "id": "habit-0121d0c0-79f0-4309-b2e1-6c19b7788408",
+        "title": "Estudar",
+        "category": "Estudos",
+        "subTasks": {},
+        "completionDates": [
+          "2026-09-04"
+        ]
       }
-    ],
-    "completionDates": [
-      "2026-09-04"
-    ]
-  },
-  "routine-31cb88f0-fb76-4e4c-844e-40ecf269906f": {
-    "id": "routine-31cb88f0-fb76-4e4c-844e-40ecf269906f",
-    "title": "Rotina Extremamente Nova",
-    "habits": [
-      {
-        "id": "habit-2a173ed6-bac7-4ccf-bbe5-d3fb26c5a7a6",
-        "title": "Beber água",
-        "category": "Saúde",
-        "subTasks": [
-          {
-            "id": "sub-task-2eb27845-4645-4beb-be82-7ac469672b00",
-            "title": "Encher a garrafa",
-            "completionDates": []
-          }
-        ],
-        "completionDates": []
-      }
-    ],
+    },
     "completionDates": [
       "2026-09-04"
     ]

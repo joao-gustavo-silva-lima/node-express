@@ -68,7 +68,7 @@ export const habitSchema = z.object({
     .refine(
       (subtasks) =>
         new Set(Object.values(subtasks).map((subtask) => subtask.title))
-          .size !==
+          .size ===
         Object.values(subtasks).map((subtask) => subtask.title).length,
       "A habit cannot contain duplicate sub-tasks.",
     )
@@ -110,7 +110,7 @@ export const routineSchema = z.object({
     )
     .refine(
       (habits) =>
-        new Set(Object.values(habits).map((habit) => habit.title)).size !==
+        new Set(Object.values(habits).map((habit) => habit.title)).size ===
         Object.values(habits).map((habit) => habit.title).length,
       "A routine cannot contain duplicate habits.",
     )

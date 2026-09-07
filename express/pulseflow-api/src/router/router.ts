@@ -1,7 +1,7 @@
 import express from "express";
 import validateRoutineMiddleware from "../middlewares/validate-routine.middleware.js";
 import RoutinesController from "../controllers/routines.controller.js";
-import { routineSchema } from "../types/routines.types.js";
+import { habitSchema, routineSchema } from "../types/routines.types.js";
 
 export const router = express.Router();
 
@@ -18,3 +18,9 @@ router.patch(
   RoutinesController.updateRoutineById,
 );
 router.delete("/:routineId", RoutinesController.deleteRoutineById);
+
+router.post(
+  "/:routineId/habits",
+  validateRoutineMiddleware(habitSchema),
+  RoutinesController.createHabitByRoutineId,
+);

@@ -35,4 +35,16 @@ export default class RoutinesController {
       message: `The routine with ID '${routineId}' was deleted successfully`,
     });
   }
+
+  public static async createHabitByRoutineId(req: Request, res: Response) {
+    const { routineId } = req.params;
+
+    res.json({
+      message: `The new habit was created successfully at routine with id '${routineId}'`,
+      data: await RoutinesService.createHabitByRoutineId(
+        routineId as string,
+        req.body,
+      ),
+    });
+  }
 }
