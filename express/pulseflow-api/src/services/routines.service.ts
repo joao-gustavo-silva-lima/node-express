@@ -59,18 +59,18 @@ export default class RoutinesService {
     subTaskId?: string,
   ) {
     const data = await DatabaseConnection.read();
-    const patchingProperty = this.checkExistence(
+    const patchingResource = this.checkExistence(
       data,
       routineId,
       habitId,
       subTaskId,
     );
 
-    patchingProperty.title = DTO.title;
+    patchingResource.title = DTO.title;
 
     await DatabaseConnection.write(data);
 
-    return patchingProperty;
+    return patchingResource;
   }
 
   private static checkExistence(
@@ -79,38 +79,38 @@ export default class RoutinesService {
     habitId?: string,
     subTaskId?: string,
   ) {
-    const routine =
-      checkingResources[routineId] ||
-      (() => {
-        throw new StatefulError(
-          404,
-          `A routine with ID '${routineId}' was not found`,
-        );
-      })();
+    const routine = checkingResources[routineId];
 
-    if (!habitId) return routine;
+    if (!routine) {
+      throw new StatefulError(
+        404,
+        `A routine with ID '${routineId}' was not found`,
+      );
+    } else if (!habitId) {
+      return routine;
+    }
 
-    const habit =
-      routine.habits[habitId] ||
-      (() => {
-        throw new StatefulError(
-          404,
-          `A habit with ID '${habitId}' was not found`,
-        );
-      })();
+    const habit = routine.habits[habitId];
 
-    if (!subTaskId) return habit;
+    if (!habit) {
+      throw new StatefulError(
+        404,
+        `A habit with ID '${habitId}' was not found`,
+      );
+    } else if (!subTaskId) {
+      return habit;
+    }
 
-    const subtask =
-      habit.subTasks[subTaskId] ||
-      (() => {
-        throw new StatefulError(
-          404,
-          `A subtask with ID '${subTaskId}' was not found`,
-        );
-      })();
+    const subTask = habit.subTasks[subTaskId];
 
-    return subtask;
+    if (!subTask) {
+      throw new StatefulError(
+        404,
+        `A subtask with ID '${subTaskId}' was not found`,
+      );
+    }
+
+    return subTask;
   }
 
   private static checkIDAvailability<T extends Routine | Habit | SubTask>(
