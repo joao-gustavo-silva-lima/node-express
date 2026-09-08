@@ -25,7 +25,7 @@ export default class RoutinesController {
   public static async deleteRoutineById(req: Request, res: Response) {
     const { routineId } = req.params;
 
-    await RoutinesService.deleteRoutineById(routineId as string);
+    await RoutinesService.delete(routineId as string);
 
     res.json({
       message: `The routine with ID '${routineId}' was deleted successfully`,
