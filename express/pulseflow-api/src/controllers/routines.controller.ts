@@ -3,7 +3,7 @@ import RoutinesService from "../services/routines.service.js";
 
 export default class RoutinesController {
   public static async readRoutines(req: Request, res: Response) {
-    res.json(await RoutinesService.readRoutines());
+    res.json(await RoutinesService.read());
   }
 
   public static async createRoutine(req: Request, res: Response) {

@@ -9,12 +9,6 @@ import {
 import { StatefulError } from "../utils/stateful-error.utils.js";
 
 export default class RoutinesService {
-  public static async readRoutines() {
-    const data = await DatabaseConnection.read();
-
-    return Object.values(data);
-  }
-
   public static async deleteRoutineById(routineId: string) {
     const data = await DatabaseConnection.read();
 
@@ -41,6 +35,18 @@ export default class RoutinesService {
     await DatabaseConnection.write(data);
 
     return DTO;
+  }
+
+  public static async read(
+    routineId?: string,
+    habitId?: string,
+    subTaskId?: string,
+  ) {
+    const data = await DatabaseConnection.read();
+
+    return routineId === undefined
+      ? Object.values(data)
+      : this.checkExistence(data, routineId, habitId, subTaskId).self;
   }
 
   public static async patch(
