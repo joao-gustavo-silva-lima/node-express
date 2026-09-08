@@ -1,5 +1,11 @@
 import DatabaseConnection from "../database/connection.db.js";
-import { Database, Habit, Routine, SubTask } from "../types/routines.types.js";
+import {
+  Database,
+  DTO,
+  Habit,
+  Routine,
+  SubTask,
+} from "../types/routines.types.js";
 import { StatefulError } from "../utils/stateful-error.utils.js";
 
 export default class RoutinesService {
@@ -19,33 +25,18 @@ export default class RoutinesService {
     await DatabaseConnection.write(data);
   }
 
-  public static async create(
-    DTO: Routine | Habit | SubTask,
-    routineId?: string,
-    habitId?: string,
-  ) {
+  public static async create(DTO: DTO, routineId?: string, habitId?: string) {
     const data = await DatabaseConnection.read();
 
-    if (routineId === undefined) {
-      this.checkIDAvailability("routine", DTO.id, data);
-      this.checkTitleAvailability("routine", DTO.title, data);
+    const creativeResources =
+      routineId === undefined
+        ? data
+        : this.checkExistence(data, routineId, habitId).children;
 
-      data[DTO.id] = DTO as Routine;
-    } else if (habitId === undefined) {
-      const routine = this.checkExistence(data, routineId) as Routine;
+    this.checkIDAvailability(DTO.id, creativeResources);
+    this.checkTitleAvailability(DTO.title, creativeResources);
 
-      this.checkIDAvailability("habit", DTO.id, routine.habits);
-      this.checkTitleAvailability("habit", DTO.title, routine.habits);
-
-      routine.habits[DTO.id] = DTO as Habit;
-    } else {
-      const habit = this.checkExistence(data, routineId, habitId) as Habit;
-
-      this.checkIDAvailability("sub-task", DTO.id, habit.subTasks);
-      this.checkTitleAvailability("sub-task", DTO.title, habit.subTasks);
-
-      habit.subTasks[DTO.id] = DTO as SubTask;
-    }
+    creativeResources[DTO.id] = DTO;
 
     await DatabaseConnection.write(data);
 
@@ -66,20 +57,26 @@ export default class RoutinesService {
       subTaskId,
     );
 
-    patchingResource.title = DTO.title;
+    this.checkTitleAvailability(DTO.title, patchingResource.siblings);
+
+    patchingResource.self.title = DTO.title;
 
     await DatabaseConnection.write(data);
 
-    return patchingResource;
+    return patchingResource.self;
   }
 
   private static checkExistence(
-    checkingResources: Database,
+    database: Database,
     routineId: string,
     habitId?: string,
     subTaskId?: string,
-  ) {
-    const routine = checkingResources[routineId];
+  ): {
+    siblings: Record<string, DTO>;
+    self: DTO;
+    children: Record<string, DTO>;
+  } {
+    const routine = database[routineId];
 
     if (!routine) {
       throw new StatefulError(
@@ -87,7 +84,7 @@ export default class RoutinesService {
         `A routine with ID '${routineId}' was not found`,
       );
     } else if (!habitId) {
-      return routine;
+      return { siblings: database, self: routine, children: routine.habits };
     }
 
     const habit = routine.habits[habitId];
@@ -98,7 +95,11 @@ export default class RoutinesService {
         `A habit with ID '${habitId}' was not found`,
       );
     } else if (!subTaskId) {
-      return habit;
+      return {
+        siblings: routine.habits,
+        self: habit,
+        children: habit.subTasks,
+      };
     }
 
     const subTask = habit.subTasks[subTaskId];
@@ -110,31 +111,29 @@ export default class RoutinesService {
       );
     }
 
-    return subTask;
+    return { siblings: habit.subTasks, self: subTask, children: {} };
   }
 
-  private static checkIDAvailability<T extends Routine | Habit | SubTask>(
-    DTOType: string,
+  private static checkIDAvailability(
     id: string,
-    checkingResources: Record<string, T>,
+    checkingResources: Record<string, DTO>,
   ) {
     if (checkingResources[id] !== undefined) {
-      throw new StatefulError(409, `A ${DTOType}'s ID has to be unique`);
+      throw new StatefulError(409, `IDs have to be unique`);
     }
   }
 
-  private static checkTitleAvailability<T extends Routine | Habit | SubTask>(
-    DTOType: string,
+  private static checkTitleAvailability(
     title: string,
-    checkingResources: Record<string, T>,
+    checkingResources: Record<string, DTO>,
   ) {
+    const normalizedTitle = title.trim().toLowerCase();
     if (
       Object.values(checkingResources).some(
-        (element) =>
-          element.title.trim().toLowerCase() === title.trim().toLowerCase(),
+        (resource) => resource.title.trim().toLowerCase() === normalizedTitle,
       )
     ) {
-      throw new StatefulError(409, `${DTOType}s cannot have duplicate titles`);
+      throw new StatefulError(409, `Titles have to be unique`);
     }
   }
 }

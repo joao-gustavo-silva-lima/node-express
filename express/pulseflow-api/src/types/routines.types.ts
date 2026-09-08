@@ -148,6 +148,7 @@ export const routineSchema = z.object({
 export type SubTask = z.infer<typeof subTaskSchema>;
 export type Habit = z.infer<typeof habitSchema>;
 export type Routine = z.infer<typeof routineSchema>;
+export type DTO = Routine | Habit | SubTask;
 
 export interface Database {
   [k: string]: Routine;
