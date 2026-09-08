@@ -33,12 +33,27 @@ export const subTaskSchema = z.object({
       error: "A sub-task completion dates must be contained in an array",
     })
     .optional()
-    .transform((array) => array ?? [])
+    .default(() => [])
     .refine(
       (dates) => new Set(dates).size === dates.length,
       "The completion history cannot contain duplicate dates.",
     ),
 });
+
+export const subtaskOutterSchema = z
+  .array(subTaskSchema, {
+    error: "A habit's sub-tasks must be contained in an array",
+  })
+  .refine(
+    (subTasks) => Object.keys(subTasks).length <= 10,
+    "You can add at most 10 sub-tasks per habit.",
+  )
+  .refine(
+    (subtasks) =>
+      new Set(Object.values(subtasks).map((subtask) => subtask.title)).size ===
+      Object.values(subtasks).map((subtask) => subtask.title).length,
+    "A habit cannot contain duplicate sub-tasks.",
+  );
 
 export const habitSchema = z.object({
   id: z
@@ -57,21 +72,7 @@ export const habitSchema = z.object({
     error: "The habit category is invalid",
   }),
 
-  subTasks: z
-    .array(subTaskSchema, {
-      error: "A habit's sub-tasks must be contained in an array",
-    })
-    .refine(
-      (subTasks) => Object.keys(subTasks).length <= 10,
-      "You can add at most 10 sub-tasks per habit.",
-    )
-    .refine(
-      (subtasks) =>
-        new Set(Object.values(subtasks).map((subtask) => subtask.title))
-          .size ===
-        Object.values(subtasks).map((subtask) => subtask.title).length,
-      "A habit cannot contain duplicate sub-tasks.",
-    )
+  subTasks: subtaskOutterSchema
     .optional()
     .default([])
     .transform(
@@ -87,12 +88,31 @@ export const habitSchema = z.object({
       error: "A habit's completion dates must be contained in an array",
     })
     .optional()
-    .transform((array) => array ?? [])
+    .default(() => [])
     .refine(
       (dates) => new Set(dates).size === dates.length,
       "The completion history cannot contain duplicate dates.",
     ),
 });
+
+export const habitOutterSchema = z
+  .array(habitSchema, {
+    error: "A routine's habits must be contained in an array.",
+  })
+  .refine(
+    (habits) => Object.keys(habits).length > 0,
+    "A routine must contain at least 1 registered habit.",
+  )
+  .refine(
+    (habits) => Object.keys(habits).length <= 15,
+    "A routine can contain at most 15 habits.",
+  )
+  .refine(
+    (habits) =>
+      new Set(Object.values(habits).map((habit) => habit.title)).size ===
+      Object.values(habits).map((habit) => habit.title).length,
+    "A routine cannot contain duplicate habits.",
+  );
 
 export const routineSchema = z.object({
   id: z
@@ -107,38 +127,20 @@ export const routineSchema = z.object({
     .min(3, "The routine title must be at least 3 characters long.")
     .max(40, "The routine title is too long (maximum 40 characters)."),
 
-  habits: z
-    .array(habitSchema, {
-      error: "A routine's habits must be contained in an array.",
-    })
-    .refine(
-      (habits) => Object.keys(habits).length > 0,
-      "A routine must contain at least 1 registered habit.",
-    )
-    .refine(
-      (habits) =>
-        new Set(Object.values(habits).map((habit) => habit.title)).size ===
-        Object.values(habits).map((habit) => habit.title).length,
-      "A routine cannot contain duplicate habits.",
-    )
-    .refine(
-      (habits) => Object.keys(habits).length <= 15,
-      "A routine can contain at most 15 habits.",
-    )
-    .transform(
-      (habits) =>
-        habits.reduce(
-          (acc, habit) => ({ ...acc, [habit.id]: habit }),
-          {},
-        ) as Record<string, Habit>,
-    ),
+  habits: habitOutterSchema.transform(
+    (habits) =>
+      habits.reduce(
+        (acc, habit) => ({ ...acc, [habit.id]: habit }),
+        {},
+      ) as Record<string, Habit>,
+  ),
 
   completionDates: z
     .array(isoDateStringSchema, {
       error: "A routine's completion dates must be contained in an array",
     })
     .optional()
-    .transform((array) => array ?? [])
+    .default(() => [])
     .refine(
       (dates) => new Set(dates).size === dates.length,
       "The completion history cannot contain duplicate dates.",

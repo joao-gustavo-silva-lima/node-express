@@ -182,7 +182,7 @@ describe("routine routes", () => {
       [
         "invalid completion date",
         { completionDates: ["2026-13-01"] },
-        "completionDates__0",
+        "completionDates.0",
         "A data deve estar no formato YYYY-MM-DD válido.",
       ],
       [
@@ -229,7 +229,7 @@ describe("routine routes", () => {
       [
         "invalid completion date",
         { completionDates: ["yesterday"] },
-        "completionDates__0",
+        "completionDates.0",
         "A data deve estar no formato YYYY-MM-DD válido.",
       ],
       [
@@ -297,7 +297,7 @@ describe("routine routes", () => {
 
       expectPayloadError(
         response,
-        "subTasks__0__title",
+        "subTasks.0.title",
         "The sub-task must be at least 2 characters long.",
       );
     });

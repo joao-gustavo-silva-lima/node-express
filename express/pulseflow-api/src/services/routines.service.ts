@@ -2,25 +2,26 @@ import DatabaseConnection from "../database/connection.db.js";
 import {
   Database,
   DTO,
-  Habit,
-  Routine,
-  SubTask,
+  habitOutterSchema,
+  subtaskOutterSchema,
 } from "../types/routines.types.js";
 import { StatefulError } from "../utils/stateful-error.utils.js";
+import formatZodErrors from "../utils/zod-errors-formater.utils.js";
 
 export default class RoutinesService {
   public static async create(DTO: DTO, routineId?: string, habitId?: string) {
     const data = await DatabaseConnection.read();
 
-    const creativeResources =
+    const resources =
       routineId === undefined
-        ? data
-        : this.checkExistence(data, routineId, habitId).children;
+        ? { siblings: {}, self: {}, type: undefined, children: data }
+        : this.checkExistence(data, routineId, habitId);
 
-    this.checkIDAvailability(DTO.id, creativeResources);
-    this.checkTitleAvailability(DTO.title, creativeResources);
+    this.checkIDAvailability(DTO.id, resources.children);
+    this.checkTitleAvailability(DTO.title, resources.children);
+    this.validateResourceMutation(resources.type, resources.children);
 
-    creativeResources[DTO.id] = DTO;
+    resources.children[DTO.id] = DTO;
 
     await DatabaseConnection.write(data);
 
@@ -70,6 +71,8 @@ export default class RoutinesService {
     const data = await DatabaseConnection.read();
     const resources = this.checkExistence(data, routineId, habitId, subTaskId);
 
+    this.validateResourceMutation(resources.type, resources.children);
+
     delete resources.siblings[resources.self.id];
 
     await DatabaseConnection.write(data);
@@ -81,8 +84,9 @@ export default class RoutinesService {
     habitId?: string,
     subTaskId?: string,
   ): {
-    siblings: Record<string, DTO>;
     self: DTO;
+    type: "routine" | "habit" | "sub-task";
+    siblings: Record<string, DTO>;
     children: Record<string, DTO>;
   } {
     const routine = database[routineId];
@@ -93,7 +97,12 @@ export default class RoutinesService {
         `A routine with ID '${routineId}' was not found`,
       );
     } else if (!habitId) {
-      return { siblings: database, self: routine, children: routine.habits };
+      return {
+        self: routine,
+        type: "routine",
+        siblings: database,
+        children: routine.habits,
+      };
     }
 
     const habit = routine.habits[habitId];
@@ -105,8 +114,9 @@ export default class RoutinesService {
       );
     } else if (!subTaskId) {
       return {
-        siblings: routine.habits,
         self: habit,
+        type: "habit",
+        siblings: routine.habits,
         children: habit.subTasks,
       };
     }
@@ -120,7 +130,12 @@ export default class RoutinesService {
       );
     }
 
-    return { siblings: habit.subTasks, self: subTask, children: {} };
+    return {
+      self: subTask,
+      type: "sub-task",
+      siblings: habit.subTasks,
+      children: {},
+    };
   }
 
   private static checkIDAvailability(
@@ -143,6 +158,30 @@ export default class RoutinesService {
       )
     ) {
       throw new StatefulError(409, `Titles have to be unique`);
+    }
+  }
+
+  private static validateResourceMutation(
+    type: "routine" | "habit" | "sub-task" | undefined,
+    resources: Record<string, DTO>,
+  ) {
+    const validator = (() => {
+      switch (type) {
+        case "habit":
+          return habitOutterSchema;
+        case "sub-task":
+          return subtaskOutterSchema;
+      }
+    })();
+
+    if (validator === undefined) return;
+
+    const validation = validator.safeParse(resources);
+
+    if (!validation.success) {
+      throw new StatefulError(400, "The requested mutation is bad", {
+        errors: formatZodErrors(validation.error.issues),
+      });
     }
   }
 }
