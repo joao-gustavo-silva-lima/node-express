@@ -1,12 +1,12 @@
-import { transform, z } from "zod";
+import { z } from "zod";
 
 export const PREDEFINED_CATEGORIES = [
-  "Saúde",
-  "Estudos",
-  "Trabalho",
-  "Finanças",
-  "Pessoal",
-  "Produtividade",
+  "Health",
+  "Studies",
+  "Work",
+  "Finance",
+  "Personal",
+  "Productivity",
 ] as const;
 
 const isoDateStringSchema = z
