@@ -29,15 +29,20 @@ export default class RoutinesService {
   }
 
   public static async read(
+    readChildren = false,
     routineId?: string,
     habitId?: string,
     subTaskId?: string,
   ) {
     const data = await DatabaseConnection.read();
 
-    return routineId === undefined
-      ? Object.values(data)
-      : this.checkExistence(data, routineId, habitId, subTaskId).self;
+    if (routineId === undefined) {
+      return Object.values(data);
+    }
+
+    const resource = this.checkExistence(data, routineId, habitId, subTaskId);
+
+    return readChildren ? Object.values(resource.children) : resource.self;
   }
 
   public static async patch(
@@ -176,7 +181,7 @@ export default class RoutinesService {
 
     if (validator === undefined) return;
 
-    const validation = validator.safeParse(resources);
+    const validation = validator.safeParse(Object.values(resources));
 
     if (!validation.success) {
       throw new StatefulError(400, "The requested mutation is bad", {
