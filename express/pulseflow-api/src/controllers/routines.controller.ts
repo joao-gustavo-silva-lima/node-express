@@ -86,4 +86,10 @@ export default class RoutinesController {
       message: `The ${data.resourceType} with ID '${data.resource.id}' was marked as '${data.toggleState}'`,
     });
   }
+
+  public static notFound(req: Request, res: Response) {
+    res.status(404).json({
+      message: `No resource was found at route '${req.path}'`,
+    });
+  }
 }
