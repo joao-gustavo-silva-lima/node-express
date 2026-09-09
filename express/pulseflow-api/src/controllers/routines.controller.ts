@@ -5,9 +5,11 @@ export default class RoutinesController {
   public static async create(req: Request, res: Response) {
     const { routineId, habitId } = req.params as Record<string, string>;
 
-    res.json({
-      message: `The resource was created successfully`,
-      data: await RoutinesService.create(req.body, routineId, habitId),
+    const data = await RoutinesService.create(req.body, routineId, habitId);
+
+    res.status(201).json({
+      message: `The new ${data.resourceType} was created successfully`,
+      data: data.resource,
     });
   }
 
@@ -42,16 +44,16 @@ export default class RoutinesController {
       string
     >;
 
-    const resourceId = subTaskId || routineId || habitId;
+    const data = await RoutinesService.patch(
+      req.body,
+      routineId!,
+      habitId,
+      subTaskId,
+    );
 
     res.json({
-      message: `The resource with ID '${resourceId}' was updated successfully`,
-      data: await RoutinesService.patch(
-        req.body,
-        routineId!,
-        habitId,
-        subTaskId,
-      ),
+      message: `The ${data.resourceType} with ID '${data.resource.id}' was updated successfully`,
+      data: data.resource,
     });
   }
 
@@ -61,10 +63,10 @@ export default class RoutinesController {
       string
     >;
 
-    await RoutinesService.delete(routineId!, habitId, subTaskId);
+    const data = await RoutinesService.delete(routineId!, habitId, subTaskId);
 
     res.json({
-      message: `The resource was deleted successfully`,
+      message: `The ${data.resourceType} with ID '${data.resource.id}' was deleted successfully`,
     });
   }
 }

@@ -2,8 +2,8 @@ import DatabaseConnection from "../database/connection.db.js";
 import {
   Database,
   DTO,
-  habitOutterSchema,
-  subtaskOutterSchema,
+  habitChildrenSchema,
+  routineChildrenSchema,
 } from "../types/routines.types.js";
 import { StatefulError } from "../utils/stateful-error.utils.js";
 import formatZodErrors from "../utils/zod-errors-formater.utils.js";
@@ -14,18 +14,25 @@ export default class RoutinesService {
 
     const resources =
       routineId === undefined
-        ? { siblings: {}, self: {}, type: undefined, children: data }
+        ? {
+            siblings: {},
+            self: {} as DTO,
+            selfType: undefined,
+            children: data,
+            childrenType: "routine",
+          }
         : this.checkExistence(data, routineId, habitId);
 
     this.checkIDAvailability(DTO.id, resources.children);
     this.checkTitleAvailability(DTO.title, resources.children);
-    this.validateResourceMutation(resources.type, resources.children);
 
     resources.children[DTO.id] = DTO;
 
+    this.validateResourceMutation(resources.selfType, resources.self);
+
     await DatabaseConnection.write(data);
 
-    return DTO;
+    return { resource: DTO, resourceType: resources.childrenType };
   }
 
   public static async read(
@@ -65,7 +72,10 @@ export default class RoutinesService {
 
     await DatabaseConnection.write(data);
 
-    return patchingResource.self;
+    return {
+      resource: patchingResource.self,
+      resourceType: patchingResource.selfType,
+    };
   }
 
   public static async delete(
@@ -76,11 +86,13 @@ export default class RoutinesService {
     const data = await DatabaseConnection.read();
     const resources = this.checkExistence(data, routineId, habitId, subTaskId);
 
-    this.validateResourceMutation(resources.type, resources.children);
+    this.validateResourceMutation(resources.selfType, resources.self);
 
     delete resources.siblings[resources.self.id];
 
     await DatabaseConnection.write(data);
+
+    return { resource: resources.self, resourceType: resources.selfType };
   }
 
   private static checkExistence(
@@ -90,9 +102,10 @@ export default class RoutinesService {
     subTaskId?: string,
   ): {
     self: DTO;
-    type: "routine" | "habit" | "sub-task";
     siblings: Record<string, DTO>;
     children: Record<string, DTO>;
+    selfType: "routine" | "habit" | "sub-task";
+    childrenType: "routine" | "habit" | "sub-task" | undefined;
   } {
     const routine = database[routineId];
 
@@ -104,9 +117,10 @@ export default class RoutinesService {
     } else if (!habitId) {
       return {
         self: routine,
-        type: "routine",
+        selfType: "routine",
         siblings: database,
         children: routine.habits,
+        childrenType: "habit",
       };
     }
 
@@ -120,9 +134,10 @@ export default class RoutinesService {
     } else if (!subTaskId) {
       return {
         self: habit,
-        type: "habit",
+        selfType: "habit",
         siblings: routine.habits,
         children: habit.subTasks,
+        childrenType: "sub-task",
       };
     }
 
@@ -137,9 +152,10 @@ export default class RoutinesService {
 
     return {
       self: subTask,
-      type: "sub-task",
+      selfType: "sub-task",
       siblings: habit.subTasks,
       children: {},
+      childrenType: undefined,
     };
   }
 
@@ -168,22 +184,23 @@ export default class RoutinesService {
 
   private static validateResourceMutation(
     type: "routine" | "habit" | "sub-task" | undefined,
-    resources: Record<string, DTO>,
+    resource: DTO,
   ) {
     const validator = (() => {
       switch (type) {
+        case "routine":
+          return routineChildrenSchema;
         case "habit":
-          return habitOutterSchema;
-        case "sub-task":
-          return subtaskOutterSchema;
+          return habitChildrenSchema;
       }
     })();
 
     if (validator === undefined) return;
 
-    const validation = validator.safeParse(Object.values(resources));
+    const validation = validator.safeParse(resource);
 
     if (!validation.success) {
+      console.log(type, resource, validation.error!.issues);
       throw new StatefulError(400, "The requested mutation is bad", {
         errors: formatZodErrors(validation.error.issues),
       });

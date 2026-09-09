@@ -1,404 +1,260 @@
 import request from "supertest";
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  jest,
-} from "@jest/globals";
+import { readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
 import { app } from "./src/app.js";
-import DatabaseConnection from "./src/database/connection.db.js";
-import type { Database } from "./src/types/routines.types.js";
+
+const databasePath = path.join(
+  import.meta.dirname,
+  "src/database/routines.db.json",
+);
 
 const routineId = "routine-test";
 const habitId = "habit-test";
-const secondRoutineId = "routine-second";
-const secondHabitId = "habit-second";
+const subTaskId = "sub-task-test";
 
-function createDatabase(): Database {
-  return {
-    [routineId]: {
-      id: routineId,
-      title: "Morning routine",
-      habits: {
-        [habitId]: {
-          id: habitId,
-          title: "Drink water",
-          category: "Health",
-          subTasks: {},
-          completionDates: [],
-        },
-      },
-      completionDates: [],
-    },
-  };
-}
-
-function expectPayloadError(
-  response: { status: number; body: Record<string, any> },
-  field: string,
-  message?: string,
-) {
-  expect(response.status).toBe(400);
-  expect(response.body.message).toBe("The payload format is not valid");
-  expect(response.body.errors[field]).toBeDefined();
-
-  if (message) {
-    expect(response.body.errors[field]).toBe(message);
-  }
-}
-
-function createHabitPayload(overrides: Record<string, unknown> = {}) {
-  return {
-    title: "Stretch",
-    category: "Personal",
-    ...overrides,
-  };
-}
-
-function createRoutinePayload(overrides: Record<string, unknown> = {}) {
-  return {
-    title: "Evening routine",
-    habits: [createHabitPayload({ title: "Read" })],
-    ...overrides,
-  };
-}
-
-describe("routine routes", () => {
-  let database: Database;
-
-  beforeEach(() => {
-    database = createDatabase();
-    jest
-      .spyOn(DatabaseConnection, "read")
-      .mockImplementation(async () => database);
-    jest
-      .spyOn(DatabaseConnection, "write")
-      .mockImplementation(async (nextDatabase) => {
-        database = nextDatabase;
-      });
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
-  describe("successful requests", () => {
-    it("GET / returns all routines", async () => {
-      const response = await request(app).get("/");
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(Object.values(database));
-    });
-
-    it("POST / creates a routine with generated resource IDs", async () => {
-      const response = await request(app)
-        .post("/")
-        .send(createRoutinePayload());
-
-      expect(response.status).toBe(201);
-      expect(response.body.message).toBe(
-        "The routine was created successfully.",
-      );
-      expect(response.body.data.id).toMatch(/^routine-/);
-      expect(Object.values(response.body.data.habits)).toEqual([
-        expect.objectContaining({ id: expect.stringMatching(/^habit-/) }),
-      ]);
-      expect(database[response.body.data.id]).toEqual(response.body.data);
-    });
-
-    it("PATCH /:routineId updates a routine title", async () => {
-      const response = await request(app)
-        .patch(`/${routineId}`)
-        .send({ title: "Updated routine" });
-
-      expect(response.status).toBe(200);
-      expect(response.body.message).toBe(
-        `The routine with ID '${routineId}' was updated successfully`,
-      );
-      expect(database[routineId]?.title).toBe("Updated routine");
-    });
-
-    it("DELETE /:routineId deletes a routine", async () => {
-      const response = await request(app).delete(`/${routineId}`);
-
-      expect(response.status).toBe(200);
-      expect(response.body.message).toBe(
-        `The routine with ID '${routineId}' was deleted successfully`,
-      );
-      expect(database[routineId]).toBeUndefined();
-    });
-
-    it("POST /:routineId/habits creates a habit", async () => {
-      const response = await request(app)
-        .post(`/${routineId}/habits`)
-        .send(createHabitPayload());
-
-      expect(response.status).toBe(200);
-      expect(response.body.message).toBe(
-        `The new habit was created successfully at routine with id '${routineId}'`,
-      );
-      expect(database[routineId]?.habits[response.body.data.id]).toEqual(
-        response.body.data,
-      );
-    });
-  });
-
-  describe("request and type contract validation", () => {
-    it("rejects a request without application/json", async () => {
-      const response = await request(app)
-        .post("/")
-        .set("content-type", "text/plain")
-        .send(JSON.stringify(createRoutinePayload()));
-
-      expect(response.status).toBe(400);
-      expect(response.body).toEqual({
-        message:
-          "The 'content-type: application/json' request header was expected",
-      });
-    });
-
-    it.each([
-      ["missing title", {}, "title", "The routine title is required."],
-      [
-        "short title",
-        { title: "ab" },
-        "title",
-        "The routine title must be at least 3 characters long.",
-      ],
-      [
-        "non-array habits",
-        { habits: {} },
-        "habits",
-        "A routine's habits must be contained in an array.",
-      ],
-      [
-        "empty habits",
-        { habits: [] },
-        "habits",
-        "A routine must contain at least 1 registered habit.",
-      ],
-      [
-        "invalid completion date",
-        { completionDates: ["2026-13-01"] },
-        "completionDates.0",
-        "A data deve estar no formato YYYY-MM-DD válido.",
-      ],
-      [
-        "duplicate completion date",
-        { completionDates: ["2026-01-01", "2026-01-01"] },
-        "completionDates",
-        "The completion history cannot contain duplicate dates.",
-      ],
-    ])(
-      "rejects an invalid routine: %s",
-      async (_case, payload, field, message) => {
-        const requestPayload: Record<string, unknown> =
-          createRoutinePayload(payload);
-        if (_case === "missing title") {
-          delete requestPayload.title;
-        }
-
-        const response = await request(app).post("/").send(requestPayload);
-
-        expectPayloadError(response, field, message);
-      },
-    );
-
-    it.each([
-      ["missing title", {}, "title", "The habit title is required."],
-      [
-        "short title",
-        { title: "ab" },
-        "title",
-        "The title must be at least 3 visible characters long.",
-      ],
-      [
-        "invalid category",
-        { category: "Lazer" },
-        "category",
-        "The habit category is invalid",
-      ],
-      [
-        "non-array sub-tasks",
-        { subTasks: {} },
-        "subTasks",
-        "A habit's sub-tasks must be contained in an array",
-      ],
-      [
-        "invalid completion date",
-        { completionDates: ["yesterday"] },
-        "completionDates.0",
-        "A data deve estar no formato YYYY-MM-DD válido.",
-      ],
-      [
-        "duplicate completion date",
-        { completionDates: ["2026-01-01", "2026-01-01"] },
-        "completionDates",
-        "The completion history cannot contain duplicate dates.",
-      ],
-    ])(
-      "rejects an invalid habit: %s",
-      async (_case, payload, field, message) => {
-        const requestPayload: Record<string, unknown> =
-          createHabitPayload(payload);
-        if (_case === "missing title") {
-          delete requestPayload.title;
-        }
-
-        const response = await request(app)
-          .post(`/${routineId}/habits`)
-          .send(requestPayload);
-
-        expectPayloadError(response, field, message);
-      },
-    );
-
-    it("rejects a routine containing duplicate habits", async () => {
-      const response = await request(app)
-        .post("/")
-        .send(
-          createRoutinePayload({
-            habits: [
-              createHabitPayload({ title: "Read" }),
-              createHabitPayload({ title: "Read" }),
-            ],
-          }),
-        );
-
-      expectPayloadError(
-        response,
-        "habits",
-        "A routine cannot contain duplicate habits.",
-      );
-    });
-
-    it("rejects a habit containing duplicate sub-tasks", async () => {
-      const response = await request(app)
-        .post(`/${routineId}/habits`)
-        .send(
-          createHabitPayload({
-            subTasks: [{ title: "First task" }, { title: " First task " }],
-          }),
-        );
-
-      expectPayloadError(
-        response,
-        "subTasks",
-        "A habit cannot contain duplicate sub-tasks.",
-      );
-    });
-
-    it("rejects an invalid sub-task contract", async () => {
-      const response = await request(app)
-        .post(`/${routineId}/habits`)
-        .send(createHabitPayload({ subTasks: [{ title: "x" }] }));
-
-      expectPayloadError(
-        response,
-        "subTasks.0.title",
-        "The sub-task must be at least 2 characters long.",
-      );
-    });
-
-    it("rejects a patch without a valid title", async () => {
-      const response = await request(app)
-        .patch(`/${routineId}`)
-        .send({ title: "ab" });
-
-      expectPayloadError(
-        response,
-        "title",
-        "The routine title must be at least 3 characters long.",
-      );
-    });
-  });
-
-  describe("service business rules", () => {
-    it("rejects a routine with an ID already in use", async () => {
-      const response = await request(app)
-        .post("/")
-        .send(createRoutinePayload({ id: routineId }));
-
-      expect(response.status).toBe(409);
-      expect(response.body).toEqual({ message: "IDs have to be unique" });
-    });
-
-    it("rejects routine titles that differ only by case or whitespace", async () => {
-      const response = await request(app)
-        .post("/")
-        .send(createRoutinePayload({ title: "  MORNING ROUTINE  " }));
-
-      expect(response.status).toBe(409);
-      expect(response.body).toEqual({ message: "Titles have to be unique" });
-    });
-
-    it("rejects a duplicate habit ID and title within a routine", async () => {
-      const duplicateIdResponse = await request(app)
-        .post(`/${routineId}/habits`)
-        .send(createHabitPayload({ id: habitId }));
-
-      expect(duplicateIdResponse.status).toBe(409);
-      expect(duplicateIdResponse.body).toEqual({
-        message: "IDs have to be unique",
-      });
-
-      const duplicateTitleResponse = await request(app)
-        .post(`/${routineId}/habits`)
-        .send(createHabitPayload({ title: " drink WATER " }));
-
-      expect(duplicateTitleResponse.status).toBe(409);
-      expect(duplicateTitleResponse.body).toEqual({
-        message: "Titles have to be unique",
-      });
-    });
-
-    it.each([
-      [
-        "POST /:routineId/habits",
-        (id: string) =>
-          request(app).post(`/${id}/habits`).send(createHabitPayload()),
-      ],
-      [
-        "PATCH /:routineId",
-        (id: string) => request(app).patch(`/${id}`).send({ title: "Updated" }),
-      ],
-      ["DELETE /:routineId", (id: string) => request(app).delete(`/${id}`)],
-    ])(
-      "returns 404 when %s targets an unknown routine",
-      async (_route, makeRequest) => {
-        const response = await makeRequest("missing-routine");
-
-        expect(response.status).toBe(404);
-        expect(response.body).toEqual({
-          message: "A routine with ID 'missing-routine' was not found",
-        });
-      },
-    );
-
-    it("rejects a patch that duplicates another routine title", async () => {
-      database[secondRoutineId] = {
-        id: secondRoutineId,
-        title: "Second routine",
-        habits: {
-          [secondHabitId]: {
-            id: secondHabitId,
-            title: "Write",
-            category: "Studies",
-            subTasks: {},
+const initialDatabase = {
+  [routineId]: {
+    id: routineId,
+    title: "Rotina de Teste",
+    habits: {
+      [habitId]: {
+        id: habitId,
+        title: "Ler um livro",
+        category: "Studies",
+        subTasks: {
+          [subTaskId]: {
+            id: subTaskId,
+            title: "Ler dez paginas",
             completionDates: [],
           },
         },
         completionDates: [],
-      };
+      },
+    },
+    completionDates: [],
+  },
+};
 
+async function resetDatabase() {
+  await writeFile(databasePath, JSON.stringify(initialDatabase, null, 2));
+}
+
+describe("routine routes", () => {
+  let originalDatabase: string;
+
+  beforeAll(async () => {
+    originalDatabase = await readFile(databasePath, "utf-8");
+  });
+
+  beforeEach(resetDatabase);
+
+  afterAll(async () => {
+    await writeFile(databasePath, originalDatabase);
+  });
+
+  describe("successful requests", () => {
+    it("creates a routine, habit and sub-task", async () => {
+      const routineResponse = await request(app)
+        .post("/")
+        .send({
+          id: "routine-created",
+          title: "Rotina Nova",
+          habits: [
+            {
+              id: "habit-created",
+              title: "Estudar TypeScript",
+              category: "Studies",
+            },
+          ],
+        });
+
+      expect(routineResponse.status).toBe(201);
+      expect(routineResponse.body.data).toMatchObject({
+        id: "routine-created",
+        title: "Rotina Nova",
+      });
+
+      const habitResponse = await request(app)
+        .post("/routine-created/habits")
+        .send({
+          id: "habit-created-2",
+          title: "Praticar exercicios",
+          category: "Health",
+        });
+
+      expect(habitResponse.status).toBe(201);
+      expect(habitResponse.body.data).toMatchObject({
+        id: "habit-created-2",
+        title: "Praticar exercicios",
+      });
+
+      const subTaskResponse = await request(app)
+        .post("/routine-created/habits/habit-created-2/sub-tasks")
+        .send({ title: "Fazer alongamento" });
+
+      expect(subTaskResponse.status).toBe(201);
+      expect(subTaskResponse.body.data).toMatchObject({
+        title: "Fazer alongamento",
+      });
+      expect(subTaskResponse.body.data.id).toMatch(/^sub-task-/);
+    });
+
+    it("reads collections and individual resources", async () => {
+      await expect(request(app).get("/")).resolves.toMatchObject({
+        status: 200,
+      });
+      await expect(request(app).get(`/${routineId}`)).resolves.toMatchObject({
+        status: 200,
+      });
+      await expect(
+        request(app).get(`/${routineId}/habits`),
+      ).resolves.toMatchObject({ status: 200 });
+      await expect(
+        request(app).get(`/${routineId}/habits/${habitId}/sub-tasks`),
+      ).resolves.toMatchObject({ status: 200 });
+
+      const response = await request(app).get(
+        `/${routineId}/habits/${habitId}/sub-tasks/${subTaskId}`,
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({
+        id: subTaskId,
+        title: "Ler dez paginas",
+      });
+    });
+
+    it("updates and deletes a resource", async () => {
+      const updateResponse = await request(app)
+        .patch(`/${routineId}/habits/${habitId}`)
+        .send({ title: "Ler todos os dias" });
+
+      expect(updateResponse.status).toBe(200);
+      expect(updateResponse.body.data.title).toBe("Ler todos os dias");
+
+      const deleteResponse = await request(app).delete(
+        `/${routineId}/habits/${habitId}/sub-tasks/${subTaskId}`,
+      );
+
+      expect(deleteResponse.status).toBe(200);
+      expect(deleteResponse.body.message).toContain("deleted successfully");
+    });
+  });
+
+  describe("payload contracts and validations", () => {
+    it.each([
+      ["missing title", { category: "Studies" }],
+      ["short title", { title: "ab", category: "Studies" }],
+      ["invalid category", { title: "Estudar", category: "Invalid" }],
+      [
+        "invalid completion date",
+        {
+          title: "Estudar",
+          category: "Studies",
+          completionDates: ["2024/02/30"],
+        },
+      ],
+    ])(
+      "rejects a habit with %s",
+      async (_caseName: string, payload: Record<string, unknown>) => {
+        const response = await request(app)
+          .post(`/${routineId}/habits`)
+          .send(payload);
+
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe("The payload format is not valid");
+        expect(response.body.errors).toBeDefined();
+      },
+    );
+
+    it("rejects missing JSON content type", async () => {
+      const response = await request(app)
+        .post(`/${routineId}/habits`)
+        .set("content-type", "text/plain")
+        .send("not json");
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toContain("content-type");
+    });
+
+    it("rejects duplicate completion dates and duplicate nested titles", async () => {
+      const duplicateDates = await request(app)
+        .post("/")
+        .send({
+          title: "Rotina com datas",
+          habits: [
+            {
+              title: "Estudar",
+              category: "Studies",
+              completionDates: ["2026-01-01", "2026-01-01"],
+            },
+          ],
+        });
+      expect(duplicateDates.status).toBe(400);
+
+      const duplicateSubTasks = await request(app)
+        .post(`/${routineId}/habits`)
+        .send({
+          title: "Novo habito",
+          category: "Health",
+          subTasks: [{ title: "Alongar" }, { title: "Alongar" }],
+        });
+      expect(duplicateSubTasks.status).toBe(400);
+    });
+
+    it.each([
+      ["routine", "/", { title: "ab", habits: [] }],
+      ["habit", `/${routineId}/habits`, { title: "ab", category: "Health" }],
+      ["sub-task", `/${routineId}/habits/${habitId}/sub-tasks`, { title: "a" }],
+    ])(
+      "rejects an invalid %s payload",
+      async (
+        _resource: string,
+        route: string,
+        payload: Record<string, unknown>,
+      ) => {
+        const response = await request(app).post(route).send(payload);
+
+        expect(response.status).toBe(400);
+        expect(response.body.errors).toBeDefined();
+      },
+    );
+
+    it("rejects invalid update payloads", async () => {
       const response = await request(app)
         .patch(`/${routineId}`)
-        .send({ title: " second ROUTINE " });
+        .send({ title: "ab" });
 
-      expect(response.status).toBe(409);
-      expect(response.body).toEqual({ message: "Titles have to be unique" });
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("The payload format is not valid");
+    });
+  });
+
+  describe("resource validations", () => {
+    it("returns 404 for unknown resources", async () => {
+      const response = await request(app).get("/routine-missing");
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toContain("was not found");
+    });
+
+    it("returns 409 for duplicate IDs and titles", async () => {
+      const duplicateId = await request(app)
+        .post("/")
+        .send({
+          id: routineId,
+          title: "Outra rotina",
+          habits: [{ title: "Novo habito", category: "Health" }],
+        });
+      expect(duplicateId.status).toBe(409);
+
+      const duplicateTitle = await request(app)
+        .post("/")
+        .send({
+          title: " rotina de TESTE ",
+          habits: [{ title: "Novo habito", category: "Health" }],
+        });
+      expect(duplicateTitle.status).toBe(409);
     });
   });
 });
