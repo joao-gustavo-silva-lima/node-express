@@ -6,62 +6,48 @@ import {
   routineSchema,
   subTaskSchema,
 } from "../types/routines.types.js";
+import { z } from "zod";
 
 export const router = express.Router();
 
-router.get("/", RoutinesController.readRoutines);
-router.post(
+[
+  ["/", routineSchema],
+  ["/:routineId/habits", habitSchema],
+  ["/:routineId/habits/:habitId/sub-tasks", subTaskSchema],
+].forEach(([route, schema]) =>
+  router.post(
+    route as string,
+    validateRoutineMiddleware(schema as z.ZodObject),
+    RoutinesController.create,
+  ),
+);
+
+[
   "/",
-  validateRoutineMiddleware(routineSchema),
-  RoutinesController.createRoutine,
-);
-
-router.get("/:routineId", RoutinesController.readRoutineById);
-router.patch(
   "/:routineId",
-  validateRoutineMiddleware(routineSchema.pick({ title: true })),
-  RoutinesController.updateRoutineById,
-);
-router.delete("/:routineId", RoutinesController.deleteRoutineById);
-
-router.get("/:routineId/habits", RoutinesController.readHabitsByRoutineId);
-router.post(
   "/:routineId/habits",
-  validateRoutineMiddleware(habitSchema),
-  RoutinesController.createHabitByRoutineId,
-);
-
-router.get("/:routineId/habits/:habitId", RoutinesController.readHabitById);
-router.patch(
   "/:routineId/habits/:habitId",
-  validateRoutineMiddleware(habitSchema.pick({ title: true })),
-  RoutinesController.updateHabitById,
-);
-router.delete(
-  "/:routineId/habits/:habitId",
-  RoutinesController.deleteHabitById,
+  "/:routineId/habits/:habitId/sub-tasks",
+  "/:routineId/habits/:habitId/sub-tasks/:subTaskId",
+].forEach((route) => router.get(route, RoutinesController.read));
+
+[
+  ["/:routineId", routineSchema],
+  ["/:routineId/habits/:habitId", habitSchema],
+  ["/:routineId/habits/:habitId/sub-tasks/:subTaskId", subTaskSchema],
+].forEach(([route, schema]) =>
+  router.patch(
+    route as string,
+    validateRoutineMiddleware((schema as z.ZodObject).pick({ title: true })),
+    RoutinesController.update,
+  ),
 );
 
-router.post(
-  "/:routineId/habits/:habitId/sub-tasks",
-  validateRoutineMiddleware(subTaskSchema),
-  RoutinesController.createSubTaskByHabitId,
-);
-router.get(
-  "/:routineId/habits/:habitId/sub-tasks",
-  RoutinesController.readSubTasksByHabitId,
-);
-
-router.get(
-  "/:routineId/habits/:habitId/sub-tasks/:subTaskId",
-  RoutinesController.readSubTaskById,
-);
-router.patch(
-  "/:routineId/habits/:habitId/sub-tasks/:subTaskId",
-  validateRoutineMiddleware(subTaskSchema.pick({ title: true })),
-  RoutinesController.updateSubTaskById,
-);
 router.delete(
-  "/:routineId/habits/:habitId/sub-tasks/:subTaskId",
-  RoutinesController.deleteSubTaskById,
+  [
+    "/:routineId",
+    "/:routineId/habits/:habitId",
+    "/:routineId/habits/:habitId/sub-tasks/:subTaskId",
+  ],
+  RoutinesController.delete,
 );

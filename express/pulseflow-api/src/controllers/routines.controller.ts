@@ -2,147 +2,69 @@ import { Request, Response } from "express";
 import RoutinesService from "../services/routines.service.js";
 
 export default class RoutinesController {
-  public static async readRoutines(req: Request, res: Response) {
-    res.json(await RoutinesService.read());
-  }
-
-  public static async createRoutine(req: Request, res: Response) {
-    res.status(201).json({
-      message: "The routine was created successfully.",
-      data: await RoutinesService.create(req.body),
-    });
-  }
-
-  public static async readRoutineById(req: Request, res: Response) {
-    const { routineId } = req.params;
-
-    res.json(await RoutinesService.read(false, routineId as string));
-  }
-
-  public static async updateRoutineById(req: Request, res: Response) {
-    const { routineId } = req.params;
+  public static async create(req: Request, res: Response) {
+    const { routineId, habitId } = req.params as Record<string, string>;
 
     res.json({
-      message: `The routine with ID '${routineId}' was updated successfully`,
-      data: await RoutinesService.patch(req.body, routineId as string),
+      message: `The resource was created successfully`,
+      data: await RoutinesService.create(req.body, routineId, habitId),
     });
   }
 
-  public static async deleteRoutineById(req: Request, res: Response) {
-    const { routineId } = req.params;
+  public static async read(req: Request, res: Response) {
+    const { routineId, habitId, subTaskId } = req.params as Record<
+      string,
+      string
+    >;
 
-    await RoutinesService.delete(routineId as string);
+    const pathSegments = req.route.path
+      .replace(/\/$/, "")
+      .split("/")
+      .filter(Boolean) as string[];
 
-    res.json({
-      message: `The routine with ID '${routineId}' was deleted successfully`,
-    });
-  }
-
-  public static async readHabitsByRoutineId(req: Request, res: Response) {
-    const { routineId } = req.params;
-
-    res.json(await RoutinesService.read(true, routineId as string));
-  }
-
-  public static async createHabitByRoutineId(req: Request, res: Response) {
-    const { routineId } = req.params;
-
-    res.json({
-      message: `The new habit was created successfully at routine with id '${routineId}'`,
-      data: await RoutinesService.create(req.body, routineId as string),
-    });
-  }
-
-  public static async readHabitById(req: Request, res: Response) {
-    const { routineId, habitId } = req.params;
-
-    res.json(
-      await RoutinesService.read(false, routineId as string, habitId as string),
-    );
-  }
-
-  public static async updateHabitById(req: Request, res: Response) {
-    const { routineId, habitId } = req.params;
-
-    res.json({
-      message: `The habit with ID '${habitId}' was updated successfully`,
-      data: await RoutinesService.patch(
-        req.body,
-        routineId as string,
-        habitId as string,
-      ),
-    });
-  }
-
-  public static async deleteHabitById(req: Request, res: Response) {
-    const { routineId, habitId } = req.params;
-
-    await RoutinesService.delete(routineId as string, habitId as string);
-
-    res.json({
-      message: `The habit with ID '${habitId}' was deleted successfully`,
-    });
-  }
-
-  public static async createSubTaskByHabitId(req: Request, res: Response) {
-    const { routineId, habitId } = req.params;
-
-    res.json({
-      message: `The new sub-task was created successfully at habit with id '${habitId}'`,
-      data: await RoutinesService.create(
-        req.body,
-        routineId as string,
-        habitId as string,
-      ),
-    });
-  }
-
-  public static async readSubTasksByHabitId(req: Request, res: Response) {
-    const { routineId, habitId } = req.params;
-
-    res.json(
-      await RoutinesService.read(true, routineId as string, habitId as string),
-    );
-  }
-
-  public static async readSubTaskById(req: Request, res: Response) {
-    const { routineId, habitId, subTaskId } = req.params;
+    const isSingleSourceEndpoint = (
+      pathSegments[pathSegments.length - 1] ?? ""
+    ).startsWith(":");
 
     res.json(
       await RoutinesService.read(
-        false,
-        routineId as string,
-        habitId as string,
-        subTaskId as string,
+        !isSingleSourceEndpoint,
+        routineId,
+        habitId,
+        subTaskId,
       ),
     );
   }
 
-  public static async updateSubTaskById(req: Request, res: Response) {
-    const { routineId, habitId, subTaskId } = req.params;
+  public static async update(req: Request, res: Response) {
+    const { routineId, habitId, subTaskId } = req.params as Record<
+      string,
+      string
+    >;
+
+    const resourceId = subTaskId || routineId || habitId;
 
     res.json({
-      message: `The sub-task with ID '${subTaskId}' was updated successfully`,
+      message: `The resource with ID '${resourceId}' was updated successfully`,
       data: await RoutinesService.patch(
         req.body,
-        routineId as string,
-        habitId as string,
-        subTaskId as string,
+        routineId!,
+        habitId,
+        subTaskId,
       ),
     });
   }
 
-  public static async deleteSubTaskById(req: Request, res: Response) {
-    const { routineId, habitId, subTaskId } = req.params;
+  public static async delete(req: Request, res: Response) {
+    const { routineId, habitId, subTaskId } = req.params as Record<
+      string,
+      string
+    >;
 
-    await RoutinesService.delete(
-      routineId as string,
-      habitId as string,
-      subTaskId as string,
-    );
+    await RoutinesService.delete(routineId!, habitId, subTaskId);
 
     res.json({
-      message: `The sub-task with ID '${subTaskId}' was deleted successfully`,
+      message: `The resource was deleted successfully`,
     });
   }
 }
