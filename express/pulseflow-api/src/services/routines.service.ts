@@ -92,15 +92,44 @@ export default class RoutinesService {
     subTaskId?: string,
   ) {
     const data = await DatabaseConnection.read();
-    const resources = this.checkExistence(data, routineId, habitId, subTaskId);
+    const resource = this.checkExistence(data, routineId, habitId, subTaskId);
 
-    this.validateResourceMutation(resources.selfType, resources.self);
+    this.validateResourceMutation(resource.selfType, resource.self);
 
-    delete resources.siblings[resources.self.id];
+    delete resource.siblings[resource.self.id];
 
     await DatabaseConnection.write(data);
 
-    return { resource: resources.self, resourceType: resources.selfType };
+    return { resource: resource.self, resourceType: resource.selfType };
+  }
+
+  public static async toggleTodaysCompletionDate(
+    routineId: string,
+    habitId?: string,
+    subTaskId?: string,
+  ) {
+    const data = await DatabaseConnection.read();
+    const resource = this.checkExistence(data, routineId, habitId, subTaskId);
+
+    const todayISOString = new Date().toISOString().split("T")[0]!;
+    const parsingDates = resource.self.completionDates.filter(
+      (date) => date !== todayISOString,
+    );
+    const isCompleting =
+      resource.self.completionDates.length === parsingDates.length;
+
+    resource.self.completionDates = [
+      ...parsingDates,
+      ...(isCompleting ? [todayISOString] : []),
+    ];
+
+    await DatabaseConnection.write(data);
+
+    return {
+      resource: resource.self,
+      resourceType: resource.selfType,
+      toggleState: isCompleting ? "completed" : "uncompleted",
+    };
   }
 
   private static checkExistence(

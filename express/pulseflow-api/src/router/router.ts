@@ -6,7 +6,7 @@ import {
   routineSchema,
   subTaskSchema,
 } from "../types/routines.types.js";
-import { string, z } from "zod";
+import { z } from "zod";
 
 export const router = express.Router();
 
@@ -56,4 +56,13 @@ router.delete(
     "/:routineId/habits/:habitId/sub-tasks/:subTaskId",
   ],
   RoutinesController.delete,
+);
+
+router.post(
+  [
+    "/:routineId/toggle-today",
+    "/:routineId/habits/:habitId/toggle-today",
+    "/:routineId/habits/:habitId/sub-tasks/:subTaskId/toggle-today",
+  ],
+  RoutinesController.toggleTodaysCompletionDate,
 );

@@ -150,15 +150,50 @@ describe("routine routes", () => {
             payload.category,
           );
         }
-
-        const deleteResponse = await request(app).delete(
-          `/${routineId}/habits/${habitId}/sub-tasks/${subTaskId}`,
-        );
-
-        expect(deleteResponse.status).toBe(200);
-        expect(deleteResponse.body.message).toContain("deleted successfully");
       },
     );
+
+    it("deletes as resource", async () => {
+      const deleteResponse = await request(app).delete(
+        `/${routineId}/habits/${habitId}/sub-tasks/${subTaskId}`,
+      );
+
+      expect(deleteResponse.status).toBe(200);
+      expect(deleteResponse.body.message).toContain("deleted successfully");
+    });
+
+    it("toggles a today's routine completion date", async () => {
+      const completingResponse = await request(app).post(
+        `/${routineId}/toggle-today`,
+      );
+
+      expect(completingResponse.status).toBe(200);
+      expect(completingResponse.body.message).toContain(
+        "marked as 'completed'",
+      );
+
+      const completedRoutineResponse = await request(app).get(`/${routineId}`);
+      const today = new Date().toISOString().split("T")[0];
+
+      expect(completedRoutineResponse.body.completionDates).toContain(today);
+
+      const uncompletingResponse = await request(app).post(
+        `/${routineId}/toggle-today`,
+      );
+
+      expect(uncompletingResponse.status).toBe(200);
+      expect(uncompletingResponse.body.message).toContain(
+        "marked as 'uncompleted'",
+      );
+
+      const uncompletedRoutineResponse = await request(app).get(
+        `/${routineId}`,
+      );
+
+      expect(uncompletedRoutineResponse.body.completionDates).not.toContain(
+        today,
+      );
+    });
   });
 
   describe("payload contracts and validations", () => {

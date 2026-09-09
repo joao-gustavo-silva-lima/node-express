@@ -14,7 +14,7 @@ const isoDateStringSchema = z
   .trim()
   .regex(
     /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/,
-    "A data deve estar no formato YYYY-MM-DD válido.",
+    "The date string should be 'YYYY-MM-DD' formated.",
   );
 
 export const subTaskSchema = z.object({

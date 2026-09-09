@@ -69,4 +69,21 @@ export default class RoutinesController {
       message: `The ${data.resourceType} with ID '${data.resource.id}' was deleted successfully`,
     });
   }
+
+  public static async toggleTodaysCompletionDate(req: Request, res: Response) {
+    const { routineId, habitId, subTaskId } = req.params as Record<
+      string,
+      string
+    >;
+
+    const data = await RoutinesService.toggleTodaysCompletionDate(
+      routineId!,
+      habitId,
+      subTaskId,
+    );
+
+    res.json({
+      message: `The ${data.resourceType} with ID '${data.resource.id}' was marked as '${data.toggleState}'`,
+    });
+  }
 }
