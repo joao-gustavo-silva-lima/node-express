@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import validateRoutineMiddleware from "../middlewares/validate-routine.middleware.js";
 import RoutinesController from "../controllers/routines.controller.js";
 import {
@@ -66,3 +66,9 @@ router.post(
   ],
   RoutinesController.toggleTodaysCompletionDate,
 );
+
+router.use((req: Request, res: Response) => {
+  res.status(404).json({
+    message: `No resource was found at route '${req.path}'`,
+  });
+});
