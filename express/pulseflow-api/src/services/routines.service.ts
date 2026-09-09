@@ -1,7 +1,9 @@
 import DatabaseConnection from "../database/connection.db.js";
 import {
+  Category,
   Database,
   DTO,
+  Habit,
   habitChildrenSchema,
   routineChildrenSchema,
 } from "../types/routines.types.js";
@@ -53,7 +55,7 @@ export default class RoutinesService {
   }
 
   public static async patch(
-    DTO: { title: string },
+    DTO: { title?: string; category?: string },
     routineId: string,
     habitId?: string,
     subTaskId?: string,
@@ -66,9 +68,15 @@ export default class RoutinesService {
       subTaskId,
     );
 
-    this.checkTitleAvailability(DTO.title, patchingResource.siblings);
+    if (DTO.title) {
+      this.checkTitleAvailability(DTO.title, patchingResource.siblings);
 
-    patchingResource.self.title = DTO.title;
+      patchingResource.self.title = DTO.title;
+    }
+
+    if (patchingResource.selfType === "habit" && DTO.category) {
+      (patchingResource.self as Habit).category = DTO.category as Category;
+    }
 
     await DatabaseConnection.write(data);
 

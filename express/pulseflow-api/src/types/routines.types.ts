@@ -1,4 +1,4 @@
-import { unknown, z } from "zod";
+import { z } from "zod";
 
 export const PREDEFINED_CATEGORIES = [
   "Health",
@@ -167,6 +167,7 @@ export type SubTask = z.infer<typeof subTaskSchema>;
 export type Habit = z.infer<typeof habitSchema>;
 export type Routine = z.infer<typeof routineSchema>;
 export type DTO = Routine | Habit | SubTask;
+export type Category = (typeof PREDEFINED_CATEGORIES)[number];
 
 export interface Database {
   [k: string]: Routine;

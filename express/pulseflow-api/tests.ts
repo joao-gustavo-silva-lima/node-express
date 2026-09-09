@@ -124,21 +124,41 @@ describe("routine routes", () => {
       });
     });
 
-    it("updates and deletes a resource", async () => {
-      const updateResponse = await request(app)
-        .patch(`/${routineId}/habits/${habitId}`)
-        .send({ title: "Ler todos os dias" });
+    it.each([
+      ["habit's title", { title: "Vender Pizza" }],
+      ["habits's category", { category: "Finance" }],
+      ["habit fully", { title: "Vender Pizza", category: "Finance" }],
+    ])(
+      "updates a %s and deletes the resource",
+      async (_: string, payload: Record<string, unknown>) => {
+        const updateResponse = await request(app)
+          .patch(`/${routineId}/habits/${habitId}`)
+          .send(payload);
 
-      expect(updateResponse.status).toBe(200);
-      expect(updateResponse.body.data.title).toBe("Ler todos os dias");
+        expect(updateResponse.status).toBe(200);
 
-      const deleteResponse = await request(app).delete(
-        `/${routineId}/habits/${habitId}/sub-tasks/${subTaskId}`,
-      );
+        if (payload.title !== undefined) {
+          expect(updateResponse.body.data).toHaveProperty(
+            "title",
+            payload.title,
+          );
+        }
 
-      expect(deleteResponse.status).toBe(200);
-      expect(deleteResponse.body.message).toContain("deleted successfully");
-    });
+        if (payload.category !== undefined) {
+          expect(updateResponse.body.data).toHaveProperty(
+            "category",
+            payload.category,
+          );
+        }
+
+        const deleteResponse = await request(app).delete(
+          `/${routineId}/habits/${habitId}/sub-tasks/${subTaskId}`,
+        );
+
+        expect(deleteResponse.status).toBe(200);
+        expect(deleteResponse.body.message).toContain("deleted successfully");
+      },
+    );
   });
 
   describe("payload contracts and validations", () => {
@@ -156,7 +176,7 @@ describe("routine routes", () => {
       ],
     ])(
       "rejects a habit with %s",
-      async (_caseName: string, payload: Record<string, unknown>) => {
+      async (_: string, payload: Record<string, unknown>) => {
         const response = await request(app)
           .post(`/${routineId}/habits`)
           .send(payload);
@@ -220,14 +240,28 @@ describe("routine routes", () => {
       },
     );
 
-    it("rejects invalid update payloads", async () => {
-      const response = await request(app)
-        .patch(`/${routineId}`)
-        .send({ title: "ab" });
+    it.each([
+      ["routine", `/${routineId}`, { title: "ab" }],
+      ["habit", `/${routineId}/habits/${habitId}`, { category: "Invalid" }],
+      [
+        "sub-task",
+        `/${routineId}/habits/${habitId}/sub-tasks/${subTaskId}`,
+        { title: "a" },
+      ],
+    ])(
+      "rejects an invalid %s update payload",
+      async (
+        _resource: string,
+        route: string,
+        payload: Record<string, unknown>,
+      ) => {
+        const response = await request(app).patch(route).send(payload);
 
-      expect(response.status).toBe(400);
-      expect(response.body.message).toBe("The payload format is not valid");
-    });
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe("The payload format is not valid");
+        expect(response.body.errors).toBeDefined();
+      },
+    );
   });
 
   describe("resource validations", () => {

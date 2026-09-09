@@ -6,7 +6,7 @@ import {
   routineSchema,
   subTaskSchema,
 } from "../types/routines.types.js";
-import { z } from "zod";
+import { string, z } from "zod";
 
 export const router = express.Router();
 
@@ -32,13 +32,19 @@ export const router = express.Router();
 ].forEach((route) => router.get(route, RoutinesController.read));
 
 [
-  ["/:routineId", routineSchema],
-  ["/:routineId/habits/:habitId", habitSchema],
-  ["/:routineId/habits/:habitId/sub-tasks/:subTaskId", subTaskSchema],
+  ["/:routineId", routineSchema.pick({ title: true })],
+  [
+    "/:routineId/habits/:habitId",
+    habitSchema.pick({ title: true, category: true }).partial(),
+  ],
+  [
+    "/:routineId/habits/:habitId/sub-tasks/:subTaskId",
+    subTaskSchema.pick({ title: true }),
+  ],
 ].forEach(([route, schema]) =>
   router.patch(
     route as string,
-    validateRoutineMiddleware((schema as z.ZodObject).pick({ title: true })),
+    validateRoutineMiddleware(schema as z.ZodObject),
     RoutinesController.update,
   ),
 );
