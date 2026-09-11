@@ -109,27 +109,61 @@ export default class RoutinesService {
     subTaskId?: string,
   ) {
     const data = await DatabaseConnection.read();
-    const resource = this.checkExistence(data, routineId, habitId, subTaskId);
-
     const todayISOString = new Date().toISOString().split("T")[0]!;
+    const ids = [routineId, habitId, subTaskId].filter(
+      (id) => id !== undefined,
+    ) as [string, string?, string?];
+
+    const mainToggle = this.toggleCompletionDates(
+      todayISOString,
+      false,
+      data,
+      ...ids,
+    );
+
+    while (ids.length > 1) {
+      ids.pop();
+      this.toggleCompletionDates(todayISOString, false, data, ...ids);
+    }
+
+    await DatabaseConnection.write(data);
+
+    return {
+      resource: mainToggle.resource.self,
+      resourceType: mainToggle.resource.selfType,
+      toggleState: mainToggle.isCompleting ? "completed" : "uncompleted",
+    };
+  }
+
+  private static toggleCompletionDates(
+    todayISOString: string,
+    isParsingParent: boolean,
+    database: Database,
+    routineId: string,
+    habitId?: string,
+    subTaskId?: string,
+  ) {
+    const resource = this.checkExistence(
+      database,
+      routineId,
+      habitId,
+      subTaskId,
+    );
     const parsingDates = resource.self.completionDates.filter(
       (date) => date !== todayISOString,
     );
-    const isCompleting =
-      resource.self.completionDates.length === parsingDates.length;
+    const isCompleting = isParsingParent
+      ? Object.values(resource.children).every((child) =>
+          child.completionDates.includes(todayISOString),
+        )
+      : resource.self.completionDates.length === parsingDates.length;
 
     resource.self.completionDates = [
       ...parsingDates,
       ...(isCompleting ? [todayISOString] : []),
     ];
 
-    await DatabaseConnection.write(data);
-
-    return {
-      resource: resource.self,
-      resourceType: resource.selfType,
-      toggleState: isCompleting ? "completed" : "uncompleted",
-    };
+    return { resource, isCompleting };
   }
 
   private static checkExistence(

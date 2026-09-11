@@ -162,34 +162,83 @@ describe("routine routes", () => {
       expect(deleteResponse.body.message).toContain("deleted successfully");
     });
 
-    it("toggles a today's routine completion date", async () => {
-      const completingResponse = await request(app).post(
-        `/${routineId}/toggle-today`,
+    it.each([
+      ["routine", `/${routineId}`],
+      ["habit", `/${routineId}/habits/${habitId}`],
+      ["sub-task", `/${routineId}/habits/${habitId}/sub-tasks/${subTaskId}`],
+    ])(
+      "toggles today's %s completion date",
+      async (_: string, route: string) => {
+        const completingResponse = await request(app).post(
+          `${route}/toggle-today`,
+        );
+
+        expect(completingResponse.status).toBe(200);
+        expect(completingResponse.body.message).toContain(
+          "marked as 'completed'",
+        );
+
+        const completedResourceResponse = await request(app).get(route);
+        const today = new Date().toISOString().split("T")[0];
+
+        expect(completedResourceResponse.body.completionDates).toContain(today);
+
+        const uncompletingResponse = await request(app).post(
+          `${route}/toggle-today`,
+        );
+
+        expect(uncompletingResponse.status).toBe(200);
+        expect(uncompletingResponse.body.message).toContain(
+          "marked as 'uncompleted'",
+        );
+
+        const uncompletedResourceResponse = await request(app).get(route);
+
+        expect(uncompletedResourceResponse.body.completionDates).not.toContain(
+          today,
+        );
+      },
+    );
+
+    it("propagates completion dates to parent resources when children are completed", async () => {
+      const today = new Date().toISOString().split("T")[0];
+
+      const completeSubTaskResponse = await request(app).post(
+        `/${routineId}/habits/${habitId}/sub-tasks/${subTaskId}/toggle-today`,
       );
 
-      expect(completingResponse.status).toBe(200);
-      expect(completingResponse.body.message).toContain(
+      expect(completeSubTaskResponse.status).toBe(200);
+      expect(completeSubTaskResponse.body.message).toContain(
         "marked as 'completed'",
       );
 
+      const completedHabitResponse = await request(app).get(
+        `/${routineId}/habits/${habitId}`,
+      );
       const completedRoutineResponse = await request(app).get(`/${routineId}`);
-      const today = new Date().toISOString().split("T")[0];
 
+      expect(completedHabitResponse.body.completionDates).toContain(today);
       expect(completedRoutineResponse.body.completionDates).toContain(today);
 
-      const uncompletingResponse = await request(app).post(
-        `/${routineId}/toggle-today`,
+      const uncompleteSubTaskResponse = await request(app).post(
+        `/${routineId}/habits/${habitId}/sub-tasks/${subTaskId}/toggle-today`,
       );
 
-      expect(uncompletingResponse.status).toBe(200);
-      expect(uncompletingResponse.body.message).toContain(
+      expect(uncompleteSubTaskResponse.status).toBe(200);
+      expect(uncompleteSubTaskResponse.body.message).toContain(
         "marked as 'uncompleted'",
       );
 
+      const uncompletedHabitResponse = await request(app).get(
+        `/${routineId}/habits/${habitId}`,
+      );
       const uncompletedRoutineResponse = await request(app).get(
         `/${routineId}`,
       );
 
+      expect(uncompletedHabitResponse.body.completionDates).not.toContain(
+        today,
+      );
       expect(uncompletedRoutineResponse.body.completionDates).not.toContain(
         today,
       );
