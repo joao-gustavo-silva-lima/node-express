@@ -300,6 +300,13 @@ describe("routine routes", () => {
   });
 
   describe("resource validations", () => {
+    it("returns 404 for unknow routes", async () => {
+      const response = await request(app).get("//not-found");
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toContain("not found");
+    });
+
     it("returns 404 for unknown resources", async () => {
       const response = await request(app).get("/routine-missing");
 

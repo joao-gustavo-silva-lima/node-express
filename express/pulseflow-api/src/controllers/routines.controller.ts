@@ -89,7 +89,7 @@ export default class RoutinesController {
 
   public static notFound(req: Request, res: Response) {
     res.status(404).json({
-      message: `No resource was found at route '${req.path}'`,
+      message: `${req.method.toUpperCase} ${req.path} was not found`,
     });
   }
 }
