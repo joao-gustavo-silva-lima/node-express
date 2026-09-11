@@ -306,6 +306,14 @@ describe("routine routes", () => {
       expect(duplicateSubTasks.status).toBe(400);
     });
 
+    it("rejects routine's last habit deletion", async () => {
+      const deletingResponse = await request(app).delete(
+        `/${routineId}/habits/${habitId}`,
+      );
+
+      expect(deletingResponse.status).toBe(400);
+    });
+
     it.each([
       ["routine", "/", { title: "ab", habits: [] }],
       ["habit", `/${routineId}/habits`, { title: "ab", category: "Health" }],

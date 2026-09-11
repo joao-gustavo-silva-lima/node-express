@@ -18,9 +18,11 @@ export default class RoutinesService {
       routineId === undefined
         ? {
             siblings: {},
-            self: {} as DTO,
-            selfType: undefined,
             children: data,
+            self: {} as DTO,
+            parent: undefined,
+            selfType: undefined,
+            parentType: undefined,
             childrenType: "routine",
           }
         : this.checkExistence(data, routineId, habitId);
@@ -94,9 +96,11 @@ export default class RoutinesService {
     const data = await DatabaseConnection.read();
     const resource = this.checkExistence(data, routineId, habitId, subTaskId);
 
-    this.validateResourceMutation(resource.selfType, resource.self);
-
     delete resource.siblings[resource.self.id];
+
+    if (resource.parent !== undefined) {
+      this.validateResourceMutation(resource.parentType!, resource.parent);
+    }
 
     await DatabaseConnection.write(data);
 
@@ -173,9 +177,11 @@ export default class RoutinesService {
     subTaskId?: string,
   ): {
     self: DTO;
+    parent: DTO | undefined;
     siblings: Record<string, DTO>;
     children: Record<string, DTO>;
     selfType: "routine" | "habit" | "sub-task";
+    parentType: "routine" | "habit" | "sub-task" | undefined;
     childrenType: "routine" | "habit" | "sub-task" | undefined;
   } {
     const routine = database[routineId];
@@ -188,8 +194,10 @@ export default class RoutinesService {
     } else if (!habitId) {
       return {
         self: routine,
-        selfType: "routine",
+        parent: undefined,
         siblings: database,
+        selfType: "routine",
+        parentType: undefined,
         children: routine.habits,
         childrenType: "habit",
       };
@@ -205,7 +213,9 @@ export default class RoutinesService {
     } else if (!subTaskId) {
       return {
         self: habit,
+        parent: routine,
         selfType: "habit",
+        parentType: "routine",
         siblings: routine.habits,
         children: habit.subTasks,
         childrenType: "sub-task",
@@ -222,10 +232,12 @@ export default class RoutinesService {
     }
 
     return {
+      children: {},
       self: subTask,
+      parent: habit,
+      parentType: "habit",
       selfType: "sub-task",
       siblings: habit.subTasks,
-      children: {},
       childrenType: undefined,
     };
   }
