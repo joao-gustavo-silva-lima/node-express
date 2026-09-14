@@ -79,24 +79,26 @@ The integration tests use the application directly and reset the JSON database b
 
 ## Data Model
 
+The database is persisted as a `Routine[]` array, and nested collections such as `habits` and `subTasks` are also arrays rather than object maps keyed by IDs. This makes resource lookup and updates deterministic by matching the item `id` in the collection.
+
 ### Routine
 
-| Field             | Type                | Description                                  |
-| ----------------- | ------------------- | -------------------------------------------- |
-| `id`              | `string`            | Optional on creation; generated when omitted |
-| `title`           | `string`            | 3 to 40 characters                           |
-| `habits`          | `array` or `object` | At least 1 and at most 15 habits             |
-| `completionDates` | `string[]`          | Unique dates in `YYYY-MM-DD` format          |
+| Field             | Type       | Description                                  |
+| ----------------- | ---------- | -------------------------------------------- |
+| `id`              | `string`   | Optional on creation; generated when omitted |
+| `title`           | `string`   | 3 to 40 characters                           |
+| `habits`          | `Habit[]`  | At least 1 and at most 15 habits             |
+| `completionDates` | `string[]` | Unique dates in `YYYY-MM-DD` format          |
 
 ### Habit
 
-| Field             | Type                | Description                                  |
-| ----------------- | ------------------- | -------------------------------------------- |
-| `id`              | `string`            | Optional on creation; generated when omitted |
-| `title`           | `string`            | 3 to 50 characters                           |
-| `category`        | `string`            | One of the predefined categories             |
-| `subTasks`        | `array` or `object` | At most 10 sub-tasks                         |
-| `completionDates` | `string[]`          | Unique dates in `YYYY-MM-DD` format          |
+| Field             | Type        | Description                                  |
+| ----------------- | ----------- | -------------------------------------------- |
+| `id`              | `string`    | Optional on creation; generated when omitted |
+| `title`           | `string`    | 3 to 50 characters                           |
+| `category`        | `string`    | One of the predefined categories             |
+| `subTasks`        | `SubTask[]` | At most 10 sub-tasks                         |
+| `completionDates` | `string[]`  | Unique dates in `YYYY-MM-DD` format          |
 
 Available categories: `Health`, `Studies`, `Work`, `Finance`, `Personal`, and `Productivity`.
 
@@ -108,7 +110,7 @@ Available categories: `Health`, `Studies`, `Work`, `Finance`, `Personal`, and `P
 | `title`           | `string`   | 2 to 60 characters                           |
 | `completionDates` | `string[]` | Unique dates in `YYYY-MM-DD` format          |
 
-IDs and titles must be unique among resources at the same level. Duplicate completion dates are rejected.
+IDs and titles must be unique among resources at the same level. Duplicate completion dates are rejected. When a resource is updated, only the fields that are actually provided are changed, so partial updates such as title-only or category-only patches are valid.
 
 ## API Endpoints
 
