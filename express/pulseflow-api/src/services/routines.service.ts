@@ -14,10 +14,10 @@ export default class RoutinesService {
   public static async create(DTO: DTO, routineId?: string, habitId?: string) {
     const data = await DatabaseConnection.read();
 
-    const resources =
+    const resource =
       routineId === undefined
         ? {
-            siblings: {},
+            siblings: [],
             children: data,
             self: {} as DTO,
             parent: undefined,
@@ -27,16 +27,16 @@ export default class RoutinesService {
           }
         : this.checkExistence(data, routineId, habitId);
 
-    this.checkIDAvailability(DTO.id, resources.children);
-    this.checkTitleAvailability(DTO.title, resources.children);
+    this.checkIDAvailability(DTO.id, resource.children);
+    this.checkTitleAvailability(DTO.title, resource.children);
 
-    resources.children[DTO.id] = DTO;
+    resource.children.push(DTO as any);
 
-    this.validateResourceMutation(resources.selfType, resources.self);
+    this.validateResourceMutation(resource.selfType, resource.self);
 
     await DatabaseConnection.write(data);
 
-    return { resource: DTO, resourceType: resources.childrenType };
+    return { resource: DTO, resourceType: resource.childrenType };
   }
 
   public static async read(
@@ -48,12 +48,12 @@ export default class RoutinesService {
     const data = await DatabaseConnection.read();
 
     if (routineId === undefined) {
-      return Object.values(data);
+      return data;
     }
 
     const resource = this.checkExistence(data, routineId, habitId, subTaskId);
 
-    return readChildren ? Object.values(resource.children) : resource.self;
+    return readChildren ? resource.children : resource.self;
   }
 
   public static async patch(
@@ -70,13 +70,13 @@ export default class RoutinesService {
       subTaskId,
     );
 
-    if (DTO.title) {
+    if (DTO.title !== undefined) {
       this.checkTitleAvailability(DTO.title, patchingResource.siblings);
 
       patchingResource.self.title = DTO.title;
     }
 
-    if (patchingResource.selfType === "habit" && DTO.category) {
+    if (patchingResource.selfType === "habit" && DTO.category !== undefined) {
       (patchingResource.self as Habit).category = DTO.category as Category;
     }
 
@@ -95,8 +95,11 @@ export default class RoutinesService {
   ) {
     const data = await DatabaseConnection.read();
     const resource = this.checkExistence(data, routineId, habitId, subTaskId);
+    const deletionIndex = resource.siblings.findIndex(
+      (sibling) => sibling.id === resource.self.id,
+    );
 
-    delete resource.siblings[resource.self.id];
+    resource.siblings.splice(deletionIndex, 1);
 
     if (resource.parent !== undefined) {
       this.validateResourceMutation(resource.parentType!, resource.parent);
@@ -157,7 +160,7 @@ export default class RoutinesService {
       (date) => date !== todayISOString,
     );
     const isCompleting = isParsingParent
-      ? Object.values(resource.children).every((child) =>
+      ? resource.children.every((child) =>
           child.completionDates.includes(todayISOString),
         )
       : resource.self.completionDates.length === parsingDates.length;
@@ -178,13 +181,13 @@ export default class RoutinesService {
   ): {
     self: DTO;
     parent: DTO | undefined;
-    siblings: Record<string, DTO>;
-    children: Record<string, DTO>;
+    siblings: DTO[];
+    children: DTO[];
     selfType: "routine" | "habit" | "sub-task";
     parentType: "routine" | "habit" | "sub-task" | undefined;
     childrenType: "routine" | "habit" | "sub-task" | undefined;
   } {
-    const routine = database[routineId];
+    const routine = database.find((routine) => routine.id === routineId);
 
     if (!routine) {
       throw new StatefulError(
@@ -197,13 +200,13 @@ export default class RoutinesService {
         parent: undefined,
         siblings: database,
         selfType: "routine",
+        childrenType: "habit",
         parentType: undefined,
         children: routine.habits,
-        childrenType: "habit",
       };
     }
 
-    const habit = routine.habits[habitId];
+    const habit = routine.habits.find((habit) => habit.id === habitId);
 
     if (!habit) {
       throw new StatefulError(
@@ -222,7 +225,7 @@ export default class RoutinesService {
       };
     }
 
-    const subTask = habit.subTasks[subTaskId];
+    const subTask = habit.subTasks.find((subTask) => subTask.id === subTaskId);
 
     if (!subTask) {
       throw new StatefulError(
@@ -232,7 +235,7 @@ export default class RoutinesService {
     }
 
     return {
-      children: {},
+      children: [],
       self: subTask,
       parent: habit,
       parentType: "habit",
@@ -242,22 +245,19 @@ export default class RoutinesService {
     };
   }
 
-  private static checkIDAvailability(
-    id: string,
-    checkingResources: Record<string, DTO>,
-  ) {
-    if (checkingResources[id] !== undefined) {
+  private static checkIDAvailability(id: string, checkingResources: DTO[]) {
+    if (checkingResources.some((resource) => resource.id === id)) {
       throw new StatefulError(409, `IDs have to be unique`);
     }
   }
 
   private static checkTitleAvailability(
     title: string,
-    checkingResources: Record<string, DTO>,
+    checkingResources: DTO[],
   ) {
     const normalizedTitle = title.trim().toLowerCase();
     if (
-      Object.values(checkingResources).some(
+      checkingResources.some(
         (resource) => resource.title.trim().toLowerCase() === normalizedTitle,
       )
     ) {
@@ -283,7 +283,6 @@ export default class RoutinesService {
     const validation = validator.safeParse(resource);
 
     if (!validation.success) {
-      console.log(type, resource, validation.error!.issues);
       throw new StatefulError(400, "The requested mutation is bad", {
         errors: formatZodErrors(validation.error.issues),
       });

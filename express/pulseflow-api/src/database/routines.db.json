@@ -1,41 +1,41 @@
-{
-  "routine-e60a4ff7-e8b1-48e9-ab05-7bdedb0e72a5": {
+[
+  {
     "id": "routine-e60a4ff7-e8b1-48e9-ab05-7bdedb0e72a5",
     "title": "Rotina Experimental",
-    "habits": {
-      "habit-5b441983-8644-4787-aa78-239fef0c208a": {
+    "habits": [
+      {
         "id": "habit-5b441983-8644-4787-aa78-239fef0c208a",
         "title": "Beber 3L de água",
         "category": "Health",
-        "subTasks": {},
+        "subTasks": [],
         "completionDates": []
       },
-      "habit-3127b456-3ba2-4033-b783-faaecbeecb7b": {
+      {
         "id": "habit-3127b456-3ba2-4033-b783-faaecbeecb7b",
         "title": "Beber +3L de água",
         "category": "Health",
-        "subTasks": {},
+        "subTasks": [],
         "completionDates": []
       },
-      "habit-75bb37d2-97b9-4e0c-a58d-289304cbd384": {
+      {
         "id": "habit-75bb37d2-97b9-4e0c-a58d-289304cbd384",
         "title": "Treinar Pernas",
         "category": "Health",
-        "subTasks": {
-          "sub-task-696c9d02-88bb-4294-bc8d-0052bdc87a8f": {
+        "subTasks": [
+          {
             "id": "sub-task-696c9d02-88bb-4294-bc8d-0052bdc87a8f",
             "title": "Cadeira Extensora",
             "completionDates": []
           },
-          "sub-task-e7fe32b4-572d-485b-bf4f-b89edf2531e9": {
+          {
             "id": "sub-task-e7fe32b4-572d-485b-bf4f-b89edf2531e9",
             "title": "Agachamento Smith",
             "completionDates": []
           }
-        },
+        ],
         "completionDates": []
       }
-    },
+    ],
     "completionDates": []
   }
-}
+]

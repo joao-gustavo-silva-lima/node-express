@@ -12,28 +12,28 @@ const routineId = "routine-test";
 const habitId = "habit-test";
 const subTaskId = "sub-task-test";
 
-const initialDatabase = {
-  [routineId]: {
+const initialDatabase = [
+  {
     id: routineId,
     title: "Rotina de Teste",
-    habits: {
-      [habitId]: {
+    habits: [
+      {
         id: habitId,
         title: "Ler um livro",
         category: "Studies",
-        subTasks: {
-          [subTaskId]: {
+        subTasks: [
+          {
             id: subTaskId,
             title: "Ler dez paginas",
             completionDates: [],
           },
-        },
+        ],
         completionDates: [],
       },
-    },
+    ],
     completionDates: [],
   },
-};
+];
 
 async function resetDatabase() {
   await writeFile(databasePath, JSON.stringify(initialDatabase, null, 2));
@@ -160,6 +160,12 @@ describe("routine routes", () => {
 
       expect(deleteResponse.status).toBe(200);
       expect(deleteResponse.body.message).toContain("deleted successfully");
+
+      const resultResponse = await request(app).get(
+        `/${routineId}/habits/${habitId}/sub-tasks/${subTaskId}`,
+      );
+
+      expect(resultResponse.status).toBe(404);
     });
 
     it.each([

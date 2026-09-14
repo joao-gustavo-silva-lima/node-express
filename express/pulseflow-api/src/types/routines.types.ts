@@ -58,36 +58,21 @@ export const habitSchema = z.object({
   }),
 
   subTasks: z
-    .preprocess(
-      (val) => {
-        if (Array.isArray(val)) return val;
-        if (val && typeof val === "object") return Object.values(val);
-        return val;
-      },
-      z.array(subTaskSchema, {
-        error: "A habit's sub-tasks must be an array or a record.",
-      }),
-    )
+    .array(subTaskSchema, {
+      error: "A habit's sub-tasks must be an array or a record.",
+    })
     .refine(
-      (subTasks) => Object.keys(subTasks).length <= 10,
+      (subTasks) => subTasks.length <= 10,
       "You can add at most 10 sub-tasks per habit.",
     )
     .refine(
       (subtasks) =>
-        new Set(Object.values(subtasks).map((subtask) => subtask.title))
-          .size ===
-        Object.values(subtasks).map((subtask) => subtask.title).length,
+        new Set(subtasks.map((subtask) => subtask.title)).size ===
+        subtasks.map((subtask) => subtask.title).length,
       "A habit cannot contain duplicate sub-tasks.",
     )
     .optional()
-    .default([])
-    .transform(
-      (subTasks) =>
-        subTasks.reduce(
-          (acc, subTask) => ({ ...acc, [subTask.id]: subTask }),
-          {},
-        ) as Record<string, SubTask>,
-    ),
+    .default([]),
 
   completionDates: z
     .array(isoDateStringSchema, {
@@ -117,36 +102,22 @@ export const routineSchema = z.object({
     .max(40, "The routine title is too long (maximum 40 characters)."),
 
   habits: z
-    .preprocess(
-      (val) => {
-        if (Array.isArray(val)) return val;
-        if (val && typeof val === "object") return Object.values(val);
-        return val;
-      },
-      z.array(habitSchema, {
-        error: "A routine's habits must be an array or a record.",
-      }),
-    )
+    .array(habitSchema, {
+      error: "A routine's habits must be an array or a record.",
+    })
     .refine(
-      (habits) => Object.keys(habits).length > 0,
+      (habits) => habits.length > 0,
       "A routine must contain at least 1 registered habit.",
     )
     .refine(
-      (habits) => Object.keys(habits).length <= 15,
+      (habits) => habits.length <= 15,
       "A routine can contain at most 15 habits.",
     )
     .refine(
       (habits) =>
-        new Set(Object.values(habits).map((habit) => habit.title)).size ===
-        Object.values(habits).map((habit) => habit.title).length,
+        new Set(habits.map((habit) => habit.title)).size ===
+        habits.map((habit) => habit.title).length,
       "A routine cannot contain duplicate habits.",
-    )
-    .transform(
-      (habits) =>
-        habits.reduce(
-          (acc, habit) => ({ ...acc, [habit.id]: habit }),
-          {},
-        ) as Record<string, Habit>,
     ),
 
   completionDates: z
@@ -169,6 +140,4 @@ export type Routine = z.infer<typeof routineSchema>;
 export type DTO = Routine | Habit | SubTask;
 export type Category = (typeof PREDEFINED_CATEGORIES)[number];
 
-export interface Database {
-  [k: string]: Routine;
-}
+export type Database = Routine[];
