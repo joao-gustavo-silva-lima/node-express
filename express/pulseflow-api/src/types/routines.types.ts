@@ -10,79 +10,76 @@ export const PREDEFINED_CATEGORIES = [
 ] as const;
 
 const isoDateStringSchema = z
-  .string()
+  .string("INVALID_DATE_TYPE")
   .trim()
   .regex(
     /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/,
-    "The date string should be 'YYYY-MM-DD' formated.",
+    "INVALID_DATE_FORMAT",
   );
 
 export const subTaskSchema = z.object({
   id: z
-    .string("Invalid sub-task ID.")
+    .string("INVALID_SUBTASK_ID")
     .optional()
     .default(() => `sub-task-${crypto.randomUUID()}`),
   title: z
-    .string({ error: "The sub-task title is required." })
+    .string({ error: "SUBTASK_TITLE_REQUIRED" })
     .trim()
-    .min(1, "The sub-task title cannot be empty.")
-    .min(2, "The sub-task must be at least 2 characters long.")
-    .max(60, "The sub-task must be at most 60 characters long."),
+    .min(1, "SUBTASK_TITLE_EMPTY")
+    .min(2, "SUBTASK_TITLE_TOO_SHORT")
+    .max(60, "SUBTASK_TITLE_TOO_LONG"),
   completionDates: z
     .array(isoDateStringSchema, {
-      error: "A sub-task completion dates must be contained in an array",
+      error: "INVALID_SUBTASK_COMPLETION_DATES",
     })
     .optional()
     .default(() => [])
     .refine(
       (dates) => new Set(dates).size === dates.length,
-      "The completion history cannot contain duplicate dates.",
+      "DUPLICATE_SUBTASK_COMPLETION_DATE",
     ),
 });
 
 export const habitSchema = z.object({
   id: z
-    .string("Invalid habit ID.")
+    .string("INVALID_HABIT_ID")
     .optional()
     .default(() => `habit-${crypto.randomUUID()}`),
 
   title: z
-    .string({ error: "The habit title is required." })
+    .string({ error: "HABIT_TITLE_REQUIRED" })
     .trim()
-    .min(1, "The habit title is required.")
-    .min(3, "The title must be at least 3 visible characters long.")
-    .max(50, "The title is too long (maximum 50 characters)."),
+    .min(1, "HABIT_TITLE_EMPTY")
+    .min(3, "HABIT_TITLE_TOO_SHORT")
+    .max(50, "HABIT_TITLE_TOO_LONG"),
 
   category: z.enum(PREDEFINED_CATEGORIES, {
-    error: "The habit category is invalid",
+    error: "INVALID_HABIT_CATEGORY",
   }),
 
   subTasks: z
     .array(subTaskSchema, {
-      error: "A habit's sub-tasks must be an array or a record.",
+      error: "INVALID_HABIT_SUBTASKS",
     })
-    .refine(
-      (subTasks) => subTasks.length <= 10,
-      "You can add at most 10 sub-tasks per habit.",
-    )
+    .refine((subTasks) => subTasks.length <= 10, "HABIT_SUBTASK_LIMIT_EXCEEDED")
     .refine(
       (subtasks) =>
         new Set(subtasks.map((subtask) => subtask.title)).size ===
         subtasks.map((subtask) => subtask.title).length,
-      "A habit cannot contain duplicate sub-tasks.",
+      "DUPLICATE_HABIT_SUBTASK_TITLE",
     )
     .optional()
     .default([]),
 
   completionDates: z
     .array(isoDateStringSchema, {
-      error: "A habit's completion dates must be contained in an array",
+      error: "INVALID_HABIT_COMPLETION_DATES",
     })
     .optional()
     .default(() => [])
     .refine(
       (dates) => new Set(dates).size === dates.length,
-      "The completion history cannot contain duplicate dates.",
+      "DUPLICATE_HABIT_COMPLETION_DATE",
     ),
 });
 
@@ -90,45 +87,39 @@ export const habitChildrenSchema = habitSchema.pick({ subTasks: true });
 
 export const routineSchema = z.object({
   id: z
-    .string("Invalid routine ID.")
+    .string("INVALID_ROUTINE_ID")
     .optional()
     .default(() => `routine-${crypto.randomUUID()}`),
 
   title: z
-    .string({ error: "The routine title is required." })
+    .string({ error: "ROUTINE_TITLE_REQUIRED" })
     .trim()
-    .min(1, "The routine title  is required.")
-    .min(3, "The routine title must be at least 3 characters long.")
-    .max(40, "The routine title is too long (maximum 40 characters)."),
+    .min(1, "ROUTINE_TITLE_EMPTY")
+    .min(3, "ROUTINE_TITLE_TOO_SHORT")
+    .max(40, "ROUTINE_TITLE_TOO_LONG"),
 
   habits: z
     .array(habitSchema, {
-      error: "A routine's habits must be an array or a record.",
+      error: "INVALID_ROUTINE_HABITS",
     })
-    .refine(
-      (habits) => habits.length > 0,
-      "A routine must contain at least 1 registered habit.",
-    )
-    .refine(
-      (habits) => habits.length <= 15,
-      "A routine can contain at most 15 habits.",
-    )
+    .refine((habits) => habits.length > 0, "ROUTINE_HABIT_REQUIRED")
+    .refine((habits) => habits.length <= 15, "ROUTINE_HABIT_LIMIT_EXCEEDED")
     .refine(
       (habits) =>
         new Set(habits.map((habit) => habit.title)).size ===
         habits.map((habit) => habit.title).length,
-      "A routine cannot contain duplicate habits.",
+      "DUPLICATE_ROUTINE_HABIT_TITLE",
     ),
 
   completionDates: z
     .array(isoDateStringSchema, {
-      error: "A routine's completion dates must be contained in an array",
+      error: "INVALID_ROUTINE_COMPLETION_DATES",
     })
     .optional()
     .default(() => [])
     .refine(
       (dates) => new Set(dates).size === dates.length,
-      "The completion history cannot contain duplicate dates.",
+      "DUPLICATE_ROUTINE_COMPLETION_DATE",
     ),
 });
 
