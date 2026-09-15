@@ -8,7 +8,7 @@ export default class RoutinesController {
     const data = await RoutinesService.create(req.body, routineId, habitId);
 
     res.status(201).json({
-      code: "RESOURCE_CREATED",
+      code: `${data.resourceType!.toUpperCase()}_CREATED`,
       message: `The new ${data.resourceType} was created successfully`,
       data: data.resource,
     });
@@ -53,7 +53,7 @@ export default class RoutinesController {
     );
 
     res.json({
-      code: "RESOURCE_UPDATED",
+      code: `${data.resourceType.toUpperCase()}_UPDATED`,
       message: `The ${data.resourceType} with ID '${data.resource.id}' was updated successfully`,
       data: data.resource,
     });
@@ -68,7 +68,7 @@ export default class RoutinesController {
     const data = await RoutinesService.delete(routineId!, habitId, subTaskId);
 
     res.json({
-      code: "RESOURCE_DELETED",
+      code: `${data.resourceType.toUpperCase()}_DELETED`,
       message: `The ${data.resourceType} with ID '${data.resource.id}' was deleted successfully`,
     });
   }
@@ -86,7 +86,7 @@ export default class RoutinesController {
     );
 
     res.json({
-      code: "COMPLETION_TOGGLED",
+      code: `${data.toggleState.toUpperCase()}_${data.resourceType.toUpperCase()}`,
       message: `The ${data.resourceType} with ID '${data.resource.id}' was marked as '${data.toggleState}'`,
     });
   }

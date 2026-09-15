@@ -292,7 +292,7 @@ export default class RoutinesService {
     if (!validation.success) {
       throw new StatefulError(
         400,
-        "INVALID_RESOURCE_MUTATION",
+        `INVALID_${type!.toUpperCase()}_MUTATION`,
         "The requested mutation is bad",
         {
           errors: formatZodErrors(validation.error.issues),
