@@ -28,6 +28,7 @@ pulseflow-api/
 │   │   └── routines.db.json                 # Local routines database
 │   ├── middlewares/
 │   │   ├── error-handler.middleware.ts      # Centralized error responses
+│   │   ├── logger.middleware.ts              # HTTP request logging
 │   │   └── validate-routine.middleware.ts   # Request payload validation
 │   ├── router/
 │   │   └── router.ts                        # API route definitions
@@ -139,16 +140,29 @@ The API is mounted at the root path (`/`). Requests that create or update data m
 
 ## Responses and Errors
 
-Successful create operations return status `201` and include a `message` and `data` field. Read operations return the requested resource or collection directly. Update and delete operations return a success message, with updated resources included in update responses.
+Successful create operations return status `201` and include a `code`, `message`, and `data` field. Read operations return the requested resource or collection directly. Update responses include the updated resource in `data`; delete and completion-toggle responses include a success `code` and `message`.
+
+Success response codes are:
+
+- `RESOURCE_CREATED` for resource creation
+- `RESOURCE_UPDATED` for resource updates
+- `RESOURCE_DELETED` for resource deletion
+- `COMPLETION_TOGGLED` for completion changes
 
 Validation and application errors use a consistent JSON format:
 
 ```json
 {
+  "code": "INVALID_PAYLOAD",
   "message": "The payload format is not valid",
   "errors": {}
 }
 ```
+
+Unknown routes return `ROUTE_NOT_FOUND`. Other common error codes include
+`INVALID_CONTENT_TYPE`, `ROUTINE_NOT_FOUND`, `HABIT_NOT_FOUND`,
+`SUBTASK_NOT_FOUND`, `DUPLICATE_ID`, `DATABASE_CONNECTION_FAILED`,
+`DATABASE_WRITE_FAILED`, and `INTERNAL_SERVER_ERROR`.
 
 Common status codes are:
 
