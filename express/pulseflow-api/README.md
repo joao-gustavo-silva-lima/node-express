@@ -142,12 +142,23 @@ The API is mounted at the root path (`/`). Requests that create or update data m
 
 Successful create operations return status `201` and include a `code`, `message`, and `data` field. Read operations return the requested resource or collection directly. Update responses include the updated resource in `data`; delete and completion-toggle responses include a success `code` and `message`.
 
-Success response codes are:
+Success response codes identify the resource affected by the operation:
 
-- `RESOURCE_CREATED` for resource creation
-- `RESOURCE_UPDATED` for resource updates
-- `RESOURCE_DELETED` for resource deletion
-- `COMPLETION_TOGGLED` for completion changes
+- `ROUTINE_CREATED`, `HABIT_CREATED`, or `SUBTASK_CREATED` for resource creation
+- `ROUTINE_UPDATED`, `HABIT_UPDATED`, or `SUBTASK_UPDATED` for resource updates
+- `ROUTINE_DELETED`, `HABIT_DELETED`, or `SUBTASK_DELETED` for resource deletion
+- `COMPLETED_ROUTINE`, `COMPLETED_HABIT`, or `COMPLETED_SUBTASK` when today's completion is added
+- `UNCOMPLETED_ROUTINE`, `UNCOMPLETED_HABIT`, or `UNCOMPLETED_SUBTASK` when today's completion is removed
+
+For example, creating a habit returns a response like:
+
+```json
+{
+  "code": "HABIT_CREATED",
+  "message": "The new habit was created successfully",
+  "data": {}
+}
+```
 
 Validation and application errors use a consistent JSON format:
 
@@ -159,7 +170,9 @@ Validation and application errors use a consistent JSON format:
 }
 ```
 
-Unknown routes return `ROUTE_NOT_FOUND`. Other common error codes include
+Unknown routes return `ROUTE_NOT_FOUND`. Invalid mutations return a resource-specific
+code such as `INVALID_ROUTINE_MUTATION`, `INVALID_HABIT_MUTATION`, or
+`INVALID_SUBTASK_MUTATION`. Other common error codes include
 `INVALID_CONTENT_TYPE`, `ROUTINE_NOT_FOUND`, `HABIT_NOT_FOUND`,
 `SUBTASK_NOT_FOUND`, `DUPLICATE_ID`, `DATABASE_CONNECTION_FAILED`,
 `DATABASE_WRITE_FAILED`, and `INTERNAL_SERVER_ERROR`.
