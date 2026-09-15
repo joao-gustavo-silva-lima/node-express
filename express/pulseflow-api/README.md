@@ -170,6 +170,16 @@ Validation and application errors use a consistent JSON format:
 }
 ```
 
+The values inside `errors` are stable validation codes rather than descriptive
+sentences. They identify the invalid field or rule, for example:
+
+- `INVALID_DATE_TYPE` and `INVALID_DATE_FORMAT` for completion dates
+- `INVALID_ROUTINE_ID`, `INVALID_HABIT_ID`, and `INVALID_SUBTASK_ID` for IDs
+- `ROUTINE_TITLE_REQUIRED`, `HABIT_TITLE_TOO_SHORT`, and `SUBTASK_TITLE_TOO_LONG` for titles
+- `INVALID_HABIT_CATEGORY` for unsupported habit categories
+- `ROUTINE_HABIT_LIMIT_EXCEEDED` and `HABIT_SUBTASK_LIMIT_EXCEEDED` for collection limits
+- `DUPLICATE_ROUTINE_HABIT_TITLE`, `DUPLICATE_HABIT_SUBTASK_TITLE`, and duplicate completion-date codes for repeated values
+
 Unknown routes return `ROUTE_NOT_FOUND`. Invalid mutations return a resource-specific
 code such as `INVALID_ROUTINE_MUTATION`, `INVALID_HABIT_MUTATION`, or
 `INVALID_SUBTASK_MUTATION`. Other common error codes include
