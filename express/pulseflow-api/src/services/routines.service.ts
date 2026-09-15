@@ -192,6 +192,7 @@ export default class RoutinesService {
     if (!routine) {
       throw new StatefulError(
         404,
+        "ROUTINE_NOT_FOUND",
         `A routine with ID '${routineId}' was not found`,
       );
     } else if (!habitId) {
@@ -211,6 +212,7 @@ export default class RoutinesService {
     if (!habit) {
       throw new StatefulError(
         404,
+        "HABIT_NOT_FOUND",
         `A habit with ID '${habitId}' was not found`,
       );
     } else if (!subTaskId) {
@@ -230,6 +232,7 @@ export default class RoutinesService {
     if (!subTask) {
       throw new StatefulError(
         404,
+        "SUBTASK_NOT_FOUND",
         `A subtask with ID '${subTaskId}' was not found`,
       );
     }
@@ -247,7 +250,7 @@ export default class RoutinesService {
 
   private static checkIDAvailability(id: string, checkingResources: DTO[]) {
     if (checkingResources.some((resource) => resource.id === id)) {
-      throw new StatefulError(409, `IDs have to be unique`);
+      throw new StatefulError(409, "DUPLICATE_ID", `IDs have to be unique`);
     }
   }
 
@@ -261,7 +264,11 @@ export default class RoutinesService {
         (resource) => resource.title.trim().toLowerCase() === normalizedTitle,
       )
     ) {
-      throw new StatefulError(409, `Titles have to be unique`);
+      throw new StatefulError(
+        409,
+        "DUPLICATE_TITLE",
+        `Titles have to be unique`,
+      );
     }
   }
 
@@ -283,9 +290,14 @@ export default class RoutinesService {
     const validation = validator.safeParse(resource);
 
     if (!validation.success) {
-      throw new StatefulError(400, "The requested mutation is bad", {
-        errors: formatZodErrors(validation.error.issues),
-      });
+      throw new StatefulError(
+        400,
+        "INVALID_RESOURCE_MUTATION",
+        "The requested mutation is bad",
+        {
+          errors: formatZodErrors(validation.error.issues),
+        },
+      );
     }
   }
 }

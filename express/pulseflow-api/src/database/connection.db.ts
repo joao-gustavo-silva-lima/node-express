@@ -16,7 +16,11 @@ export default class DatabaseConnection {
       .then((strDatabase) => JSON.parse(strDatabase) as Database)
       .catch((error) => {
         console.error(error);
-        throw new StatefulError(500, "Database connection failed.");
+        throw new StatefulError(
+          500,
+          "DATABASE_CONNECTION_FAILED",
+          "Database connection failed.",
+        );
       });
   }
 
@@ -26,6 +30,7 @@ export default class DatabaseConnection {
         console.error(error);
         throw new StatefulError(
           500,
+          "DATABASE_WRITE_FAILED",
           "Database writing failed. Connection ended with no writing",
         );
       },

@@ -37,5 +37,86 @@
       }
     ],
     "completionDates": []
+  },
+  {
+    "id": "routine-b0c3a566-8de9-4f50-ab8a-5dbe40f6944b",
+    "title": "Rotina de Saúde",
+    "habits": [
+      {
+        "id": "habit-813aea3d-8f96-43c9-81a0-afb092481185",
+        "title": "Correr 15 km",
+        "category": "Health",
+        "subTasks": [],
+        "completionDates": []
+      }
+    ],
+    "completionDates": []
+  },
+  {
+    "id": "routine-d77c7bcf-33f3-442b-bac3-842378274d8d",
+    "title": "Rotina de Teste",
+    "habits": [
+      {
+        "id": "habit-2696dce5-7476-4c79-bc12-08e3bc40a9b0",
+        "title": "Refatorar testes do projeto",
+        "category": "Work",
+        "subTasks": [
+          {
+            "id": "sub-task-d22ed474-cf0d-46c5-aaf3-9ac4841742b3",
+            "title": "Criar branch de refatoramento",
+            "completionDates": []
+          },
+          {
+            "id": "sub-task-8522d206-31d7-4469-b965-8e6219c33abf",
+            "title": "Pôr a mão na massa",
+            "completionDates": []
+          }
+        ],
+        "completionDates": []
+      }
+    ],
+    "completionDates": []
+  },
+  {
+    "id": "routine-1f52a9b5-78d6-4e65-9c23-448c1d62e3a8",
+    "title": "Rotina",
+    "habits": [
+      {
+        "id": "habit-f7c42564-3f53-4a2f-bf80-14f7df5afb5f",
+        "title": "...",
+        "category": "Personal",
+        "subTasks": [],
+        "completionDates": []
+      },
+      {
+        "id": "habit-bbc2c013-1dab-4ae4-843a-5473f729e417",
+        "title": "Remover essa rotina",
+        "category": "Personal",
+        "subTasks": [],
+        "completionDates": []
+      },
+      {
+        "id": "habit-08df6a5d-4ad2-4234-ab95-42f0a98d1293",
+        "title": "Novo hábito",
+        "category": "Studies",
+        "subTasks": [],
+        "completionDates": []
+      }
+    ],
+    "completionDates": []
+  },
+  {
+    "id": "routine-4c08339d-b745-4d8e-baa8-2db52228d79b",
+    "title": "Minha rotina novinha",
+    "habits": [
+      {
+        "id": "habit-dc52fbf0-2446-4e82-8e84-ef0885d35db6",
+        "title": "dsadasdas",
+        "category": "Studies",
+        "subTasks": [],
+        "completionDates": []
+      }
+    ],
+    "completionDates": []
   }
 ]

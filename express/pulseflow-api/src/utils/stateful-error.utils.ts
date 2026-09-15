@@ -1,6 +1,7 @@
 export class StatefulError extends Error {
   public constructor(
     public readonly status: number,
+    public readonly code: string,
     message: string,
     public readonly appendix?: { [k: string]: unknown },
     options?: ErrorOptions | undefined,

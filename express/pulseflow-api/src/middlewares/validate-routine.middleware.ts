@@ -8,6 +8,7 @@ export default function validateRoutineMiddleware(validationSchema: ZodObject) {
     if (req.headers["content-type"] !== "application/json") {
       throw new StatefulError(
         400,
+        "INVALID_CONTENT_TYPE",
         "The 'content-type: application/json' request header was expected",
       );
     }
@@ -20,8 +21,13 @@ export default function validateRoutineMiddleware(validationSchema: ZodObject) {
       return;
     }
 
-    throw new StatefulError(400, "The payload format is not valid", {
-      errors: formatZodErrors(validation.error.issues),
-    });
+    throw new StatefulError(
+      400,
+      "INVALID_PAYLOAD",
+      "The payload format is not valid",
+      {
+        errors: formatZodErrors(validation.error.issues),
+      },
+    );
   };
 }

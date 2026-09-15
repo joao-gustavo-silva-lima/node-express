@@ -8,6 +8,7 @@ export default class RoutinesController {
     const data = await RoutinesService.create(req.body, routineId, habitId);
 
     res.status(201).json({
+      code: "RESOURCE_CREATED",
       message: `The new ${data.resourceType} was created successfully`,
       data: data.resource,
     });
@@ -52,6 +53,7 @@ export default class RoutinesController {
     );
 
     res.json({
+      code: "RESOURCE_UPDATED",
       message: `The ${data.resourceType} with ID '${data.resource.id}' was updated successfully`,
       data: data.resource,
     });
@@ -66,6 +68,7 @@ export default class RoutinesController {
     const data = await RoutinesService.delete(routineId!, habitId, subTaskId);
 
     res.json({
+      code: "RESOURCE_DELETED",
       message: `The ${data.resourceType} with ID '${data.resource.id}' was deleted successfully`,
     });
   }
@@ -83,12 +86,14 @@ export default class RoutinesController {
     );
 
     res.json({
+      code: "COMPLETION_TOGGLED",
       message: `The ${data.resourceType} with ID '${data.resource.id}' was marked as '${data.toggleState}'`,
     });
   }
 
   public static notFound(req: Request, res: Response) {
     res.status(404).json({
+      code: "ROUTE_NOT_FOUND",
       message: `${req.method.toUpperCase} ${req.path} was not found`,
     });
   }
