@@ -268,6 +268,11 @@ export default class RoutinesService {
         409,
         `DUPLICATE_${type.toUpperCase()}_ID`,
         `IDs have to be unique`,
+        {
+          zodErrors: {
+            id: `DUPLICATE_${type.toUpperCase()}_ID`,
+          },
+        },
       );
     }
   }
@@ -287,6 +292,9 @@ export default class RoutinesService {
         409,
         `DUPLICATE_${type.toUpperCase()}_TITLE`,
         `Titles have to be unique`,
+        {
+          zodErrors: { title: `DUPLICATE_${type.toUpperCase()}_TITLE` },
+        },
       );
     }
   }
@@ -313,9 +321,7 @@ export default class RoutinesService {
         400,
         `INVALID_${type!.toUpperCase()}_MUTATION`,
         "The requested mutation is bad",
-        {
-          errors: formatZodErrors(validation.error.issues),
-        },
+        formatZodErrors(validation.error.issues),
       );
     }
   }

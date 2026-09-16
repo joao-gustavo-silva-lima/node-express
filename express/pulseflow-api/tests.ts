@@ -273,7 +273,7 @@ describe("routine routes", () => {
 
         expect(response.status).toBe(400);
         expect(response.body.message).toBe("The payload format is not valid");
-        expect(response.body.errors).toBeDefined();
+        expect(response.body.appendix).toBeDefined();
       },
     );
 
@@ -334,7 +334,7 @@ describe("routine routes", () => {
         const response = await request(app).post(route).send(payload);
 
         expect(response.status).toBe(400);
-        expect(response.body.errors).toBeDefined();
+        expect(response.body.appendix).toBeDefined();
       },
     );
 
@@ -357,7 +357,7 @@ describe("routine routes", () => {
 
         expect(response.status).toBe(400);
         expect(response.body.message).toBe("The payload format is not valid");
-        expect(response.body.errors).toBeDefined();
+        expect(response.body.appendix).toBeDefined();
       },
     );
   });

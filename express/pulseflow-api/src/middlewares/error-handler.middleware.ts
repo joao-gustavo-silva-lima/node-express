@@ -8,9 +8,11 @@ export default function errorHandlerMiddleware(
   next: NextFunction,
 ) {
   if (error instanceof StatefulError) {
-    res
-      .status(error.status)
-      .json({ code: error.code, message: error.message, ...error.appendix });
+    res.status(error.status).json({
+      code: error.code,
+      message: error.message,
+      appendix: error.appendix,
+    });
     return;
   }
 

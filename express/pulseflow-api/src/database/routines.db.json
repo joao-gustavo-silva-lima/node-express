@@ -48,6 +48,34 @@
         "category": "Studies",
         "subTasks": [],
         "completionDates": []
+      },
+      {
+        "id": "habit-145822f7-f6ee-4aa8-ad0a-af9e6be303e1",
+        "title": "Beber 2L de água",
+        "category": "Health",
+        "subTasks": [],
+        "completionDates": []
+      },
+      {
+        "id": "habit-ce1c5cb4-3ffe-4c45-9a5f-97a8c7063430",
+        "title": "Beber cachaça",
+        "category": "Health",
+        "subTasks": [],
+        "completionDates": []
+      },
+      {
+        "id": "habit-bd35061a-5e66-4db3-a6aa-0a3b937733a9",
+        "title": "Cuidar do corpo",
+        "category": "Health",
+        "subTasks": [],
+        "completionDates": []
+      },
+      {
+        "id": "habit-d9638bae-724f-4019-b94d-2ef2dc30f696",
+        "title": "Mais um hábito...",
+        "category": "Health",
+        "subTasks": [],
+        "completionDates": []
       }
     ],
     "completionDates": []
@@ -60,6 +88,45 @@
         "id": "habit-813aea3d-8f96-43c9-81a0-afb092481185",
         "title": "Correr 15 km",
         "category": "Health",
+        "subTasks": [],
+        "completionDates": []
+      },
+      {
+        "id": "habit-74d88ae3-5d29-4372-9e0e-d2389e3443e5",
+        "title": "Pescar",
+        "category": "Personal",
+        "subTasks": [
+          {
+            "id": "sub-task-da3c45c1-21b5-4386-89df-3a95f4c72c19",
+            "title": "Preparar iscas",
+            "completionDates": []
+          },
+          {
+            "id": "sub-task-aa5202e0-fe0d-4e18-a54c-150f6a3c1ef9",
+            "title": "Lançar anzol",
+            "completionDates": []
+          }
+        ],
+        "completionDates": []
+      },
+      {
+        "id": "habit-86511670-0f35-4aaa-917d-eb436aeaf423",
+        "title": "Voltar para casa...",
+        "category": "Personal",
+        "subTasks": [],
+        "completionDates": []
+      },
+      {
+        "id": "habit-ff64ed5f-ce2e-4e33-88d9-2a4f90aba559",
+        "title": "Não aguento mais escrever...",
+        "category": "Studies",
+        "subTasks": [],
+        "completionDates": []
+      },
+      {
+        "id": "habit-18fe1061-f07e-4748-8552-1bcecd5eea08",
+        "title": "Teste de Frags",
+        "category": "Personal",
         "subTasks": [],
         "completionDates": []
       }
@@ -154,6 +221,20 @@
       {
         "id": "habit-01ffe2f1-5638-4ace-92a3-624bfec4f93b",
         "title": "123",
+        "category": "Studies",
+        "subTasks": [],
+        "completionDates": []
+      }
+    ],
+    "completionDates": []
+  },
+  {
+    "id": "routine-468c59bc-f283-4a18-808b-718a087fdf5a",
+    "title": "Rotina de Canto",
+    "habits": [
+      {
+        "id": "habit-aecc1b50-951d-42a2-b672-32d64e9914e1",
+        "title": "Aquecer as pregas vocais",
         "category": "Studies",
         "subTasks": [],
         "completionDates": []

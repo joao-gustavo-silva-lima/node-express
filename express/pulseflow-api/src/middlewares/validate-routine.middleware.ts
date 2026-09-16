@@ -26,7 +26,7 @@ export default function validateRoutineMiddleware(validationSchema: ZodObject) {
       "INVALID_PAYLOAD",
       "The payload format is not valid",
       {
-        errors: formatZodErrors(validation.error.issues),
+        zodErrors: formatZodErrors(validation.error.issues),
       },
     );
   };
