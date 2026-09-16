@@ -10,6 +10,8 @@ import {
 import { StatefulError } from "../utils/stateful-error.utils.js";
 import formatZodErrors from "../utils/zod-errors-formater.utils.js";
 
+type ResourceType = "routine" | "habit" | "sub-task";
+
 export default class RoutinesService {
   public static async create(DTO: DTO, routineId?: string, habitId?: string) {
     const data = await DatabaseConnection.read();
@@ -23,12 +25,16 @@ export default class RoutinesService {
             parent: undefined,
             selfType: undefined,
             parentType: undefined,
-            childrenType: "routine",
+            childrenType: "routine" as ResourceType,
           }
         : this.checkExistence(data, routineId, habitId);
 
-    this.checkIDAvailability(DTO.id, resource.children);
-    this.checkTitleAvailability(DTO.title, resource.children);
+    this.checkIDAvailability(DTO.id, resource.childrenType!, resource.children);
+    this.checkTitleAvailability(
+      DTO.title,
+      resource.childrenType!,
+      resource.children,
+    );
 
     resource.children.push(DTO as any);
 
@@ -71,7 +77,11 @@ export default class RoutinesService {
     );
 
     if (DTO.title !== undefined) {
-      this.checkTitleAvailability(DTO.title, patchingResource.siblings);
+      this.checkTitleAvailability(
+        DTO.title,
+        patchingResource.selfType,
+        patchingResource.siblings,
+      );
 
       patchingResource.self.title = DTO.title;
     }
@@ -183,9 +193,9 @@ export default class RoutinesService {
     parent: DTO | undefined;
     siblings: DTO[];
     children: DTO[];
-    selfType: "routine" | "habit" | "sub-task";
-    parentType: "routine" | "habit" | "sub-task" | undefined;
-    childrenType: "routine" | "habit" | "sub-task" | undefined;
+    selfType: ResourceType;
+    parentType: ResourceType | undefined;
+    childrenType: ResourceType | undefined;
   } {
     const routine = database.find((routine) => routine.id === routineId);
 
@@ -248,14 +258,23 @@ export default class RoutinesService {
     };
   }
 
-  private static checkIDAvailability(id: string, checkingResources: DTO[]) {
+  private static checkIDAvailability(
+    id: string,
+    type: ResourceType,
+    checkingResources: DTO[],
+  ) {
     if (checkingResources.some((resource) => resource.id === id)) {
-      throw new StatefulError(409, "DUPLICATE_ID", `IDs have to be unique`);
+      throw new StatefulError(
+        409,
+        `DUPLICATE_${type.toUpperCase()}_ID`,
+        `IDs have to be unique`,
+      );
     }
   }
 
   private static checkTitleAvailability(
     title: string,
+    type: ResourceType,
     checkingResources: DTO[],
   ) {
     const normalizedTitle = title.trim().toLowerCase();
@@ -266,14 +285,14 @@ export default class RoutinesService {
     ) {
       throw new StatefulError(
         409,
-        "DUPLICATE_TITLE",
+        `DUPLICATE_${type.toUpperCase()}_TITLE`,
         `Titles have to be unique`,
       );
     }
   }
 
   private static validateResourceMutation(
-    type: "routine" | "habit" | "sub-task" | undefined,
+    type: ResourceType | undefined,
     resource: DTO,
   ) {
     const validator = (() => {

@@ -34,6 +34,20 @@
           }
         ],
         "completionDates": []
+      },
+      {
+        "id": "habit-a3f56bd9-c51d-43fa-aad6-fc7a3111bce9",
+        "title": "Comer um BOLO",
+        "category": "Health",
+        "subTasks": [],
+        "completionDates": []
+      },
+      {
+        "id": "habit-d1b19fe5-cfed-4d6c-a24a-f2b5daefc0ea",
+        "title": "ABCD",
+        "category": "Studies",
+        "subTasks": [],
+        "completionDates": []
       }
     ],
     "completionDates": []
@@ -112,6 +126,34 @@
       {
         "id": "habit-dc52fbf0-2446-4e82-8e84-ef0885d35db6",
         "title": "dsadasdas",
+        "category": "Studies",
+        "subTasks": [],
+        "completionDates": []
+      }
+    ],
+    "completionDates": []
+  },
+  {
+    "id": "routine-f5083916-118c-4bc8-88e6-c25a90f7f7df",
+    "title": "Rotina de Esportes",
+    "habits": [
+      {
+        "id": "habit-2b677ffd-fef1-49e9-b37e-e4a83aa1fe1d",
+        "title": "Nadar",
+        "category": "Health",
+        "subTasks": [],
+        "completionDates": []
+      }
+    ],
+    "completionDates": []
+  },
+  {
+    "id": "routine-4611db11-0002-4334-95b6-39940353e08e",
+    "title": "Nova Rotina de Teste",
+    "habits": [
+      {
+        "id": "habit-01ffe2f1-5638-4ace-92a3-624bfec4f93b",
+        "title": "123",
         "category": "Studies",
         "subTasks": [],
         "completionDates": []
