@@ -144,11 +144,11 @@ Successful create operations return status `201` and include a `code`, `message`
 
 Success response codes identify the resource affected by the operation:
 
-- `ROUTINE_CREATED`, `HABIT_CREATED`, or `SUBTASK_CREATED` for resource creation
-- `ROUTINE_UPDATED`, `HABIT_UPDATED`, or `SUBTASK_UPDATED` for resource updates
-- `ROUTINE_DELETED`, `HABIT_DELETED`, or `SUBTASK_DELETED` for resource deletion
-- `COMPLETED_ROUTINE`, `COMPLETED_HABIT`, or `COMPLETED_SUBTASK` when today's completion is added
-- `UNCOMPLETED_ROUTINE`, `UNCOMPLETED_HABIT`, or `UNCOMPLETED_SUBTASK` when today's completion is removed
+- `ROUTINE_CREATED`, `HABIT_CREATED`, or `SUB-TASK_CREATED` for resource creation
+- `ROUTINE_UPDATED`, `HABIT_UPDATED`, or `SUB-TASK_UPDATED` for resource updates
+- `ROUTINE_DELETED`, `HABIT_DELETED`, or `SUB-TASK_DELETED` for resource deletion
+- `COMPLETED_ROUTINE`, `COMPLETED_HABIT`, or `COMPLETED_SUB-TASK` when today's completion is added
+- `UNCOMPLETED_ROUTINE`, `UNCOMPLETED_HABIT`, or `UNCOMPLETED_SUB-TASK` when today's completion is removed
 
 For example, creating a habit returns a response like:
 
@@ -174,17 +174,17 @@ The values inside `errors` are stable validation codes rather than descriptive
 sentences. They identify the invalid field or rule, for example:
 
 - `INVALID_DATE_TYPE` and `INVALID_DATE_FORMAT` for completion dates
-- `INVALID_ROUTINE_ID`, `INVALID_HABIT_ID`, and `INVALID_SUBTASK_ID` for IDs
-- `ROUTINE_TITLE_REQUIRED`, `HABIT_TITLE_TOO_SHORT`, and `SUBTASK_TITLE_TOO_LONG` for titles
+- `INVALID_ROUTINE_ID`, `INVALID_HABIT_ID`, and `INVALID_SUB-TASK_ID` for IDs
+- `ROUTINE_TITLE_REQUIRED`, `HABIT_TITLE_TOO_SHORT`, and `SUB-TASK_TITLE_TOO_LONG` for titles
 - `INVALID_HABIT_CATEGORY` for unsupported habit categories
-- `ROUTINE_HABIT_LIMIT_EXCEEDED` and `HABIT_SUBTASK_LIMIT_EXCEEDED` for collection limits
-- `DUPLICATE_ROUTINE_HABIT_TITLE`, `DUPLICATE_HABIT_SUBTASK_TITLE`, and duplicate completion-date codes for repeated values
+- `ROUTINE_HABIT_LIMIT_EXCEEDED` and `HABIT_SUB-TASK_LIMIT_EXCEEDED` for collection limits
+- `DUPLICATE_ROUTINE_HABIT_TITLE`, `DUPLICATE_HABIT_SUB-TASK_TITLE`, and duplicate completion-date codes for repeated values
 
 Unknown routes return `ROUTE_NOT_FOUND`. Invalid mutations return a resource-specific
 code such as `INVALID_ROUTINE_MUTATION`, `INVALID_HABIT_MUTATION`, or
-`INVALID_SUBTASK_MUTATION`. Other common error codes include
+`INVALID_SUB-TASK_MUTATION`. Other common error codes include
 `INVALID_CONTENT_TYPE`, `ROUTINE_NOT_FOUND`, `HABIT_NOT_FOUND`,
-`SUBTASK_NOT_FOUND`, `DUPLICATE_ID`, `DATABASE_CONNECTION_FAILED`,
+`SUB-TASK_NOT_FOUND`, `DUPLICATE_ID`, `DATABASE_CONNECTION_FAILED`,
 `DATABASE_WRITE_FAILED`, and `INTERNAL_SERVER_ERROR`.
 
 Common status codes are:

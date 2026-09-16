@@ -19,24 +19,24 @@ const isoDateStringSchema = z
 
 export const subTaskSchema = z.object({
   id: z
-    .string("INVALID_SUBTASK_ID")
+    .string("INVALID_SUB-TASK_ID")
     .optional()
     .default(() => `sub-task-${crypto.randomUUID()}`),
   title: z
-    .string({ error: "SUBTASK_TITLE_REQUIRED" })
+    .string({ error: "SUB-TASK_TITLE_REQUIRED" })
     .trim()
-    .min(1, "SUBTASK_TITLE_EMPTY")
-    .min(2, "SUBTASK_TITLE_TOO_SHORT")
-    .max(60, "SUBTASK_TITLE_TOO_LONG"),
+    .min(1, "SUB-TASK_TITLE_EMPTY")
+    .min(2, "SUB-TASK_TITLE_TOO_SHORT")
+    .max(60, "SUB-TASK_TITLE_TOO_LONG"),
   completionDates: z
     .array(isoDateStringSchema, {
-      error: "INVALID_SUBTASK_COMPLETION_DATES",
+      error: "INVALID_SUB-TASK_COMPLETION_DATES",
     })
     .optional()
     .default(() => [])
     .refine(
       (dates) => new Set(dates).size === dates.length,
-      "DUPLICATE_SUBTASK_COMPLETION_DATE",
+      "DUPLICATE_SUB-TASK_COMPLETION_DATE",
     ),
 });
 
@@ -59,14 +59,17 @@ export const habitSchema = z.object({
 
   subTasks: z
     .array(subTaskSchema, {
-      error: "INVALID_HABIT_SUBTASKS",
+      error: "INVALID_HABIT_SUB-TASKS",
     })
-    .refine((subTasks) => subTasks.length <= 10, "HABIT_SUBTASK_LIMIT_EXCEEDED")
+    .refine(
+      (subTasks) => subTasks.length <= 10,
+      "HABIT_SUB-TASK_LIMIT_EXCEEDED",
+    )
     .refine(
       (subtasks) =>
         new Set(subtasks.map((subtask) => subtask.title)).size ===
         subtasks.map((subtask) => subtask.title).length,
-      "DUPLICATE_HABIT_SUBTASK_TITLE",
+      "DUPLICATE_HABIT_SUB-TASK_TITLE",
     )
     .optional()
     .default([]),

@@ -242,7 +242,7 @@ export default class RoutinesService {
     if (!subTask) {
       throw new StatefulError(
         404,
-        "SUBTASK_NOT_FOUND",
+        "SUB-TASK_NOT_FOUND",
         `A subtask with ID '${subTaskId}' was not found`,
       );
     }
