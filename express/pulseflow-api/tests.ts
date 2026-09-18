@@ -249,6 +249,59 @@ describe("routine routes", () => {
         today,
       );
     });
+
+    it("propagates completion dates to parent resources when creating a completed child", async () => {
+      const today = new Date().toISOString().split("T")[0];
+
+      await request(app).post(
+        `/${routineId}/habits/${habitId}/sub-tasks/${subTaskId}/toggle-today`,
+      );
+
+      const createResponse = await request(app)
+        .post(`/${routineId}/habits/${habitId}/sub-tasks`)
+        .send({
+          title: "Ler vinte paginas",
+          completionDates: [today],
+        });
+
+      expect(createResponse.status).toBe(201);
+
+      const completedHabitResponse = await request(app).get(
+        `/${routineId}/habits/${habitId}`,
+      );
+      const completedRoutineResponse = await request(app).get(`/${routineId}`);
+
+      expect(completedHabitResponse.body.completionDates).toContain(today);
+      expect(completedRoutineResponse.body.completionDates).toContain(today);
+    });
+
+    it("removes completion dates from parent resources when deleting a child", async () => {
+      const today = new Date().toISOString().split("T")[0];
+
+      await request(app).post(
+        `/${routineId}/habits/${habitId}/sub-tasks/${subTaskId}/toggle-today`,
+      );
+
+      const deleteResponse = await request(app).delete(
+        `/${routineId}/habits/${habitId}/sub-tasks/${subTaskId}`,
+      );
+
+      expect(deleteResponse.status).toBe(200);
+
+      const uncompletedHabitResponse = await request(app).get(
+        `/${routineId}/habits/${habitId}`,
+      );
+      const uncompletedRoutineResponse = await request(app).get(
+        `/${routineId}`,
+      );
+
+      expect(uncompletedHabitResponse.body.completionDates).not.toContain(
+        today,
+      );
+      expect(uncompletedRoutineResponse.body.completionDates).not.toContain(
+        today,
+      );
+    });
   });
 
   describe("payload contracts and validations", () => {

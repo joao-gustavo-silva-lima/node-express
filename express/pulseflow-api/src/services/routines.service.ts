@@ -41,6 +41,24 @@ export default class RoutinesService {
 
     this.validateResourceMutation(resource.selfType, resource.self);
 
+    const ids = [routineId, habitId].filter(Boolean) as [
+      string,
+      string?,
+      string?,
+    ];
+    const todayISOString = this.getTodayCompletionISOString();
+
+    while (ids.length > 0) {
+      this.toggleCompletionDates(
+        this.getTodayCompletionISOString(),
+        true,
+        data,
+        ...ids,
+      );
+
+      ids.pop();
+    }
+
     await DatabaseConnection.write(data);
 
     return { resource: DTO, resourceType: resource.childrenType };
@@ -116,6 +134,18 @@ export default class RoutinesService {
       this.validateResourceMutation(resource.parentType!, resource.parent);
     }
 
+    const todayISOString = this.getTodayCompletionISOString();
+    const ids = [routineId, habitId, subTaskId].filter(Boolean) as [
+      string,
+      string?,
+      string?,
+    ];
+
+    while (ids.length > 1) {
+      ids.pop();
+      this.toggleCompletionDates(todayISOString, false, data, ...ids);
+    }
+
     await DatabaseConnection.write(data);
 
     return { resource: resource.self, resourceType: resource.selfType };
@@ -127,10 +157,12 @@ export default class RoutinesService {
     subTaskId?: string,
   ) {
     const data = await DatabaseConnection.read();
-    const todayISOString = new Date().toISOString().split("T")[0]!;
-    const ids = [routineId, habitId, subTaskId].filter(
-      (id) => id !== undefined,
-    ) as [string, string?, string?];
+    const todayISOString = this.getTodayCompletionISOString();
+    const ids = [routineId, habitId, subTaskId].filter(Boolean) as [
+      string,
+      string?,
+      string?,
+    ];
 
     const mainToggle = this.toggleCompletionDates(
       todayISOString,
@@ -182,6 +214,10 @@ export default class RoutinesService {
     ];
 
     return { resource, isCompleting };
+  }
+
+  private static getTodayCompletionISOString() {
+    return new Date().toISOString().split("T")[0]!;
   }
 
   private static checkExistence(
