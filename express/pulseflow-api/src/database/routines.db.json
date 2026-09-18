@@ -1,139 +1,5 @@
 [
   {
-    "id": "routine-e60a4ff7-e8b1-48e9-ab05-7bdedb0e72a5",
-    "title": "Rotina Experimental",
-    "habits": [
-      {
-        "id": "habit-5b441983-8644-4787-aa78-239fef0c208a",
-        "title": "Beber 3L de água",
-        "category": "Health",
-        "subTasks": [],
-        "completionDates": []
-      },
-      {
-        "id": "habit-3127b456-3ba2-4033-b783-faaecbeecb7b",
-        "title": "Beber +3L de água",
-        "category": "Health",
-        "subTasks": [],
-        "completionDates": []
-      },
-      {
-        "id": "habit-75bb37d2-97b9-4e0c-a58d-289304cbd384",
-        "title": "Treinar Pernas",
-        "category": "Health",
-        "subTasks": [
-          {
-            "id": "sub-task-696c9d02-88bb-4294-bc8d-0052bdc87a8f",
-            "title": "Cadeira Extensora",
-            "completionDates": []
-          },
-          {
-            "id": "sub-task-e7fe32b4-572d-485b-bf4f-b89edf2531e9",
-            "title": "Agachamento Smith",
-            "completionDates": []
-          }
-        ],
-        "completionDates": []
-      },
-      {
-        "id": "habit-a3f56bd9-c51d-43fa-aad6-fc7a3111bce9",
-        "title": "Comer um BOLO",
-        "category": "Health",
-        "subTasks": [],
-        "completionDates": []
-      },
-      {
-        "id": "habit-d1b19fe5-cfed-4d6c-a24a-f2b5daefc0ea",
-        "title": "ABCD",
-        "category": "Studies",
-        "subTasks": [],
-        "completionDates": []
-      },
-      {
-        "id": "habit-145822f7-f6ee-4aa8-ad0a-af9e6be303e1",
-        "title": "Beber 2L de água",
-        "category": "Health",
-        "subTasks": [],
-        "completionDates": []
-      },
-      {
-        "id": "habit-ce1c5cb4-3ffe-4c45-9a5f-97a8c7063430",
-        "title": "Beber cachaça",
-        "category": "Health",
-        "subTasks": [],
-        "completionDates": []
-      },
-      {
-        "id": "habit-bd35061a-5e66-4db3-a6aa-0a3b937733a9",
-        "title": "Cuidar do corpo",
-        "category": "Health",
-        "subTasks": [],
-        "completionDates": []
-      },
-      {
-        "id": "habit-d9638bae-724f-4019-b94d-2ef2dc30f696",
-        "title": "Mais um hábito...",
-        "category": "Health",
-        "subTasks": [],
-        "completionDates": []
-      }
-    ],
-    "completionDates": []
-  },
-  {
-    "id": "routine-b0c3a566-8de9-4f50-ab8a-5dbe40f6944b",
-    "title": "Rotina de Saúde",
-    "habits": [
-      {
-        "id": "habit-813aea3d-8f96-43c9-81a0-afb092481185",
-        "title": "Correr 15 km",
-        "category": "Health",
-        "subTasks": [],
-        "completionDates": []
-      },
-      {
-        "id": "habit-74d88ae3-5d29-4372-9e0e-d2389e3443e5",
-        "title": "Pescar",
-        "category": "Personal",
-        "subTasks": [
-          {
-            "id": "sub-task-da3c45c1-21b5-4386-89df-3a95f4c72c19",
-            "title": "Preparar iscas",
-            "completionDates": []
-          },
-          {
-            "id": "sub-task-aa5202e0-fe0d-4e18-a54c-150f6a3c1ef9",
-            "title": "Lançar anzol",
-            "completionDates": []
-          }
-        ],
-        "completionDates": []
-      },
-      {
-        "id": "habit-86511670-0f35-4aaa-917d-eb436aeaf423",
-        "title": "Voltar para casa...",
-        "category": "Personal",
-        "subTasks": [],
-        "completionDates": []
-      },
-      {
-        "id": "habit-ff64ed5f-ce2e-4e33-88d9-2a4f90aba559",
-        "title": "Não aguento mais escrever...",
-        "category": "Studies",
-        "subTasks": [],
-        "completionDates": []
-      },
-      {
-        "id": "habit-18fe1061-f07e-4748-8552-1bcecd5eea08",
-        "title": "Teste de Frags",
-        "category": "Personal",
-        "subTasks": [],
-        "completionDates": []
-      }
-    ],
-    "completionDates": []
-  },
-  {
     "id": "routine-d77c7bcf-33f3-442b-bac3-842378274d8d",
     "title": "Rotina de Teste",
     "habits": [
@@ -146,40 +12,39 @@
             "id": "sub-task-d22ed474-cf0d-46c5-aaf3-9ac4841742b3",
             "title": "Criar branch de refatoramento",
             "completionDates": []
+          }
+        ],
+        "completionDates": []
+      },
+      {
+        "id": "habit-e68ab07f-85b3-468b-aac5-53ff23de81c5",
+        "title": "Verificar estado da suíte",
+        "category": "Work",
+        "subTasks": [],
+        "completionDates": []
+      },
+      {
+        "id": "habit-bbb6daa3-3ccd-4b8e-8dac-2d54ecf2081a",
+        "title": "Registrar Mudanças",
+        "category": "Work",
+        "subTasks": [
+          {
+            "id": "sub-task-920c54e0-4e36-4338-9443-0a48cc6472c3",
+            "title": "Commitar",
+            "completionDates": []
           },
           {
-            "id": "sub-task-8522d206-31d7-4469-b965-8e6219c33abf",
-            "title": "Pôr a mão na massa",
+            "id": "sub-task-c21f0fa9-dbb2-4404-9d2d-636da481ebe3",
+            "title": "Subir PR",
             "completionDates": []
           }
         ],
         "completionDates": []
-      }
-    ],
-    "completionDates": []
-  },
-  {
-    "id": "routine-1f52a9b5-78d6-4e65-9c23-448c1d62e3a8",
-    "title": "Rotina",
-    "habits": [
-      {
-        "id": "habit-f7c42564-3f53-4a2f-bf80-14f7df5afb5f",
-        "title": "...",
-        "category": "Personal",
-        "subTasks": [],
-        "completionDates": []
       },
       {
-        "id": "habit-bbc2c013-1dab-4ae4-843a-5473f729e417",
-        "title": "Remover essa rotina",
-        "category": "Personal",
-        "subTasks": [],
-        "completionDates": []
-      },
-      {
-        "id": "habit-08df6a5d-4ad2-4234-ab95-42f0a98d1293",
-        "title": "Novo hábito",
-        "category": "Studies",
+        "id": "habit-85d51700-7b3b-436b-999c-823a57f68490",
+        "title": "Melhorar a coverage",
+        "category": "Work",
         "subTasks": [],
         "completionDates": []
       }
@@ -187,55 +52,13 @@
     "completionDates": []
   },
   {
-    "id": "routine-4c08339d-b745-4d8e-baa8-2db52228d79b",
-    "title": "Minha rotina novinha",
+    "id": "routine-a9a70870-6c66-47cf-9576-9d00468b13b6",
+    "title": "Nova rotina",
     "habits": [
       {
-        "id": "habit-dc52fbf0-2446-4e82-8e84-ef0885d35db6",
-        "title": "dsadasdas",
-        "category": "Studies",
-        "subTasks": [],
-        "completionDates": []
-      }
-    ],
-    "completionDates": []
-  },
-  {
-    "id": "routine-f5083916-118c-4bc8-88e6-c25a90f7f7df",
-    "title": "Rotina de Esportes",
-    "habits": [
-      {
-        "id": "habit-2b677ffd-fef1-49e9-b37e-e4a83aa1fe1d",
-        "title": "Nadar",
-        "category": "Health",
-        "subTasks": [],
-        "completionDates": []
-      }
-    ],
-    "completionDates": []
-  },
-  {
-    "id": "routine-4611db11-0002-4334-95b6-39940353e08e",
-    "title": "Nova Rotina de Teste",
-    "habits": [
-      {
-        "id": "habit-01ffe2f1-5638-4ace-92a3-624bfec4f93b",
-        "title": "123",
-        "category": "Studies",
-        "subTasks": [],
-        "completionDates": []
-      }
-    ],
-    "completionDates": []
-  },
-  {
-    "id": "routine-468c59bc-f283-4a18-808b-718a087fdf5a",
-    "title": "Rotina de Canto",
-    "habits": [
-      {
-        "id": "habit-aecc1b50-951d-42a2-b672-32d64e9914e1",
-        "title": "Aquecer as pregas vocais",
-        "category": "Studies",
+        "id": "habit-3a0c1391-523e-40bf-998d-6cc741c2f8ba",
+        "title": "Teste",
+        "category": "Work",
         "subTasks": [],
         "completionDates": []
       }

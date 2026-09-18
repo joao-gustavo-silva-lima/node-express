@@ -94,7 +94,7 @@ export default class RoutinesController {
   public static notFound(req: Request, res: Response) {
     res.status(404).json({
       code: "ROUTE_NOT_FOUND",
-      message: `${req.method.toUpperCase} ${req.path} was not found`,
+      message: `${req.method.toUpperCase()} ${req.path} was not found`,
     });
   }
 }

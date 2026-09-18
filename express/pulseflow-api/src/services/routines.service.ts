@@ -5,6 +5,7 @@ import {
   DTO,
   Habit,
   habitChildrenSchema,
+  Routine,
   routineChildrenSchema,
 } from "../types/routines.types.js";
 import { StatefulError } from "../utils/stateful-error.utils.js";
@@ -299,30 +300,35 @@ export default class RoutinesService {
     }
   }
 
+  //UPGRADE
   private static validateResourceMutation(
     type: ResourceType | undefined,
     resource: DTO,
   ) {
-    const validator = (() => {
-      switch (type) {
-        case "routine":
-          return routineChildrenSchema;
-        case "habit":
-          return habitChildrenSchema;
+    let error: string | null = null;
+
+    if (type === "routine") {
+      const routine = resource as Routine;
+
+      if (routine.habits.length === 0) {
+        error = "ROUTINE_HABIT_REQUIRED";
       }
-    })();
 
-    if (validator === undefined) return;
+      if (routine.habits.length > 15) {
+        error = "ROUTINE_HABIT_LIMIT_EXCEEDED";
+      }
+    }
 
-    const validation = validator.safeParse(resource);
+    if (type === "habit") {
+      const habit = resource as Habit;
 
-    if (!validation.success) {
-      throw new StatefulError(
-        400,
-        `INVALID_${type!.toUpperCase()}_MUTATION`,
-        "The requested mutation is bad",
-        formatZodErrors(validation.error.issues),
-      );
+      if (habit.subTasks.length > 10) {
+        error = "HABIT_SUB-TASK_LIMIT_EXCEEDED";
+      }
+    }
+
+    if (error !== null) {
+      throw new StatefulError(400, error, "The requested mutation is bad");
     }
   }
 }
