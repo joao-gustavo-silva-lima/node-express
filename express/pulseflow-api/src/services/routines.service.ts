@@ -173,7 +173,7 @@ export default class RoutinesService {
 
     while (ids.length > 1) {
       ids.pop();
-      this.toggleCompletionDates(todayISOString, false, data, ...ids);
+      this.toggleCompletionDates(todayISOString, true, data, ...ids);
     }
 
     await DatabaseConnection.write(data);

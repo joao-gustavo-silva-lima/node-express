@@ -250,6 +250,45 @@ describe("routine routes", () => {
       );
     });
 
+    it("does not complete parents while a child is still pending", async () => {
+      const today = new Date().toISOString().split("T")[0];
+      const secondSubTaskId = "sub-task-pending";
+
+      await request(app)
+        .post(`/${routineId}/habits/${habitId}/sub-tasks`)
+        .send({ id: secondSubTaskId, title: "Ler vinte paginas" });
+
+      await request(app).post(
+        `/${routineId}/habits/${habitId}/sub-tasks/${subTaskId}/toggle-today`,
+      );
+
+      const habitWithPendingChildResponse = await request(app).get(
+        `/${routineId}/habits/${habitId}`,
+      );
+      const routineWithPendingChildResponse = await request(app).get(
+        `/${routineId}`,
+      );
+
+      expect(
+        habitWithPendingChildResponse.body.completionDates,
+      ).not.toContain(today);
+      expect(
+        routineWithPendingChildResponse.body.completionDates,
+      ).not.toContain(today);
+
+      await request(app).post(
+        `/${routineId}/habits/${habitId}/sub-tasks/${secondSubTaskId}/toggle-today`,
+      );
+
+      const completedHabitResponse = await request(app).get(
+        `/${routineId}/habits/${habitId}`,
+      );
+      const completedRoutineResponse = await request(app).get(`/${routineId}`);
+
+      expect(completedHabitResponse.body.completionDates).toContain(today);
+      expect(completedRoutineResponse.body.completionDates).toContain(today);
+    });
+
     it("propagates completion dates to parent resources when creating a completed child", async () => {
       const today = new Date().toISOString().split("T")[0];
 

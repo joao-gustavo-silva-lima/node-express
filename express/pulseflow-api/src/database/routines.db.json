@@ -1,7 +1,7 @@
 [
   {
     "id": "routine-d77c7bcf-33f3-442b-bac3-842378274d8d",
-    "title": "Rotina de Teste",
+    "title": "Rotina de Trabalho",
     "habits": [
       {
         "id": "habit-2696dce5-7476-4c79-bc12-08e3bc40a9b0",
@@ -53,13 +53,43 @@
   },
   {
     "id": "routine-a9a70870-6c66-47cf-9576-9d00468b13b6",
-    "title": "Nova rotina",
+    "title": "Rotina (Mock)",
     "habits": [
       {
         "id": "habit-3a0c1391-523e-40bf-998d-6cc741c2f8ba",
-        "title": "Teste",
-        "category": "Work",
-        "subTasks": [],
+        "title": "Hábito (Mock)",
+        "category": "Studies",
+        "subTasks": [
+          {
+            "id": "sub-task-9f467b87-09c9-4d39-9e05-dc343e2da607",
+            "title": "Sub-Tarefa (Mock)",
+            "completionDates": [
+              "2026-09-19"
+            ]
+          }
+        ],
+        "completionDates": [
+          "2026-09-19"
+        ]
+      },
+      {
+        "id": "habit-679e93b3-4065-49e2-b922-8f988e9376d7",
+        "title": "Hábito 2 (Mock)",
+        "category": "Finance",
+        "subTasks": [
+          {
+            "id": "sub-task-a4108cc5-19d7-4045-be5f-79ebca49f7a9",
+            "title": "Sub-Tarefa (Mock)",
+            "completionDates": []
+          },
+          {
+            "id": "sub-task-aae47ee1-8b05-4d28-aedb-cca207e9185a",
+            "title": "Sub-Tarefa 2 (Mock)",
+            "completionDates": [
+              "2026-09-19"
+            ]
+          }
+        ],
         "completionDates": []
       }
     ],
