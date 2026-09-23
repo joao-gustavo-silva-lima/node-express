@@ -73,16 +73,17 @@ export default class RoutinesController {
     });
   }
 
-  public static async toggleTodaysCompletionDate(req: Request, res: Response) {
+  public static async toggleCompletionDate(req: Request, res: Response) {
     const { routineId, habitId, subTaskId } = req.params as Record<
       string,
       string
     >;
 
-    const data = await RoutinesService.toggleTodaysCompletionDate(
+    const data = await RoutinesService.toggleCompletionDate(
       routineId!,
       habitId,
       subTaskId,
+      req.body?.date as string | undefined,
     );
 
     res.json({

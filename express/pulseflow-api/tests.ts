@@ -269,9 +269,9 @@ describe("routine routes", () => {
         `/${routineId}`,
       );
 
-      expect(
-        habitWithPendingChildResponse.body.completionDates,
-      ).not.toContain(today);
+      expect(habitWithPendingChildResponse.body.completionDates).not.toContain(
+        today,
+      );
       expect(
         routineWithPendingChildResponse.body.completionDates,
       ).not.toContain(today);

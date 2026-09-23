@@ -14,7 +14,12 @@ import formatZodErrors from "../utils/zod-errors-formater.utils.js";
 type ResourceType = "routine" | "habit" | "sub-task";
 
 export default class RoutinesService {
-  public static async create(DTO: DTO, routineId?: string, habitId?: string) {
+  public static async create(
+    DTO: DTO,
+    routineId?: string,
+    habitId?: string,
+    date?: string,
+  ) {
     const data = await DatabaseConnection.read();
 
     const resource =
@@ -46,11 +51,10 @@ export default class RoutinesService {
       string?,
       string?,
     ];
-    const todayISOString = this.getTodayCompletionISOString();
 
     while (ids.length > 0) {
       this.toggleCompletionDates(
-        this.getTodayCompletionISOString(),
+        date ?? this.getTodayCompletionISOString(),
         true,
         data,
         ...ids,
@@ -121,6 +125,7 @@ export default class RoutinesService {
     routineId: string,
     habitId?: string,
     subTaskId?: string,
+    date?: string,
   ) {
     const data = await DatabaseConnection.read();
     const resource = this.checkExistence(data, routineId, habitId, subTaskId);
@@ -134,7 +139,6 @@ export default class RoutinesService {
       this.validateResourceMutation(resource.parentType!, resource.parent);
     }
 
-    const todayISOString = this.getTodayCompletionISOString();
     const ids = [routineId, habitId, subTaskId].filter(Boolean) as [
       string,
       string?,
@@ -143,7 +147,12 @@ export default class RoutinesService {
 
     while (ids.length > 1) {
       ids.pop();
-      this.toggleCompletionDates(todayISOString, false, data, ...ids);
+      this.toggleCompletionDates(
+        date ?? this.getTodayCompletionISOString(),
+        false,
+        data,
+        ...ids,
+      );
     }
 
     await DatabaseConnection.write(data);
@@ -151,13 +160,14 @@ export default class RoutinesService {
     return { resource: resource.self, resourceType: resource.selfType };
   }
 
-  public static async toggleTodaysCompletionDate(
+  public static async toggleCompletionDate(
     routineId: string,
     habitId?: string,
     subTaskId?: string,
+    date?: string,
   ) {
     const data = await DatabaseConnection.read();
-    const todayISOString = this.getTodayCompletionISOString();
+    const todayISOString = date ?? this.getTodayCompletionISOString();
     const ids = [routineId, habitId, subTaskId].filter(Boolean) as [
       string,
       string?,

@@ -5,6 +5,7 @@ import {
   habitSchema,
   routineSchema,
   subTaskSchema,
+  toggleDateSchema,
 } from "../types/routines.types.js";
 import { z } from "zod";
 
@@ -64,7 +65,17 @@ router.post(
     "/:routineId/habits/:habitId/toggle-today",
     "/:routineId/habits/:habitId/sub-tasks/:subTaskId/toggle-today",
   ],
-  RoutinesController.toggleTodaysCompletionDate,
+  RoutinesController.toggleCompletionDate,
+);
+
+router.post(
+  [
+    "/:routineId/toggle-date",
+    "/:routineId/habits/:habitId/toggle-date",
+    "/:routineId/habits/:habitId/sub-tasks/:subTaskId/toggle-date",
+  ],
+  validateRoutineMiddleware(toggleDateSchema),
+  RoutinesController.toggleCompletionDate,
 );
 
 router.use(RoutinesController.notFound);

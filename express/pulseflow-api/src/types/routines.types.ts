@@ -17,6 +17,10 @@ const isoDateStringSchema = z
     "INVALID_DATE_FORMAT",
   );
 
+export const toggleDateSchema = z.object({
+  date: isoDateStringSchema,
+});
+
 export const subTaskSchema = z.object({
   id: z
     .string("INVALID_SUB-TASK_ID")
