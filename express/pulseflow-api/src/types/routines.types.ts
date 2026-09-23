@@ -17,7 +17,7 @@ const isoDateStringSchema = z
     "INVALID_DATE_FORMAT",
   );
 
-export const toggleDateSchema = z.object({
+export const dateSchema = z.object({
   date: isoDateStringSchema,
 });
 

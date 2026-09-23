@@ -4,8 +4,9 @@ import RoutinesService from "../services/routines.service.js";
 export default class RoutinesController {
   public static async create(req: Request, res: Response) {
     const { routineId, habitId } = req.params as Record<string, string>;
+    const { date, ...DTO } = req.body;
 
-    const data = await RoutinesService.create(req.body, routineId, habitId);
+    const data = await RoutinesService.create(DTO, routineId, habitId, date);
 
     res.status(201).json({
       code: `${data.resourceType!.toUpperCase()}_CREATED`,
@@ -65,7 +66,12 @@ export default class RoutinesController {
       string
     >;
 
-    const data = await RoutinesService.delete(routineId!, habitId, subTaskId);
+    const data = await RoutinesService.delete(
+      routineId!,
+      habitId,
+      subTaskId,
+      req.body?.date,
+    );
 
     res.json({
       code: `${data.resourceType.toUpperCase()}_DELETED`,

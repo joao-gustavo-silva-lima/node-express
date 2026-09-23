@@ -149,7 +149,7 @@ export default class RoutinesService {
       ids.pop();
       this.toggleCompletionDates(
         date ?? this.getTodayCompletionISOString(),
-        false,
+        true,
         data,
         ...ids,
       );
@@ -213,7 +213,8 @@ export default class RoutinesService {
       (date) => date !== todayISOString,
     );
     const isCompleting = isParsingParent
-      ? resource.children.every((child) =>
+      ? resource.children.length > 0 &&
+        resource.children.every((child) =>
           child.completionDates.includes(todayISOString),
         )
       : resource.self.completionDates.length === parsingDates.length;

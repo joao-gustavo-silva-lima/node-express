@@ -341,6 +341,38 @@ describe("routine routes", () => {
         today,
       );
     });
+
+    it("keeps parents completed when deleting a completed child and other children remain completed", async () => {
+      const today = new Date().toISOString().split("T")[0];
+      const secondSubTaskId = "sub-task-completed";
+
+      await request(app)
+        .post(`/${routineId}/habits/${habitId}/sub-tasks`)
+        .send({ id: secondSubTaskId, title: "Ler vinte paginas" });
+
+      await request(app)
+        .post(`/${routineId}/habits/${habitId}/sub-tasks/${subTaskId}/toggle-today`)
+        .send({ date: today });
+      await request(app)
+        .post(
+          `/${routineId}/habits/${habitId}/sub-tasks/${secondSubTaskId}/toggle-today`,
+        )
+        .send({ date: today });
+
+      const deleteResponse = await request(app)
+        .delete(`/${routineId}/habits/${habitId}/sub-tasks/${subTaskId}`)
+        .send({ date: today });
+
+      expect(deleteResponse.status).toBe(200);
+
+      const habitResponse = await request(app).get(
+        `/${routineId}/habits/${habitId}`,
+      );
+      const routineResponse = await request(app).get(`/${routineId}`);
+
+      expect(habitResponse.body.completionDates).toContain(today);
+      expect(routineResponse.body.completionDates).toContain(today);
+    });
   });
 
   describe("payload contracts and validations", () => {

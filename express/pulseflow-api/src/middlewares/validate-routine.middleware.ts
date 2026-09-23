@@ -3,9 +3,21 @@ import { StatefulError } from "../utils/stateful-error.utils.js";
 import { ZodObject } from "zod";
 import formatZodErrors from "../utils/zod-errors-formater.utils.js";
 
-export default function validateRoutineMiddleware(validationSchema: ZodObject) {
+export default function validateRoutineMiddleware(
+  validationSchema: ZodObject,
+  allowEmptyBody = false,
+) {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (req.headers["content-type"] !== "application/json") {
+    const hasEmptyBody = Object.keys(req.body ?? {}).length === 0;
+
+    if (allowEmptyBody && hasEmptyBody) {
+      req.body = {};
+    }
+
+    if (
+      req.headers["content-type"] !== "application/json" &&
+      !(allowEmptyBody && hasEmptyBody)
+    ) {
       throw new StatefulError(
         400,
         "INVALID_CONTENT_TYPE",

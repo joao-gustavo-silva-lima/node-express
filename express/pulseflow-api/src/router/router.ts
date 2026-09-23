@@ -5,7 +5,7 @@ import {
   habitSchema,
   routineSchema,
   subTaskSchema,
-  toggleDateSchema,
+  dateSchema,
 } from "../types/routines.types.js";
 import { z } from "zod";
 
@@ -18,7 +18,9 @@ export const router = express.Router();
 ].forEach(([route, schema]) =>
   router.post(
     route as string,
-    validateRoutineMiddleware(schema as z.ZodObject),
+    validateRoutineMiddleware(
+      (schema as z.ZodObject).extend(dateSchema.shape).partial({ date: true }),
+    ),
     RoutinesController.create,
   ),
 );
@@ -56,6 +58,7 @@ router.delete(
     "/:routineId/habits/:habitId",
     "/:routineId/habits/:habitId/sub-tasks/:subTaskId",
   ],
+  validateRoutineMiddleware(dateSchema.partial({ date: true }), true),
   RoutinesController.delete,
 );
 
@@ -74,7 +77,7 @@ router.post(
     "/:routineId/habits/:habitId/toggle-date",
     "/:routineId/habits/:habitId/sub-tasks/:subTaskId/toggle-date",
   ],
-  validateRoutineMiddleware(toggleDateSchema),
+  validateRoutineMiddleware(dateSchema),
   RoutinesController.toggleCompletionDate,
 );
 
