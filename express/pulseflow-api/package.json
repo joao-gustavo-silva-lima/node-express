@@ -5,6 +5,7 @@
   "main": "./src/server.js",
   "scripts": {
     "dev": "tsx watch ./src/server.ts",
+    "start": "tsx ./src/server.ts",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
   },
   "keywords": [],
