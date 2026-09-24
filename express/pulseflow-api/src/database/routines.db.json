@@ -469,7 +469,7 @@
   },
   {
     "id": "routine-4f3a2d91-0c77-4a8f-9a1e-2b6d7c8e9012",
-    "title": "Rotina de Saúde",
+    "title": "Rotina Saudável",
     "habits": [
       {
         "id": "habit-4f3a2d91-0c77-4a8f-9a1e-2b6d7c8e9013",
@@ -616,7 +616,7 @@
           },
           {
             "id": "sub-task-5a4b3c2d-1e0f-4a98-b765-43210fedcbac",
-            "title": "Limpar a mesa",
+            "title": "Limpar a escrivaninha",
             "completionDates": [
               "2025-10-11",
               "2025-11-08",
@@ -631,6 +631,11 @@
               "2026-08-15",
               "2026-09-12"
             ]
+          },
+          {
+            "id": "sub-task-5ac910ed-d663-4492-acb2-349ede9e3906",
+            "title": "Acender Incensos",
+            "completionDates": []
           }
         ],
         "completionDates": [
@@ -701,6 +706,19 @@
           "2026-08-25",
           "2026-09-08"
         ]
+      },
+      {
+        "id": "habit-3257f110-0e58-4821-b76d-a5c0cc571921",
+        "title": "Tomar Banho de Sol",
+        "category": "Health",
+        "subTasks": [
+          {
+            "id": "sub-task-f05450d2-054a-475a-bd4b-3e05665ac540",
+            "title": "Passar protetor solar",
+            "completionDates": []
+          }
+        ],
+        "completionDates": []
       }
     ],
     "completionDates": [
