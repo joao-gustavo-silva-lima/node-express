@@ -4,7 +4,7 @@
   "description": "",
   "main": "./src/server.js",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && mkdir -p dist/database && cp src/database/routines.db.json dist/database/routines.db.json",
     "dev": "tsx watch ./src/server.ts",
     "start": "node ./dist/server.js",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand"
