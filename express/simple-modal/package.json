@@ -1,0 +1,22 @@
+{
+  "name": "simple-modal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts"
+  },
+  "keywords": [],
+  "type": "module",
+  "dependencies": {
+    "express": "^5.2.1",
+    "tsx": "^4.23.15"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.3"
+  },
+  "allowScripts": {
+    "esbuild": false
+  }
+}
