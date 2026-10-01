@@ -29,4 +29,20 @@ export const userSchema = z.object({
     .regex(/[^a-zA-Z0-9]/, { error: "PASSWORD_MISSING_SPECIAL_CHARACTER" }),
 });
 
+export const authUserSchema = userSchema.pick({
+  email: true,
+  password: true,
+});
+
 export type User = z.infer<typeof userSchema>;
+export type AuthUser = z.infer<typeof authUserSchema>;
+
+export type UserDB = Snakefy<User>;
+
+type CamelToSnakeCase<S extends string> = S extends `${infer L}${infer M}`
+  ? `${L extends Uppercase<L> ? `_${Lowercase<L>}` : L}${CamelToSnakeCase<M>}`
+  : S;
+
+type Snakefy<T extends Record<string, unknown>> = {
+  [K in keyof T as CamelToSnakeCase<Extract<K, string>>]: T[K];
+};
