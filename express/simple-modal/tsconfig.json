@@ -9,7 +9,7 @@
     // See also https://aka.ms/tsconfig/module
     "module": "nodenext",
     "target": "esnext",
-    "types": ["node", "express", "pg"],
+    "types": ["node", "express", "pg", "bcrypt"],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
