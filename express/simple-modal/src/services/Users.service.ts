@@ -43,7 +43,11 @@ export async function authenticateUserService(authUserDTO: AuthUser) {
       !(await bcrypt.compare(authUserDTO.password, user.password));
 
     if (isUnauthorized) {
-      throw new HttpError(401, "INVALID_CREDENTIALS");
+      throw new HttpError(
+        401,
+        "INVALID_CREDENTIALS",
+        "The credentials don't match an existent user record.",
+      );
     }
   } catch (error) {
     if (error instanceof DatabaseError) {

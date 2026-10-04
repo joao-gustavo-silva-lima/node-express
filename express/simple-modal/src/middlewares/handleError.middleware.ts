@@ -11,14 +11,17 @@ export default function handleErrorMiddleware(
 
   const status = httpError?.status || 505;
   const code = httpError?.code || "INTERNAL_SERVER_ERROR";
+  const message =
+    httpError?.message ||
+    "An internal server error has ocurred. Please, try again later.";
 
   if (code === "INTERNAL_SERVER_ERROR" || status === 505) {
-    const message =
+    const loggingMessage =
       error instanceof Error ? error.message : (error as any)?.message;
-    if (message) {
-      res.on("finish", () => console.error(message));
+    if (loggingMessage) {
+      res.on("finish", () => console.error(loggingMessage));
     }
   }
 
-  res.status(status).json({ code });
+  res.status(status).json({ code, message });
 }

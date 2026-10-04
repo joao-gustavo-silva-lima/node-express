@@ -5,7 +5,7 @@ export default class HttpError extends Error {
   public constructor(
     status: number,
     code: string,
-    message?: string | undefined,
+    message: string,
     options?: ErrorOptions | undefined,
   ) {
     super(message, options);
