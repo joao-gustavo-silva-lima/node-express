@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import {
-  authenticateUserService,
+  fetchByIdUserService,
+  loginUserService,
   registerUserService,
 } from "../services/Users.service.js";
 
@@ -13,11 +14,26 @@ export async function registerUserController(req: Request, res: Response) {
   });
 }
 
-export async function authenticateUserController(req: Request, res: Response) {
-  await authenticateUserService(req.body);
+export async function loginUserController(req: Request, res: Response) {
+  const token = await loginUserService(req.body);
+
+  res.cookie("token", token, {
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: 1000 * 60 * 60,
+    secure: process.env.NODE_ENV === "production",
+  });
 
   res.status(200).json({
-    code: "USER_AUTHENTICATED",
-    message: "The user authentication succeded.",
+    code: "USER_LOGGED_IN",
+    message: "The user logged in successfully.",
+  });
+}
+
+export async function fetchByIdUserController(req: Request, res: Response) {
+  res.json({
+    code: "SUCCESSFUL_USER_DATA_FETCH",
+    message: "The user data was fetched successfully.",
+    data: await fetchByIdUserService(req.authenticatedUserId),
   });
 }

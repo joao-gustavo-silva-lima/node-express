@@ -1,8 +1,9 @@
-import { DatabaseError } from "pg";
-import bcrypt from "bcrypt";
-import { pool } from "../database/database.db.js";
 import type { AuthUser, User, UserDB } from "../types/User.types.js";
 import HttpError from "../utils/HttpError.utils.js";
+import { pool } from "../database/database.db.js";
+import { DatabaseError } from "pg";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 export async function registerUserService(userDTO: User) {
   try {
@@ -42,7 +43,7 @@ export async function registerUserService(userDTO: User) {
   }
 }
 
-export async function authenticateUserService(authUserDTO: AuthUser) {
+export async function loginUserService(authUserDTO: AuthUser) {
   try {
     const query = `
       SELECT * FROM users
@@ -62,6 +63,44 @@ export async function authenticateUserService(authUserDTO: AuthUser) {
         "The credentials could not authenticate.",
       );
     }
+
+    if (process.env.JWT_SECRET === undefined) {
+      throw new HttpError(
+        505,
+        "NO_JWT_SECRECT_PROVIDED",
+        "Json Web Token secret was not provided by the host.",
+      );
+    }
+
+    return jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function fetchByIdUserService(id: string) {
+  try {
+    const query = `
+      SELECT *
+      FROM users
+      WHERE id = $1;
+    `;
+    const result = await pool.query(query, [id]);
+    const user: UserDB | undefined = result.rows[0];
+
+    if (user === undefined) {
+      throw new HttpError(
+        404,
+        "USER_NOT_FOUND",
+        `A user with id "${id}" was not found.`,
+      );
+    }
+
+    const { password, ...data } = user;
+
+    return data;
   } catch (error) {
     throw error;
   }

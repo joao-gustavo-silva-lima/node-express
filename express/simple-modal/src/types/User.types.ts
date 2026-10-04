@@ -30,13 +30,13 @@ export const userSchema = z.object({
     .transform(() => new Date().toISOString()),
 });
 
-export const authUserSchema = userSchema.pick({
+export const loginUserSchema = userSchema.pick({
   email: true,
   password: true,
 });
 
 export type User = z.infer<typeof userSchema>;
-export type AuthUser = z.infer<typeof authUserSchema>;
+export type AuthUser = z.infer<typeof loginUserSchema>;
 
 export type UserDB = Snakefy<User>;
 
