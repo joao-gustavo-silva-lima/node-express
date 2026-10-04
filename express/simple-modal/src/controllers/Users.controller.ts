@@ -30,6 +30,15 @@ export async function loginUserController(req: Request, res: Response) {
   });
 }
 
+export async function logoutUserController(req: Request, res: Response) {
+  res.clearCookie("token");
+
+  res.json({
+    code: "USER_LOGOUT",
+    message: "The user logged out successfully",
+  });
+}
+
 export async function fetchByIdUserController(req: Request, res: Response) {
   res.json({
     code: "SUCCESSFUL_USER_DATA_FETCH",

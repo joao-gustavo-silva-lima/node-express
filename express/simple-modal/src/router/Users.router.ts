@@ -3,6 +3,7 @@ import payloadValidationMiddleware from "../middlewares/payloadValidation.middle
 import {
   fetchByIdUserController,
   loginUserController,
+  logoutUserController,
   registerUserController,
 } from "../controllers/Users.controller.js";
 import { loginUserSchema, userSchema } from "../types/User.types.js";
@@ -21,6 +22,8 @@ router.post(
   payloadValidationMiddleware(loginUserSchema),
   loginUserController,
 );
+
+router.post("/auth/logout", logoutUserController);
 
 router.get("/auth/profile", tokenValidationMiddleware, fetchByIdUserController);
 
