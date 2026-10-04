@@ -21,7 +21,21 @@ export async function registerUserService(userDTO: User) {
     ]);
   } catch (error: unknown) {
     if (error instanceof DatabaseError) {
-      console.log(error);
+      if (error.code === "23505") {
+        throw new HttpError(
+          409,
+          "REGISTER_DATA_CONFLICT",
+          "The user email is already in use.",
+        );
+      }
+
+      if (error.code === "23502") {
+        throw new HttpError(
+          400,
+          "MISSING_REGISTER_DATA",
+          "No enough user data was provided to succeed the registration.",
+        );
+      }
     }
 
     throw error;
@@ -49,10 +63,6 @@ export async function authenticateUserService(authUserDTO: AuthUser) {
       );
     }
   } catch (error) {
-    if (error instanceof DatabaseError) {
-      //Handle Database Errors Here
-    }
-
     throw error;
   }
 }

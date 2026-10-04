@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import { DatabaseError } from "pg";
 
 export default function handleErrorMiddleware(
   error: any,
@@ -6,15 +7,17 @@ export default function handleErrorMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  const isDatabaseConnectionError =
-    error?.code === "ECONNREFUSED" || error?.code === "57P01";
+  const isDatabaseError =
+    error?.code === "ECONNREFUSED" ||
+    error?.code === "57P01" ||
+    error instanceof DatabaseError;
 
   const status = error?.status || 505;
-  const code = isDatabaseConnectionError
-    ? "DATABASE_CONNECTION_ERROR"
+  const code = isDatabaseError
+    ? "DATABASE_GENERIC_ERROR"
     : error?.code || "INTERNAL_SERVER_ERROR";
-  const message = isDatabaseConnectionError
-    ? "The service is unavailable. Please, try again later."
+  const message = isDatabaseError
+    ? "A database encountered an unexpected error. Please, try again later."
     : error?.message ||
       "An internal server error has ocurred. Please, try again later.";
 
