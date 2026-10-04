@@ -8,14 +8,10 @@ export const userSchema = z.object({
 
   name: z
     .string({ error: "INVALID_NAME_TYPE" })
-    .min(1, { error: "NAME_REQUIRED" }),
+    .min(1, { error: "NAME_REQUIRED" })
+    .max(255, { error: "NAME_TOO_LONG" }),
 
-  email: z.email({ error: "INVALID_EMAIL_FORMAT" }),
-
-  createdAt: z.iso
-    .datetime({ error: "INVALID_ISO_DATE_FORMAT" })
-    .optional()
-    .transform(() => new Date().toISOString()),
+  email: z.email({ error: "INVALID_EMAIL_FORMAT" }).max(255),
 
   password: z
     .string({
@@ -27,6 +23,11 @@ export const userSchema = z.object({
     .regex(/[a-z]/, { error: "PASSWORD_MISSING_LOWERCASE" })
     .regex(/[0-9]/, { error: "PASSWORD_MISSING_NUMBER" })
     .regex(/[^a-zA-Z0-9]/, { error: "PASSWORD_MISSING_SPECIAL_CHARACTER" }),
+
+  createdAt: z.iso
+    .datetime({ error: "INVALID_ISO_DATE_FORMAT" })
+    .optional()
+    .transform(() => new Date().toISOString()),
 });
 
 export const authUserSchema = userSchema.pick({

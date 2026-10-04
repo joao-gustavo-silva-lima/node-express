@@ -7,7 +7,7 @@ import HttpError from "../utils/HttpError.utils.js";
 export async function registerUserService(userDTO: User) {
   try {
     const query = `
-      INSERT INTO users (id, name, email, created_at, password) 
+      INSERT INTO users (id, name, email, password, created_at) 
       VALUES ($1,$2,$3,$4,$5)
     `;
     const passwordHash = await bcrypt.hash(userDTO.password, 10);
@@ -16,12 +16,11 @@ export async function registerUserService(userDTO: User) {
       userDTO.id,
       userDTO.name,
       userDTO.email,
-      userDTO.createdAt,
       passwordHash,
+      userDTO.createdAt,
     ]);
   } catch (error: unknown) {
     if (error instanceof DatabaseError) {
-      //Handle Database Errors Here
       console.log(error);
     }
 
@@ -36,8 +35,8 @@ export async function authenticateUserService(authUserDTO: AuthUser) {
       WHERE email = $1;
     `;
     const result = await pool.query(query, [authUserDTO.email]);
-    const user: UserDB | undefined = result.rows[0];
 
+    const user: UserDB | undefined = result.rows[0];
     const isUnauthorized =
       user === undefined ||
       !(await bcrypt.compare(authUserDTO.password, user.password));
@@ -46,13 +45,12 @@ export async function authenticateUserService(authUserDTO: AuthUser) {
       throw new HttpError(
         401,
         "INVALID_CREDENTIALS",
-        "The credentials don't match an existent user record.",
+        "The credentials could not authenticate.",
       );
     }
   } catch (error) {
     if (error instanceof DatabaseError) {
       //Handle Database Errors Here
-      console.log(error);
     }
 
     throw error;

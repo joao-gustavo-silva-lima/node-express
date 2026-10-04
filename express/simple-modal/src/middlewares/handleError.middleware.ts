@@ -1,19 +1,22 @@
 import type { NextFunction, Request, Response } from "express";
-import HttpError from "../utils/HttpError.utils.js";
 
 export default function handleErrorMiddleware(
-  error: unknown,
+  error: any,
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
-  const httpError = error instanceof HttpError ? error : null;
+  const isDatabaseConnectionError =
+    error?.code === "ECONNREFUSED" || error?.code === "57P01";
 
-  const status = httpError?.status || 505;
-  const code = httpError?.code || "INTERNAL_SERVER_ERROR";
-  const message =
-    httpError?.message ||
-    "An internal server error has ocurred. Please, try again later.";
+  const status = error?.status || 505;
+  const code = isDatabaseConnectionError
+    ? "DATABASE_CONNECTION_ERROR"
+    : error?.code || "INTERNAL_SERVER_ERROR";
+  const message = isDatabaseConnectionError
+    ? "The service is unavailable. Please, try again later."
+    : error?.message ||
+      "An internal server error has ocurred. Please, try again later.";
 
   if (code === "INTERNAL_SERVER_ERROR" || status === 505) {
     const loggingMessage =

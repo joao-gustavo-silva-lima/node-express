@@ -9,13 +9,13 @@ import { authUserSchema, userSchema } from "../types/User.types.js";
 export const router = Router();
 
 router.post(
-  "/",
+  "/auth/register",
   payloadValidationMiddleware(userSchema),
   registerUserController,
 );
 
 router.post(
-  "/auth",
+  "/auth/login",
   payloadValidationMiddleware(authUserSchema),
   authenticateUserController,
 );
