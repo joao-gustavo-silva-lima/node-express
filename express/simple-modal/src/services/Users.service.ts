@@ -1,6 +1,6 @@
 import type { AuthUser, User, UserDB } from "../types/User.types.js";
 import HttpError from "../utils/HttpError.utils.js";
-import { pool } from "../database/database.db.js";
+import pool from "../database/database.db.js";
 import { DatabaseError } from "pg";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";

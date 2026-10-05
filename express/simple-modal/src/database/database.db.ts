@@ -1,3 +1,5 @@
 import { Pool } from "pg";
 
-export const pool = new Pool();
+const pool = new Pool();
+
+export default pool;

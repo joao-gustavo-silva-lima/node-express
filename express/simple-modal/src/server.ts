@@ -12,6 +12,18 @@ if (process.env.PORT === undefined) {
   );
 }
 
+if (
+  ["PGPORT", "PGUSER", "PGHOST", "PGDATABASE", "PGPASSWORD"].some(
+    (directive) => process.env[directive] === undefined,
+  )
+) {
+  throw new HttpError(
+    500,
+    "MISSING_DATABASE_ENV_VARIABLES",
+    "Some database environment variables were not defined.",
+  );
+}
+
 const PORT = process.env.PORT;
 
 app.listen(PORT, () =>
