@@ -1,15 +1,17 @@
-import { Router } from "express";
 import payloadValidationMiddleware from "../middlewares/payloadValidation.middleware.js";
+import tokenValidationMiddleware from "../middlewares/tokenValidation.middleware.js";
+import { loginUserSchema, userSchema } from "../types/User.types.js";
 import {
   fetchByIdUserController,
   loginUserController,
   logoutUserController,
   registerUserController,
 } from "../controllers/Users.controller.js";
-import { loginUserSchema, userSchema } from "../types/User.types.js";
-import tokenValidationMiddleware from "../middlewares/tokenValidation.middleware.js";
+import { Router } from "express";
 
-export const router = Router();
+const router = Router();
+
+export default router;
 
 router.post(
   "/auth/register",
@@ -27,4 +29,9 @@ router.post("/auth/logout", logoutUserController);
 
 router.get("/auth/profile", tokenValidationMiddleware, fetchByIdUserController);
 
-router.use((req, res) => res.status(404).json("ROUTE_NOT_FOUND"));
+router.use((req, res) =>
+  res.status(404).json({
+    code: "ROUTE_NOT_FOUND",
+    message: "The requested route was not found.",
+  }),
+);

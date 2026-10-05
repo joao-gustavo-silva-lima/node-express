@@ -1,4 +1,4 @@
-import { router } from "./router/Users.router.js";
+import router from "./router/Users.router.js";
 import handleErrorMiddleware from "./middlewares/handleError.middleware.js";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";

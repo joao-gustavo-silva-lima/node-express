@@ -1,14 +1,14 @@
+import HttpError from "./utils/HttpError.utils.js";
 import { app } from "./app.js";
 import dotenv from "dotenv";
-import HttpError from "./utils/HttpError.utils.js";
 
 dotenv.config();
 
 if (process.env.PORT === undefined) {
   throw new HttpError(
     500,
-    "NO_CONNECTION_PORT_PROVIDED",
-    "Server connection PORT was not provided.",
+    "SERVER_PORT_MISSING",
+    "The server PORT is not configured.",
   );
 }
 

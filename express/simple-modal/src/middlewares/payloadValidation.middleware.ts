@@ -4,7 +4,10 @@ import type { ZodObject } from "zod";
 export default function payloadValidationMiddleware(schema: ZodObject) {
   return (req: Request, res: Response, next: NextFunction) => {
     if (req.headers["content-type"] !== "application/json") {
-      res.status(400).json({ code: "INVALID_CONTENT_TYPE" });
+      res.status(415).json({
+        code: "INVALID_CONTENT_TYPE",
+        message: "The request Content-Type must be application/json.",
+      });
       return;
     }
 
@@ -12,8 +15,10 @@ export default function payloadValidationMiddleware(schema: ZodObject) {
 
     if (!success) {
       res.status(400).json({
-        code: "INVALID_PAYLOAD_FORMAT",
-        zodIssues: error.issues.reduce(
+        code: "INVALID_REQUEST_BODY",
+        message:
+          "The request body is invalid. Please check the required fields and formats.",
+        details: error.issues.reduce(
           (acc, issue, i) => ({
             ...acc,
             [issue.path.join(".") || `issue_${i}`]: issue.message,

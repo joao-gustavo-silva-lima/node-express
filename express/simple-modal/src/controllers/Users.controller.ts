@@ -9,8 +9,8 @@ export async function registerUserController(req: Request, res: Response) {
   await registerUserService(req.body);
 
   res.status(201).json({
-    code: "USER_REGISTERED",
-    message: "The user has been registered successfully.",
+    code: "USER_CREATED",
+    message: "User created successfully.",
   });
 }
 
@@ -25,24 +25,24 @@ export async function loginUserController(req: Request, res: Response) {
   });
 
   res.status(200).json({
-    code: "USER_LOGGED_IN",
-    message: "The user logged in successfully.",
+    code: "LOGIN_SUCCESS",
+    message: "User logged in successfully.",
   });
 }
 
 export async function logoutUserController(req: Request, res: Response) {
   res.clearCookie("token");
 
-  res.json({
-    code: "USER_LOGOUT",
-    message: "The user logged out successfully",
+  res.status(200).json({
+    code: "LOGOUT_SUCCESS",
+    message: "User logged out successfully.",
   });
 }
 
 export async function fetchByIdUserController(req: Request, res: Response) {
-  res.json({
-    code: "SUCCESSFUL_USER_DATA_FETCH",
-    message: "The user data was fetched successfully.",
-    data: await fetchByIdUserService(req.authenticatedUserId),
+  res.status(200).json({
+    code: "USER_FETCHED",
+    message: "User data retrieved successfully.",
+    data: await fetchByIdUserService((req as any).authenticatedUserId),
   });
 }
