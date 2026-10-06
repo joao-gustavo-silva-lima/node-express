@@ -15,18 +15,10 @@ export default function tokenValidationMiddleware(
     );
   }
 
-  if (process.env.JWT_SECRET === undefined) {
-    throw new HttpError(
-      500,
-      "JWT_SECRET_MISSING",
-      "The JWT secret is not configured in the environment.",
-    );
-  }
-
   try {
     const payload = jwt.verify(
       req.cookies.token,
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET!,
     ) as any;
 
     req.authenticatedUserId = payload.userId;

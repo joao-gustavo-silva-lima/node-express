@@ -5,3 +5,4 @@
 **/ignore/
 **/*.ignore*
 **/.env
+**/docker-compose.yml

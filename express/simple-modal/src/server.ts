@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-["PORT", "DATABASE_URL", "FRONT_END_URL"].forEach((envVar) => {
+["PORT", "DATABASE_URL", "JWT_SECRET", "FRONT_END_URL"].forEach((envVar) => {
   if (process.env[envVar] === undefined) {
     throw new HttpError(
       500,

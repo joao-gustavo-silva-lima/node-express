@@ -66,15 +66,7 @@ export async function loginUserService(authUserDTO: AuthUser) {
       );
     }
 
-    if (process.env.JWT_SECRET === undefined) {
-      throw new HttpError(
-        500,
-        "JWT_SECRET_MISSING",
-        "The JWT secret is not configured in the environment.",
-      );
-    }
-
-    return jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+    return jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
       expiresIn: "1h",
     });
   } catch (error: any) {
