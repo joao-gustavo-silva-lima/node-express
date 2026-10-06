@@ -12,15 +12,11 @@ if (process.env.PORT === undefined) {
   );
 }
 
-if (
-  ["PGPORT", "PGUSER", "PGHOST", "PGDATABASE", "PGPASSWORD"].some(
-    (directive) => process.env[directive] === undefined,
-  )
-) {
+if (process.env.DATABASE_URL === undefined) {
   throw new HttpError(
     500,
-    "MISSING_DATABASE_ENV_VARIABLES",
-    "Some database environment variables were not defined.",
+    "MISSING_DATABASE_URL_ENV_VARIABLE",
+    "The database URL environment variable was not provided.",
   );
 }
 

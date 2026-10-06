@@ -29,7 +29,7 @@ export default function tokenValidationMiddleware(
       process.env.JWT_SECRET,
     ) as any;
 
-    (req as any).authenticatedUserId = payload.userId;
+    req.authenticatedUserId = payload.userId;
 
     next();
   } catch {

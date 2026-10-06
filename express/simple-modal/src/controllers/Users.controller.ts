@@ -40,9 +40,5 @@ export async function logoutUserController(req: Request, res: Response) {
 }
 
 export async function fetchByIdUserController(req: Request, res: Response) {
-  res.status(200).json({
-    code: "USER_FETCHED",
-    message: "User data retrieved successfully.",
-    data: await fetchByIdUserService((req as any).authenticatedUserId),
-  });
+  res.status(200).json(await fetchByIdUserService(req.authenticatedUserId));
 }
