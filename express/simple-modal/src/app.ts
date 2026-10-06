@@ -9,7 +9,7 @@ export const app = Express();
 
 app.use(helmet());
 
-app.use(cors());
+app.use(cors({ origin: process.env.FRONT_END_URL, credentials: true }));
 
 app.use(Express.json());
 

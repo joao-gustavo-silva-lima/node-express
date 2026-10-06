@@ -4,24 +4,16 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-if (process.env.PORT === undefined) {
-  throw new HttpError(
-    500,
-    "SERVER_PORT_MISSING",
-    "The server PORT is not configured.",
-  );
-}
+["PORT", "DATABASE_URL", "FRONT_END_URL"].forEach((envVar) => {
+  if (process.env[envVar] === undefined) {
+    throw new HttpError(
+      500,
+      `MISSING_${envVar}_ENV_VARIABLE`,
+      `The server ${envVar} was not provided.`,
+    );
+  }
+});
 
-if (process.env.DATABASE_URL === undefined) {
-  throw new HttpError(
-    500,
-    "MISSING_DATABASE_URL_ENV_VARIABLE",
-    "The database URL environment variable was not provided.",
-  );
-}
-
-const PORT = process.env.PORT;
-
-app.listen(PORT, () =>
-  console.log(`Server running at http://localhost:${PORT}`),
+app.listen(process.env.PORT, () =>
+  console.log(`Server running at http://localhost:${process.env.PORT}`),
 );
