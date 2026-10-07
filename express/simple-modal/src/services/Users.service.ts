@@ -92,9 +92,12 @@ export async function fetchByIdUserService(id: string) {
       );
     }
 
-    const { password, ...data } = user;
+    const { password, created_at: createdAt, ...data } = user;
 
-    return data;
+    return {
+      ...data,
+      createdAt,
+    };
   } catch (error) {
     throw error;
   }
