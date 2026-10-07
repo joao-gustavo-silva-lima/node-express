@@ -19,9 +19,9 @@ export async function loginUserController(req: Request, res: Response) {
 
   res.cookie("token", token, {
     httpOnly: true,
-    sameSite: "lax",
+    secure: true,
+    sameSite: "none",
     maxAge: 1000 * 60 * 60,
-    secure: process.env.NODE_ENV === "production",
   });
 
   res.status(200).json({
