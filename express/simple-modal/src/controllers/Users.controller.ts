@@ -19,8 +19,9 @@ export async function loginUserController(req: Request, res: Response) {
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    partitioned: process.env.NODE_ENV === "production",
     maxAge: 1000 * 60 * 60,
   });
 
@@ -31,7 +32,13 @@ export async function loginUserController(req: Request, res: Response) {
 }
 
 export async function logoutUserController(req: Request, res: Response) {
-  res.clearCookie("token");
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    partitioned: process.env.NODE_ENV === "production",
+    maxAge: 1000 * 60 * 60,
+  });
 
   res.status(200).json({
     code: "LOGOUT_SUCCESS",
