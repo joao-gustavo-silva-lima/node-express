@@ -1,7 +1,6 @@
 import { configDotenv } from "dotenv";
 import app from "./main";
 import HttpError from "./common/classes/HttpError";
-import db from "./database/db";
 
 configDotenv({ path: "config/.env.development", quiet: true });
 
@@ -15,18 +14,6 @@ async function bootstrap() {
       );
     }
   });
-
-  await db
-    .connect()
-    .then(() => console.log("Database connection established successfully."))
-    .catch((error) => {
-      throw new HttpError(
-        503,
-        "DATABASE_ESTABLISHMENT_ERROR",
-        "The database connection establishment failed.",
-        error,
-      );
-    });
 
   app.listen(process.env.PORT!, () =>
     console.log(

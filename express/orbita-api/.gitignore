@@ -4,3 +4,4 @@ config
 **/*-ignore*/
 **/*.ignore*
 docker-compose.yml
+dist/

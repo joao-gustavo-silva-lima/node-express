@@ -1,7 +1,7 @@
 export default class HttpError extends Error {
   public status: number;
   public code: string;
-  public rawError?: Error;
+  public rawError?: Error | undefined;
 
   public constructor(
     status: number,
