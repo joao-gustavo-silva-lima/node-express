@@ -4,7 +4,7 @@ import HttpError from "./common/classes/HttpError";
 
 configDotenv({ path: "config/.env.development", quiet: true });
 
-["PORT"].forEach((envVar) => {
+["PORT", "DATABASE_URL"].forEach((envVar) => {
   if (process.env[envVar] === undefined) {
     throw new HttpError(
       500,

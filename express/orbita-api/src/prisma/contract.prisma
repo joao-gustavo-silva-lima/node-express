@@ -1,0 +1,32 @@
+// use prisma-8
+
+model User {
+  id Uuid @id @default(uuid())
+
+  username ShortText @unique
+  name ShortText
+  email ShortText @unique
+  password ShortText
+
+  links Link[]
+
+  createdAt Timestamptz() @default(now())
+  lastEdition temporal.updatedAt()
+}
+
+model Link {
+  id Int @id @default(autoincrement())
+
+  authorId Uuid
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  title ShortText @unique
+  ref ShortText @unique
+
+  createdAt Timestamptz() @default(now())
+  lastEdition temporal.updatedAt()
+}
+
+types {
+  ShortText = VarChar(255)
+}

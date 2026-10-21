@@ -1,3 +1,6 @@
-**/node_modules
+node_modules
 **/.env*
-**/config
+config
+**/*-ignore*/
+**/*.ignore*
+docker-compose.yml
