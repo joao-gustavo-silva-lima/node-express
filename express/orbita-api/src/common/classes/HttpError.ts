@@ -1,11 +1,13 @@
 export default class HttpError extends Error {
   public status: number;
   public code: string;
+  public rawError?: Error;
 
   public constructor(
     status: number,
     code: string,
     message: string,
+    rawError?: Error,
     options?: ErrorOptions | undefined,
   ) {
     super(message, options);
@@ -13,5 +15,6 @@ export default class HttpError extends Error {
     this.code = code;
     this.status = status;
     this.name = "HttpError";
+    this.rawError = rawError;
   }
 }
