@@ -27,18 +27,21 @@ const refSchema = z
   });
 
 export const linkSchema = z.object({
-  id: z.number().int().positive().optional(),
-
+  id: z.number().int().positive(),
   authorId: uuidSchema,
 
+  ref: refSchema,
   title: titleSchema,
 
-  ref: refSchema,
-
-  createdAt: timestampSchema.optional(),
-
-  lastEdition: timestampSchema.optional(),
+  createdAt: timestampSchema,
+  lastEdition: timestampSchema,
 });
 
-export type LinkInput = z.infer<typeof linkSchema>;
-export type Link = Required<LinkInput>;
+export const createLinkSchema = linkSchema.omit({
+  id: true,
+  createdAt: true,
+  lastEdition: true,
+});
+
+export type Link = z.infer<typeof linkSchema>;
+export type LinkInput = z.infer<typeof createLinkSchema>;

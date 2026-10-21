@@ -22,7 +22,7 @@
               "authorId": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/uuid@1",
+                  "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
               },
@@ -50,21 +50,15 @@
               "ref": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 255
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               },
               "title": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 255
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               }
             },
@@ -123,17 +117,14 @@
               "email": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 255
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               },
               "id": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/uuid@1",
+                  "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
               },
@@ -147,31 +138,22 @@
               "name": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 255
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               },
               "password": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 255
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               },
               "username": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 255
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               }
             },
@@ -232,8 +214,8 @@
             "Link": {
               "columns": {
                 "authorId": {
-                  "codecId": "pg/uuid@1",
-                  "dataType": "pg/uuid",
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
                   "nullable": false
                 },
                 "createdAt": {
@@ -260,16 +242,14 @@
                   "nullable": false
                 },
                 "ref": {
-                  "codecId": "sql/varchar@1",
-                  "dataType": "pg/varchar",
-                  "nullable": false,
-                  "typeRef": "ShortText"
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
                 },
                 "title": {
-                  "codecId": "sql/varchar@1",
-                  "dataType": "pg/varchar",
-                  "nullable": false,
-                  "typeRef": "ShortText"
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
                 }
               },
               "foreignKeys": [
@@ -334,14 +314,13 @@
                   "nullable": false
                 },
                 "email": {
-                  "codecId": "sql/varchar@1",
-                  "dataType": "pg/varchar",
-                  "nullable": false,
-                  "typeRef": "ShortText"
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
                 },
                 "id": {
-                  "codecId": "pg/uuid@1",
-                  "dataType": "pg/uuid",
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
                   "nullable": false
                 },
                 "lastEdition": {
@@ -350,22 +329,19 @@
                   "nullable": false
                 },
                 "name": {
-                  "codecId": "sql/varchar@1",
-                  "dataType": "pg/varchar",
-                  "nullable": false,
-                  "typeRef": "ShortText"
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
                 },
                 "password": {
-                  "codecId": "sql/varchar@1",
-                  "dataType": "pg/varchar",
-                  "nullable": false,
-                  "typeRef": "ShortText"
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
                 },
                 "username": {
-                  "codecId": "sql/varchar@1",
-                  "dataType": "pg/varchar",
-                  "nullable": false,
-                  "typeRef": "ShortText"
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
                 }
               },
               "foreignKeys": [],
@@ -394,17 +370,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "4019fb2c45792bdc76b7e36e91e345679a49dc8b5a5f6cf1f51a12518571b957",
-    "types": {
-      "ShortText": {
-        "codecId": "sql/varchar@1",
-        "dataType": "pg/varchar",
-        "kind": "codec-instance",
-        "typeParams": {
-          "length": 255
-        }
-      }
-    }
+    "storageHash": "690252c55654cbab4bd37023ec05fba979a312ff9986e8ea7353697fb50df33c"
   },
   "execution": {
     "executionHash": "34f31e24ce7c22343735be3156e210b814af91bd552e9e007ac870af5185ed26",

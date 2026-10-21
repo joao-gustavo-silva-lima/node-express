@@ -1,32 +1,27 @@
 // use prisma-8
-
 model User {
-  id Uuid @id @default(uuid())
+  id          String               @id @default(uuid())
 
-  username ShortText @unique
-  name ShortText
-  email ShortText @unique
-  password ShortText
+  username    String               @unique
+  name        String
+  email       String               @unique
+  password    String
 
-  links Link[]
+  links       Link[]
 
-  createdAt Timestamptz() @default(now())
+  createdAt   DateTime             @default(now())
   lastEdition temporal.updatedAt()
 }
 
 model Link {
-  id Int @id @default(autoincrement())
+  id          Int                  @id @default(autoincrement())
 
-  authorId Uuid
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId    String
+  author      User                 @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  title ShortText @unique
-  ref ShortText @unique
+  title       String               @unique
+  ref         String               @unique
 
-  createdAt Timestamptz() @default(now())
+  createdAt   DateTime             @default(now())
   lastEdition temporal.updatedAt()
-}
-
-types {
-  ShortText = VarChar(255)
 }

@@ -1,6 +1,7 @@
 import * as z from "zod";
 
 import { timestampSchema, uuidSchema } from "./common.schema";
+import { linkSchema } from "./Link.schema";
 
 const usernameSchema = z
   .string({
@@ -75,22 +76,25 @@ const passwordSchema = z
   });
 
 export const userSchema = z.object({
-  id: uuidSchema.optional(),
-
-  username: usernameSchema,
+  id: uuidSchema,
 
   name: nameSchema,
-
   email: emailSchema,
-
+  username: usernameSchema,
   password: passwordSchema,
 
-  links: z.array(uuidSchema).optional(),
+  links: z.array(linkSchema),
 
-  createdAt: timestampSchema.optional(),
-
-  lastEdition: timestampSchema.optional(),
+  createdAt: timestampSchema,
+  lastEdition: timestampSchema,
 });
 
-export type UserInput = z.infer<typeof userSchema>;
-export type User = Required<UserInput>;
+export const createUserSchema = userSchema.omit({
+  id: true,
+  links: true,
+  createdAt: true,
+  lastEdition: true,
+});
+
+export type User = z.infer<typeof userSchema>;
+export type UserInput = z.infer<typeof createUserSchema>;
