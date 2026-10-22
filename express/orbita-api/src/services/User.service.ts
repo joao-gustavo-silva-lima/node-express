@@ -1,5 +1,5 @@
 import { compare, hash } from "bcrypt";
-import { type UserInput } from "../schemas/User.schema";
+import { type loginUserInput, type UserInput } from "../schemas/User.schema";
 import prisma from "../lib/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 import HttpError from "../common/classes/HttpError";
@@ -44,6 +44,68 @@ export async function createUser(userInput: UserInput) {
     console.error("Unknown error during user creation:", error);
 
     throw error;
+  }
+}
+
+export async function loginUser(credentials: loginUserInput) {
+  try {
+    const query = await prisma.user.findFirst({
+      where: {
+        OR: [
+          ...(credentials.username !== undefined
+            ? [{ username: credentials.username }]
+            : []),
+          ...(credentials.email !== undefined
+            ? [{ email: credentials.email }]
+            : []),
+        ],
+      },
+      select: {
+        username: true,
+        password: true,
+      },
+    });
+
+    if (query === null) {
+      throw new HttpError(
+        401,
+        "INVALID_LOGIN_CREDENTIALS",
+        "The username/email or password is incorrect.",
+      );
+    }
+
+    const { password: passwordHash, username } = query;
+    const hasMatchingPasswords = await compare(
+      credentials.password,
+      passwordHash,
+    );
+
+    if (!hasMatchingPasswords) {
+      throw new HttpError(
+        401,
+        "INVALID_LOGIN_CREDENTIALS",
+        "The username/email or password is incorrect.",
+      );
+    }
+
+    const token = jwt.sign(
+      { authUsername: username },
+      process.env.JWT_SECRET!,
+      { expiresIn: "1Day" },
+    );
+
+    return token;
+  } catch (error) {
+    if (error instanceof HttpError) {
+      throw error;
+    }
+
+    throw new HttpError(
+      503,
+      "UNEXPECTED_DATABASE_ERROR",
+      "An unexpected database error has ocurred. Try again later.",
+      error as Error,
+    );
   }
 }
 

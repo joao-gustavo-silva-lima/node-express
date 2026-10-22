@@ -1,10 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import type { ZodObject } from "zod";
 
-export default function payloadValidationMiddleware(
-  schema: ZodObject,
-  hideHints = false,
-) {
+export default function payloadValidationMiddleware(schema: ZodObject) {
   return (req: Request, res: Response, next: NextFunction) => {
     if (req.headers["content-type"] !== "application/json") {
       res.status(415).json({
@@ -21,15 +18,13 @@ export default function payloadValidationMiddleware(
         code: "INVALID_REQUEST_BODY",
         message:
           "The request body is invalid. Please check the required fields and formats.",
-        ...(!hideHints && {
-          details: error.issues.reduce(
-            (acc, issue, i) => ({
-              ...acc,
-              [issue.path.join(".") || `issue_${i}`]: issue.message,
-            }),
-            {},
-          ),
-        }),
+        details: error.issues.reduce(
+          (acc, issue, i) => ({
+            ...acc,
+            [issue.path.join(".") || `issue_${i}`]: issue.message,
+          }),
+          {},
+        ),
       });
       return;
     }

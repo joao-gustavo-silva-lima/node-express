@@ -89,6 +89,17 @@ export const userSchema = z.object({
   lastEdition: timestampSchema,
 });
 
+export const loginUserSchema = z
+  .object({
+    username: z.string().optional(),
+    email: z.string().optional(),
+    password: z.string(),
+  })
+  .refine((data) => data.username || data.email, {
+    error: "LOGIN_REQUIRES_USERNAME_OR_EMAIL",
+    path: ["username"],
+  });
+
 export const createUserSchema = userSchema.omit({
   id: true,
   links: true,
@@ -96,7 +107,10 @@ export const createUserSchema = userSchema.omit({
   lastEdition: true,
 });
 
-export const deleteUserSchema = userSchema.pick({ password: true });
+export const deleteUserSchema = z.object({
+  password: z.string(),
+});
 
 export type User = z.infer<typeof userSchema>;
 export type UserInput = z.infer<typeof createUserSchema>;
+export type loginUserInput = z.infer<typeof loginUserSchema>;

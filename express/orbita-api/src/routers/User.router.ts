@@ -1,6 +1,10 @@
 import express from "express";
 import payloadValidationMiddleware from "../middlewares/payloadValidation.middleware";
-import { createUserSchema, deleteUserSchema } from "../schemas/User.schema";
+import {
+  createUserSchema,
+  deleteUserSchema,
+  loginUserSchema,
+} from "../schemas/User.schema";
 import * as userController from "../controllers/User.controller";
 import tokenValidationMiddleware from "../middlewares/tokenValidation.middleware";
 
@@ -10,6 +14,12 @@ router.post(
   "/user/auth/register",
   payloadValidationMiddleware(createUserSchema),
   userController.createUser,
+);
+
+router.post(
+  "/user/auth/login",
+  payloadValidationMiddleware(loginUserSchema),
+  userController.loginUser,
 );
 
 router.get(
@@ -22,7 +32,7 @@ router.get("/user/:username", userController.fetchUser);
 
 router.delete(
   "/user/auth/delete",
-  payloadValidationMiddleware(deleteUserSchema, true),
+  payloadValidationMiddleware(deleteUserSchema),
   tokenValidationMiddleware,
   userController.deleteUser,
 );

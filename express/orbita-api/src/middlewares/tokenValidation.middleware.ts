@@ -21,7 +21,7 @@ export default function tokenValidationMiddleware(
       process.env.JWT_SECRET!,
     ) as any;
 
-    req.authenticatedUsername = payload.username;
+    req.authUsername = payload.authUsername;
 
     next();
   } catch {
