@@ -2,10 +2,13 @@ import express from "express";
 import loggerMiddleware from "./middlewares/logger.middleware";
 import userRouter from "./routers/User.router";
 import handleErrorMiddleware from "./middlewares/handleError.middleware";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
 app.use(express.json());
+
+app.use(cookieParser());
 
 app.use(loggerMiddleware);
 

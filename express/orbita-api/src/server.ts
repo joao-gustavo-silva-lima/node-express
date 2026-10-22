@@ -7,7 +7,7 @@ configDotenv({ path: "config/.env.development", quiet: true });
 
 async function bootstrap() {
   try {
-    const missingEnvVars = ["PORT", "DATABASE_URL"].filter(
+    const missingEnvVars = ["PORT", "DATABASE_URL", "JWT_SECRET"].filter(
       (envVar) => process.env[envVar] === undefined,
     );
 

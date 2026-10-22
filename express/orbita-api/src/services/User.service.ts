@@ -3,6 +3,7 @@ import { type UserInput } from "../schemas/User.schema";
 import prisma from "../lib/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 import HttpError from "../common/classes/HttpError";
+import jwt from "jsonwebtoken";
 
 export async function createUser(userInput: UserInput) {
   try {
@@ -15,7 +16,13 @@ export async function createUser(userInput: UserInput) {
       },
     });
 
-    return user;
+    const token = jwt.sign(
+      { authUsername: user.username },
+      process.env.JWT_SECRET!,
+      { expiresIn: "1Day" },
+    );
+
+    return { user, token };
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === "P2002") {

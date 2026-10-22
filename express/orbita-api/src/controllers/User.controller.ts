@@ -1,8 +1,23 @@
 import type { Request, Response } from "express";
 import * as userService from "../services/User.service";
+import { isProduction } from "../common/constants/nodeEnv";
 
 export async function createUser(req: Request, res: Response) {
-  const user = await userService.createUser(req.body);
+  const { user, token } = await userService.createUser(req.body);
+
+  res.cookie("orbitaAuthToken", token, {
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24,
+
+    secure: isProduction,
+    partitioned: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+  });
+
+  res.setHeader(
+    "Content-Location",
+    `/auth/user/${user.username.toLowerCase()}`,
+  );
 
   res.status(201).json({
     code: "USER_CREATED",
