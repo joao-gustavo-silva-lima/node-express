@@ -1,6 +1,7 @@
 import { configDotenv } from "dotenv";
 import prisma from "./lib/prisma";
 import app from "./main";
+import HttpError from "./common/classes/HttpError";
 
 configDotenv({ path: "config/.env.development", quiet: true });
 
@@ -11,12 +12,13 @@ async function bootstrap() {
     );
 
     if (missingEnvVars.length > 0) {
-      throw (new Error(
+      throw new HttpError(
+        500,
+        "ENV_VARS_MISSING",
         `The server bootstrap requires the following environment variables: ${missingEnvVars}`,
-      ).name = "KNOWN_ERROR");
+      );
     }
 
-    await prisma.$connect();
     await prisma.$queryRaw`SELECT 1`;
     console.log("Database connection established successfully.");
 
@@ -26,11 +28,12 @@ async function bootstrap() {
       ),
     );
   } catch (error: any) {
-    if (error.name === "KNOW_ERROR") {
-      console.error(error);
+    if (error instanceof HttpError) {
+      console.error(error.message);
     } else if (typeof error === "object" && "clientVersion" in error) {
       console.error(
-        "Prisma client initialization/Database connection establishment failed.",
+        "Prisma client initialization/Database connection establishment failed:",
+        error,
       );
     } else {
       console.error("Bootstrap unknown error:", error);

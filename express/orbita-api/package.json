@@ -9,6 +9,7 @@
   "keywords": [],
   "type": "module",
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.5",
     "prisma": "^7.10.1",
@@ -18,6 +19,7 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
+    "bcrypt": "^6.0.0",
     "dotenv": "^18.0.8",
     "express": "^5.3.0",
     "pg": "^8.23.1",
@@ -26,6 +28,7 @@
   "allowScripts": {
     "@prisma/engines@7.10.1": true,
     "esbuild@0.28.2": true,
-    "prisma@7.10.1": true
+    "prisma@7.10.1": true,
+    "bcrypt@6.0.0": true
   }
 }

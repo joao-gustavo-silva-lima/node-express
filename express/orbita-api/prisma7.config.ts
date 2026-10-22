@@ -1,5 +1,5 @@
-import { defineConfig } from "prisma/config";
 import { configDotenv } from "dotenv";
+import { defineConfig } from "prisma/config";
 
 configDotenv({ quiet: true, path: "config/.env.development" });
 
