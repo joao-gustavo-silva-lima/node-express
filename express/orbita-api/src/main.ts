@@ -9,7 +9,14 @@ app.use(express.json());
 
 app.use(loggerMiddleware);
 
-app.use("/api/v1/", userRouter);
+app.use("/api/v1", userRouter);
+
+app.use((req, res) =>
+  res.status(404).json({
+    code: "ROUTE_NOT_FOUND",
+    message: `'${req.path}' is not a recognized route.`,
+  }),
+);
 
 app.use(handleErrorMiddleware);
 

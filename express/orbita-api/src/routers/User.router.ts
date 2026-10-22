@@ -1,9 +1,14 @@
 import express from "express";
+import payloadValidationMiddleware from "../middlewares/payloadValidation.middleware";
+import { createUserSchema } from "../schemas/User.schema";
+import * as userController from "../controllers/User.controller";
 
 const router = express.Router();
 
-router.get("/", (req, res) =>
-  res.json({ code: "HELLO_WORLD", message: "Hello World" }),
+router.post(
+  "/auth/register",
+  payloadValidationMiddleware(createUserSchema),
+  userController.createUser,
 );
 
 export default router;
