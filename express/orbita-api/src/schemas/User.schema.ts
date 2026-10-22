@@ -96,5 +96,7 @@ export const createUserSchema = userSchema.omit({
   lastEdition: true,
 });
 
+export const deleteUserSchema = userSchema.pick({ password: true });
+
 export type User = z.infer<typeof userSchema>;
 export type UserInput = z.infer<typeof createUserSchema>;

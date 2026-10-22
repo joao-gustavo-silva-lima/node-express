@@ -1,4 +1,4 @@
-import { hash } from "bcrypt";
+import { compare, hash } from "bcrypt";
 import { type UserInput } from "../schemas/User.schema";
 import prisma from "../lib/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
@@ -65,7 +65,7 @@ export async function fetchUser(
       throw new HttpError(
         404,
         "USER_NOT_FOUND",
-        `A user was not found for the username '${username}'`,
+        `A user was not found with the username '${username}'`,
       );
     }
 
@@ -79,6 +79,51 @@ export async function fetchUser(
     });
 
     return { ...user, links };
+  } catch (error) {
+    if (error instanceof HttpError) {
+      throw error;
+    }
+
+    throw new HttpError(
+      503,
+      "UNEXPECTED_DATABASE_ERROR",
+      "An unexpected database error has ocurred. Try again later.",
+      error as Error,
+    );
+  }
+}
+
+export async function deleteUser(username: string, password: string) {
+  try {
+    const query = await prisma.user.findUnique({
+      where: { username },
+      select: {
+        password: true,
+      },
+    });
+
+    if (query === null) {
+      throw new HttpError(
+        404,
+        "USER_NOT_FOUND_FOR_DELETION",
+        `The user deletion failed: a user with the username '${username}' may have been already deleted`,
+      );
+    }
+
+    const { password: passwordHash } = query;
+    const hasMatchingPasswords = await compare(password, passwordHash);
+
+    if (!hasMatchingPasswords) {
+      throw new HttpError(
+        403,
+        "FORBIDDEN_USER_DELETION_ATTEMPT",
+        `Passwords do not match. User deletion could not proceed.`,
+      );
+    }
+
+    await prisma.user.delete({
+      where: { username },
+    });
   } catch (error) {
     if (error instanceof HttpError) {
       throw error;

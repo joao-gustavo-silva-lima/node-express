@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import * as userService from "../services/User.service";
 import { isProduction } from "../common/constants/nodeEnv";
+import HttpError from "../common/classes/HttpError";
 
 export async function createUser(req: Request, res: Response) {
   const { user, token } = await userService.createUser(req.body);
@@ -33,4 +34,15 @@ export async function fetchUser(req: Request, res: Response) {
   );
 
   res.json(user);
+}
+
+export async function deleteUser(req: Request, res: Response) {
+  const { password } = req.body;
+
+  await userService.deleteUser(req.authenticatedUsername!, password);
+
+  res.json({
+    code: "USER_DELETED",
+    message: "The user was deleted successfully",
+  });
 }
