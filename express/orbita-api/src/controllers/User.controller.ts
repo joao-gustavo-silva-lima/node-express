@@ -25,9 +25,11 @@ export async function createUser(req: Request, res: Response) {
 
 export async function fetchUser(req: Request, res: Response) {
   const { username } = req.params;
+  const isAPublicFetch = username !== undefined;
+
   const user = await userService.fetchUser(
-    username as string,
-    req.authenticatedUsername ?? null,
+    isAPublicFetch ? (username as string) : req.authenticatedUsername!,
+    isAPublicFetch ? null : req.authenticatedUsername!,
   );
 
   res.json(user);

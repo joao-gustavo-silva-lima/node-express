@@ -69,8 +69,7 @@ export async function fetchUser(
       );
     }
 
-    const fetchPrivateLinks =
-      authenticatedUsername === null || user.username === authenticatedUsername;
+    const fetchPrivateLinks = authenticatedUsername === user.username;
 
     const links = await prisma.link.findMany({
       where: {

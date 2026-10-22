@@ -12,9 +12,11 @@ router.post(
   userController.createUser,
 );
 
+router.get("/user/:username", userController.fetchUser);
+
 router.get(
-  "/user/:username",
-  tokenValidationMiddleware(true),
+  "/user/auth/profile",
+  tokenValidationMiddleware,
   userController.fetchUser,
 );
 
