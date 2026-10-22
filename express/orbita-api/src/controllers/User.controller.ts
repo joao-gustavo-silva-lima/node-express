@@ -14,14 +14,21 @@ export async function createUser(req: Request, res: Response) {
     sameSite: isProduction ? "none" : "lax",
   });
 
-  res.setHeader(
-    "Content-Location",
-    `/auth/user/${user.username.toLowerCase()}`,
-  );
+  res.setHeader("Content-Location", `/user/${user.username.toLowerCase()}`);
 
   res.status(201).json({
     code: "USER_CREATED",
     message: "The user has been created successfully.",
     data: user,
   });
+}
+
+export async function fetchUser(req: Request, res: Response) {
+  const { username } = req.params;
+  const user = await userService.fetchUser(
+    username as string,
+    req.authenticatedUsername ?? null,
+  );
+
+  res.json(user);
 }

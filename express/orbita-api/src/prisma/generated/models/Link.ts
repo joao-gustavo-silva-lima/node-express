@@ -39,6 +39,7 @@ export type LinkMinAggregateOutputType = {
   authorId: string | null
   title: string | null
   ref: string | null
+  visibility: $Enums.LinkVisibility | null
   createdAt: Date | null
   lastEdition: Date | null
 }
@@ -48,6 +49,7 @@ export type LinkMaxAggregateOutputType = {
   authorId: string | null
   title: string | null
   ref: string | null
+  visibility: $Enums.LinkVisibility | null
   createdAt: Date | null
   lastEdition: Date | null
 }
@@ -57,6 +59,7 @@ export type LinkCountAggregateOutputType = {
   authorId: number
   title: number
   ref: number
+  visibility: number
   createdAt: number
   lastEdition: number
   _all: number
@@ -76,6 +79,7 @@ export type LinkMinAggregateInputType = {
   authorId?: true
   title?: true
   ref?: true
+  visibility?: true
   createdAt?: true
   lastEdition?: true
 }
@@ -85,6 +89,7 @@ export type LinkMaxAggregateInputType = {
   authorId?: true
   title?: true
   ref?: true
+  visibility?: true
   createdAt?: true
   lastEdition?: true
 }
@@ -94,6 +99,7 @@ export type LinkCountAggregateInputType = {
   authorId?: true
   title?: true
   ref?: true
+  visibility?: true
   createdAt?: true
   lastEdition?: true
   _all?: true
@@ -190,6 +196,7 @@ export type LinkGroupByOutputType = {
   authorId: string
   title: string
   ref: string
+  visibility: $Enums.LinkVisibility
   createdAt: Date
   lastEdition: Date
   _count: LinkCountAggregateOutputType | null
@@ -222,6 +229,7 @@ export type LinkWhereInput = {
   authorId?: Prisma.UuidFilter<"Link"> | string
   title?: Prisma.StringFilter<"Link"> | string
   ref?: Prisma.StringFilter<"Link"> | string
+  visibility?: Prisma.EnumLinkVisibilityFilter<"Link"> | $Enums.LinkVisibility
   createdAt?: Prisma.DateTimeFilter<"Link"> | Date | string
   lastEdition?: Prisma.DateTimeFilter<"Link"> | Date | string
   author?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -232,6 +240,7 @@ export type LinkOrderByWithRelationInput = {
   authorId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   ref?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastEdition?: Prisma.SortOrder
   author?: Prisma.UserOrderByWithRelationInput
@@ -245,6 +254,7 @@ export type LinkWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.LinkWhereInput[]
   NOT?: Prisma.LinkWhereInput | Prisma.LinkWhereInput[]
   authorId?: Prisma.UuidFilter<"Link"> | string
+  visibility?: Prisma.EnumLinkVisibilityFilter<"Link"> | $Enums.LinkVisibility
   createdAt?: Prisma.DateTimeFilter<"Link"> | Date | string
   lastEdition?: Prisma.DateTimeFilter<"Link"> | Date | string
   author?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -255,6 +265,7 @@ export type LinkOrderByWithAggregationInput = {
   authorId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   ref?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastEdition?: Prisma.SortOrder
   _count?: Prisma.LinkCountOrderByAggregateInput
@@ -272,6 +283,7 @@ export type LinkScalarWhereWithAggregatesInput = {
   authorId?: Prisma.UuidWithAggregatesFilter<"Link"> | string
   title?: Prisma.StringWithAggregatesFilter<"Link"> | string
   ref?: Prisma.StringWithAggregatesFilter<"Link"> | string
+  visibility?: Prisma.EnumLinkVisibilityWithAggregatesFilter<"Link"> | $Enums.LinkVisibility
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Link"> | Date | string
   lastEdition?: Prisma.DateTimeWithAggregatesFilter<"Link"> | Date | string
 }
@@ -279,6 +291,7 @@ export type LinkScalarWhereWithAggregatesInput = {
 export type LinkCreateInput = {
   title: string
   ref: string
+  visibility: $Enums.LinkVisibility
   createdAt?: Date | string
   lastEdition?: Date | string
   author: Prisma.UserCreateNestedOneWithoutLinksInput
@@ -289,6 +302,7 @@ export type LinkUncheckedCreateInput = {
   authorId: string
   title: string
   ref: string
+  visibility: $Enums.LinkVisibility
   createdAt?: Date | string
   lastEdition?: Date | string
 }
@@ -296,6 +310,7 @@ export type LinkUncheckedCreateInput = {
 export type LinkUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   ref?: Prisma.StringFieldUpdateOperationsInput | string
+  visibility?: Prisma.EnumLinkVisibilityFieldUpdateOperationsInput | $Enums.LinkVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastEdition?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   author?: Prisma.UserUpdateOneRequiredWithoutLinksNestedInput
@@ -306,6 +321,7 @@ export type LinkUncheckedUpdateInput = {
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   ref?: Prisma.StringFieldUpdateOperationsInput | string
+  visibility?: Prisma.EnumLinkVisibilityFieldUpdateOperationsInput | $Enums.LinkVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastEdition?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -315,6 +331,7 @@ export type LinkCreateManyInput = {
   authorId: string
   title: string
   ref: string
+  visibility: $Enums.LinkVisibility
   createdAt?: Date | string
   lastEdition?: Date | string
 }
@@ -322,6 +339,7 @@ export type LinkCreateManyInput = {
 export type LinkUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   ref?: Prisma.StringFieldUpdateOperationsInput | string
+  visibility?: Prisma.EnumLinkVisibilityFieldUpdateOperationsInput | $Enums.LinkVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastEdition?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -331,6 +349,7 @@ export type LinkUncheckedUpdateManyInput = {
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   ref?: Prisma.StringFieldUpdateOperationsInput | string
+  visibility?: Prisma.EnumLinkVisibilityFieldUpdateOperationsInput | $Enums.LinkVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastEdition?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -350,6 +369,7 @@ export type LinkCountOrderByAggregateInput = {
   authorId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   ref?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastEdition?: Prisma.SortOrder
 }
@@ -363,6 +383,7 @@ export type LinkMaxOrderByAggregateInput = {
   authorId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   ref?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastEdition?: Prisma.SortOrder
 }
@@ -372,6 +393,7 @@ export type LinkMinOrderByAggregateInput = {
   authorId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   ref?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastEdition?: Prisma.SortOrder
 }
@@ -422,6 +444,10 @@ export type LinkUncheckedUpdateManyWithoutAuthorNestedInput = {
   deleteMany?: Prisma.LinkScalarWhereInput | Prisma.LinkScalarWhereInput[]
 }
 
+export type EnumLinkVisibilityFieldUpdateOperationsInput = {
+  set?: $Enums.LinkVisibility
+}
+
 export type IntFieldUpdateOperationsInput = {
   set?: number
   increment?: number
@@ -433,6 +459,7 @@ export type IntFieldUpdateOperationsInput = {
 export type LinkCreateWithoutAuthorInput = {
   title: string
   ref: string
+  visibility: $Enums.LinkVisibility
   createdAt?: Date | string
   lastEdition?: Date | string
 }
@@ -441,6 +468,7 @@ export type LinkUncheckedCreateWithoutAuthorInput = {
   id?: number
   title: string
   ref: string
+  visibility: $Enums.LinkVisibility
   createdAt?: Date | string
   lastEdition?: Date | string
 }
@@ -479,6 +507,7 @@ export type LinkScalarWhereInput = {
   authorId?: Prisma.UuidFilter<"Link"> | string
   title?: Prisma.StringFilter<"Link"> | string
   ref?: Prisma.StringFilter<"Link"> | string
+  visibility?: Prisma.EnumLinkVisibilityFilter<"Link"> | $Enums.LinkVisibility
   createdAt?: Prisma.DateTimeFilter<"Link"> | Date | string
   lastEdition?: Prisma.DateTimeFilter<"Link"> | Date | string
 }
@@ -487,6 +516,7 @@ export type LinkCreateManyAuthorInput = {
   id?: number
   title: string
   ref: string
+  visibility: $Enums.LinkVisibility
   createdAt?: Date | string
   lastEdition?: Date | string
 }
@@ -494,6 +524,7 @@ export type LinkCreateManyAuthorInput = {
 export type LinkUpdateWithoutAuthorInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   ref?: Prisma.StringFieldUpdateOperationsInput | string
+  visibility?: Prisma.EnumLinkVisibilityFieldUpdateOperationsInput | $Enums.LinkVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastEdition?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -502,6 +533,7 @@ export type LinkUncheckedUpdateWithoutAuthorInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   ref?: Prisma.StringFieldUpdateOperationsInput | string
+  visibility?: Prisma.EnumLinkVisibilityFieldUpdateOperationsInput | $Enums.LinkVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastEdition?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -510,6 +542,7 @@ export type LinkUncheckedUpdateManyWithoutAuthorInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   ref?: Prisma.StringFieldUpdateOperationsInput | string
+  visibility?: Prisma.EnumLinkVisibilityFieldUpdateOperationsInput | $Enums.LinkVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastEdition?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -521,6 +554,7 @@ export type LinkSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   authorId?: boolean
   title?: boolean
   ref?: boolean
+  visibility?: boolean
   createdAt?: boolean
   lastEdition?: boolean
   author?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -531,6 +565,7 @@ export type LinkSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   authorId?: boolean
   title?: boolean
   ref?: boolean
+  visibility?: boolean
   createdAt?: boolean
   lastEdition?: boolean
   author?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -541,6 +576,7 @@ export type LinkSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   authorId?: boolean
   title?: boolean
   ref?: boolean
+  visibility?: boolean
   createdAt?: boolean
   lastEdition?: boolean
   author?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -551,11 +587,12 @@ export type LinkSelectScalar = {
   authorId?: boolean
   title?: boolean
   ref?: boolean
+  visibility?: boolean
   createdAt?: boolean
   lastEdition?: boolean
 }
 
-export type LinkOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "authorId" | "title" | "ref" | "createdAt" | "lastEdition", ExtArgs["result"]["link"]>
+export type LinkOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "authorId" | "title" | "ref" | "visibility" | "createdAt" | "lastEdition", ExtArgs["result"]["link"]>
 export type LinkInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   author?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -576,6 +613,7 @@ export type $LinkPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     authorId: string
     title: string
     ref: string
+    visibility: $Enums.LinkVisibility
     createdAt: Date
     lastEdition: Date
   }, ExtArgs["result"]["link"]>
@@ -1006,6 +1044,7 @@ export interface LinkFieldRefs {
   readonly authorId: Prisma.FieldRef<"Link", 'String'>
   readonly title: Prisma.FieldRef<"Link", 'String'>
   readonly ref: Prisma.FieldRef<"Link", 'String'>
+  readonly visibility: Prisma.FieldRef<"Link", 'LinkVisibility'>
   readonly createdAt: Prisma.FieldRef<"Link", 'DateTime'>
   readonly lastEdition: Prisma.FieldRef<"Link", 'DateTime'>
 }

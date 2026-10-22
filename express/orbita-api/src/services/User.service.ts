@@ -46,3 +46,50 @@ export async function createUser(userInput: UserInput) {
     throw error;
   }
 }
+
+export async function fetchUser(
+  username: string,
+  authenticatedUsername: string | null,
+) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        username,
+      },
+      omit: {
+        password: true,
+      },
+    });
+
+    if (user === null) {
+      throw new HttpError(
+        404,
+        "USER_NOT_FOUND",
+        `A user was not found for the username '${username}'`,
+      );
+    }
+
+    const fetchPrivateLinks =
+      authenticatedUsername === null || user.username === authenticatedUsername;
+
+    const links = await prisma.link.findMany({
+      where: {
+        authorId: user.id,
+        ...(!fetchPrivateLinks && { visibility: "PUBLIC" }),
+      },
+    });
+
+    return { ...user, links };
+  } catch (error) {
+    if (error instanceof HttpError) {
+      throw error;
+    }
+
+    throw new HttpError(
+      503,
+      "UNEXPECTED_DATABASE_ERROR",
+      "An unexpected database error has ocurred. Try again later.",
+      error as Error,
+    );
+  }
+}

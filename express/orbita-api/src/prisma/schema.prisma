@@ -27,9 +27,15 @@ model Link {
   authorId String @db.Uuid
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  title String @unique @db.VarChar(255)
-  ref   String @unique @db.VarChar(255)
+  title      String         @unique @db.VarChar(255)
+  ref        String         @unique @db.VarChar(255)
+  visibility LinkVisibility
 
   createdAt   DateTime @default(now())
   lastEdition DateTime @updatedAt
+}
+
+enum LinkVisibility {
+  PUBLIC
+  PRIVATE
 }

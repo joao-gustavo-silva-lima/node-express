@@ -9,7 +9,9 @@
 * 🟢 You can import this file directly.
 */
 
+export const LinkVisibility = {
+  PUBLIC: 'PUBLIC',
+  PRIVATE: 'PRIVATE'
+} as const
 
-
-// This file is empty because there are no enums in the schema.
-export {}
+export type LinkVisibility = (typeof LinkVisibility)[keyof typeof LinkVisibility]

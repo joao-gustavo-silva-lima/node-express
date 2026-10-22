@@ -623,6 +623,7 @@ export const LinkScalarFieldEnum = {
   authorId: 'authorId',
   title: 'title',
   ref: 'ref',
+  visibility: 'visibility',
   createdAt: 'createdAt',
   lastEdition: 'lastEdition'
 } as const
@@ -691,6 +692,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'LinkVisibility'
+ */
+export type EnumLinkVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LinkVisibility'>
+    
+
+
+/**
+ * Reference to a field of type 'LinkVisibility[]'
+ */
+export type ListEnumLinkVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LinkVisibility[]'>
     
 
 
