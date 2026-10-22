@@ -32,14 +32,14 @@ async function bootstrap() {
       console.error(error.message);
     } else if (typeof error === "object" && "clientVersion" in error) {
       console.error(
-        "Prisma client initialization/Database connection establishment failed:",
+        "Prisma client initialization/Database connection establishment failed:\n\n",
         error,
       );
     } else {
       console.error("Bootstrap unknown error:", error);
     }
 
-    console.log("The application process is terminated.");
+    console.log("\n\nThe application process is terminated.");
     process.exit(1);
   }
 }
