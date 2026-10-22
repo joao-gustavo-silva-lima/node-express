@@ -41,6 +41,15 @@ export async function loginUser(req: Request, res: Response) {
   });
 }
 
+export async function logoutUser(req: Request, res: Response) {
+  res.clearCookie("orbitaAuthToken");
+
+  res.json({
+    code: "USER_LOGOUT",
+    message: "The user has logged out successfully",
+  });
+}
+
 export async function fetchUser(req: Request, res: Response) {
   const { username } = req.params;
   const isAPublicFetch = username !== undefined;

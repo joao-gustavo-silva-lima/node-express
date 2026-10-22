@@ -22,6 +22,8 @@ router.post(
   userController.loginUser,
 );
 
+router.post("/user/auth/logout", userController.logoutUser);
+
 router.get(
   "/user/auth/profile",
   tokenValidationMiddleware,
