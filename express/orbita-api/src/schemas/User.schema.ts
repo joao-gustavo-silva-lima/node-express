@@ -107,6 +107,10 @@ export const createUserSchema = userSchema.omit({
   lastEdition: true,
 });
 
+export const updateUserSchema = createUserSchema
+  .omit({ password: true })
+  .partial();
+
 export const deleteUserSchema = z.object({
   password: z.string(),
 });
@@ -114,3 +118,4 @@ export const deleteUserSchema = z.object({
 export type User = z.infer<typeof userSchema>;
 export type UserInput = z.infer<typeof createUserSchema>;
 export type loginUserInput = z.infer<typeof loginUserSchema>;
+export type updateUserInput = z.infer<typeof updateUserSchema>;

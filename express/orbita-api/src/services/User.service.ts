@@ -1,5 +1,9 @@
 import { compare, hash } from "bcrypt";
-import { type loginUserInput, type UserInput } from "../schemas/User.schema";
+import {
+  type loginUserInput,
+  type updateUserInput,
+  type UserInput,
+} from "../schemas/User.schema";
 import prisma from "../lib/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 import HttpError from "../common/classes/HttpError";
@@ -144,6 +148,105 @@ export async function fetchUser(
   } catch (error) {
     if (error instanceof HttpError) {
       throw error;
+    }
+
+    throw new HttpError(
+      503,
+      "UNEXPECTED_DATABASE_ERROR",
+      "An unexpected database error has ocurred. Try again later.",
+      error as Error,
+    );
+  }
+}
+
+export async function updateUser(
+  targetUsername: string,
+  userInput: updateUserInput,
+) {
+  try {
+    const query = await prisma.user.findUnique({
+      where: { username: targetUsername },
+      select: {
+        createdAt: true,
+        lastEdition: true,
+      },
+    });
+
+    if (query === null) {
+      throw new HttpError(
+        404,
+        "USER_NOT_FOUND_FOR_UPDATE",
+        `The user update failed: a user with the username '${targetUsername}' was not found`,
+      );
+    }
+
+    const hasBeenUpdated =
+      query.createdAt.getTime() !== query.lastEdition.getTime();
+
+    if (hasBeenUpdated) {
+      const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+
+      if (query.lastEdition > threeDaysAgo) {
+        throw new HttpError(
+          403,
+          "USER_UPDATE_TOO_RECENT",
+          "The user can only be updated once every three days.",
+        );
+      }
+    }
+
+    const { name, username, email } = userInput;
+
+    if (username !== undefined || email !== undefined) {
+      const duplicateUser = await prisma.user.findFirst({
+        where: {
+          OR: [
+            ...(username !== undefined ? [{ username: username }] : []),
+            ...(email !== undefined ? [{ email }] : []),
+          ],
+          NOT: { username: targetUsername },
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (duplicateUser !== null) {
+        throw new HttpError(
+          409,
+          "USER_UPDATE_CONFLICT",
+          "One or more user details are already in use.",
+        );
+      }
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { username: targetUsername },
+      data: {
+        ...(name !== undefined && { name }),
+        ...(username !== undefined && { username }),
+        ...(email !== undefined && { email }),
+      },
+      omit: {
+        password: true,
+      },
+    });
+
+    return updatedUser;
+  } catch (error) {
+    if (error instanceof HttpError) {
+      throw error;
+    }
+
+    if (
+      error instanceof PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw new HttpError(
+        409,
+        "USER_UPDATE_CONFLICT",
+        "One or more user details are already in use.",
+      );
     }
 
     throw new HttpError(

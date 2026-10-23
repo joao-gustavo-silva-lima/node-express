@@ -62,6 +62,12 @@ export async function fetchUser(req: Request, res: Response) {
   res.json(user);
 }
 
+export async function updateUser(req: Request, res: Response) {
+  const user = await userService.updateUser(req.authUsername!, req.body);
+
+  res.json(user);
+}
+
 export async function deleteUser(req: Request, res: Response) {
   const { password } = req.body;
 

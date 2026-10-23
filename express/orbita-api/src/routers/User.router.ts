@@ -4,6 +4,7 @@ import {
   createUserSchema,
   deleteUserSchema,
   loginUserSchema,
+  updateUserSchema,
 } from "../schemas/User.schema";
 import * as userController from "../controllers/User.controller";
 import tokenValidationMiddleware from "../middlewares/tokenValidation.middleware";
@@ -31,6 +32,13 @@ router.get(
 );
 
 router.get("/user/:username", userController.fetchUser);
+
+router.patch(
+  "/user/auth/update",
+  tokenValidationMiddleware,
+  payloadValidationMiddleware(updateUserSchema),
+  userController.updateUser,
+);
 
 router.delete(
   "/user/auth/delete",
