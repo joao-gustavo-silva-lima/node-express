@@ -14,13 +14,7 @@ export async function createUser(req: Request, res: Response) {
     sameSite: isProduction ? "none" : "lax",
   });
 
-  res.setHeader("Content-Location", `/user/${user.username.toLowerCase()}`);
-
-  res.status(201).json({
-    code: "USER_CREATED",
-    message: "The user has been created successfully.",
-    data: user,
-  });
+  res.status(201).json(user);
 }
 
 export async function loginUser(req: Request, res: Response) {
