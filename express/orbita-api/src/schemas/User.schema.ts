@@ -1,23 +1,10 @@
 import * as z from "zod";
-
-import { timestampSchema, uuidSchema } from "./common.schema";
+import { timestampSchema, usernameSchema } from "./common.schema";
 import { linkSchema } from "./Link.schema";
 
-const usernameSchema = z
-  .string({
-    error: "USERNAME_REQUIRED",
-  })
-  .trim()
-  .toLowerCase()
-  .min(3, {
-    error: "USERNAME_TOO_SHORT",
-  })
-  .max(30, {
-    error: "USERNAME_TOO_LONG",
-  })
-  .regex(/^[a-z0-9]+(?:[._-][a-z0-9]+)*$/, {
-    error: "USERNAME_INVALID_FORMAT",
-  });
+const uuidSchema = z.uuid({
+  error: "INVALID_UUID",
+});
 
 const nameSchema = z
   .string({

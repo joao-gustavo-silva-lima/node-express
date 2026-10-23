@@ -1,6 +1,7 @@
 import express from "express";
 import loggerMiddleware from "./middlewares/logger.middleware";
 import userRouter from "./routers/User.router";
+import linkRouter from "./routers/Link.router";
 import handleErrorMiddleware from "./middlewares/handleError.middleware";
 import cookieParser from "cookie-parser";
 
@@ -13,6 +14,7 @@ app.use(cookieParser());
 app.use(loggerMiddleware);
 
 app.use("/api/v1", userRouter);
+app.use("/api/v1", linkRouter);
 
 app.use((req, res) =>
   res.status(404).json({

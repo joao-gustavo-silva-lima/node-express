@@ -24,8 +24,8 @@ model User {
 model Link {
   id Int @id @default(autoincrement()) @db.Integer
 
-  authorId String @db.Uuid
-  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorUsername String @db.VarChar(255)
+  author         User   @relation(fields: [authorUsername], references: [username], onDelete: Cascade)
 
   title      String         @unique @db.VarChar(255)
   ref        String         @unique @db.VarChar(255)

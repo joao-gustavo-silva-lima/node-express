@@ -620,7 +620,7 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 
 export const LinkScalarFieldEnum = {
   id: 'id',
-  authorId: 'authorId',
+  authorUsername: 'authorUsername',
   title: 'title',
   ref: 'ref',
   visibility: 'visibility',

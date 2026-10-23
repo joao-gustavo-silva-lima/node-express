@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-import { timestampSchema, uuidSchema } from "./common.schema";
+import { timestampSchema, usernameSchema } from "./common.schema";
 
 const titleSchema = z
   .string({
@@ -26,12 +26,19 @@ const refSchema = z
     error: "REFERENCE_TOO_LONG",
   });
 
+const visibilitySchema = z
+  .string({
+    error: "VISIBILITY_REQUIRED",
+  })
+  .pipe(z.enum(["PUBLIC", "PRIVATE"], { error: "INVALID_VISIBILITY" }));
+
 export const linkSchema = z.object({
   id: z.number().int().positive(),
-  authorId: uuidSchema,
+  authorUsername: usernameSchema,
 
   ref: refSchema,
   title: titleSchema,
+  visibility: visibilitySchema,
 
   createdAt: timestampSchema,
   lastEdition: timestampSchema,
@@ -39,9 +46,14 @@ export const linkSchema = z.object({
 
 export const createLinkSchema = linkSchema.omit({
   id: true,
+  authorUsername: true,
   createdAt: true,
   lastEdition: true,
 });
 
+export const updateLinkSchema = createLinkSchema.partial();
+export const linkIdSchema = z.coerce.number().int().positive();
+
 export type Link = z.infer<typeof linkSchema>;
 export type LinkInput = z.infer<typeof createLinkSchema>;
+export type LinkUpdateInput = z.infer<typeof updateLinkSchema>;
