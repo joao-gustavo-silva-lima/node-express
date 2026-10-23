@@ -30,7 +30,7 @@ export async function loginUser(req: Request, res: Response) {
   });
 
   res.json({
-    code: "USER_LOGIN",
+    code: "USER_LOGIN_SUCCESS",
     message: "The user has logged in successfully",
   });
 }
@@ -39,7 +39,7 @@ export async function logoutUser(req: Request, res: Response) {
   res.clearCookie("orbitaAuthToken");
 
   res.json({
-    code: "USER_LOGOUT",
+    code: "USER_LOGOUT_SUCCESS",
     message: "The user has logged out successfully",
   });
 }
@@ -82,7 +82,7 @@ export async function deleteUser(req: Request, res: Response) {
   res.clearCookie("orbitaAuthToken");
 
   res.json({
-    code: "USER_DELETED",
+    code: "USER_DELETION_SUCCESS",
     message: "The user was deleted successfully",
   });
 }

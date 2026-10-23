@@ -36,7 +36,7 @@ export async function createUser(userInput: UserInput) {
 
         throw new HttpError(
           409,
-          `USER_${duplicateField}_CONFLICT`,
+          `USER_CREATION_${duplicateField}_CONFLICT`,
           `The ${duplicateField.toLowerCase()} is already in use.`,
         );
       }
@@ -70,7 +70,7 @@ export async function loginUser(credentials: loginUserInput) {
     if (query === null) {
       throw new HttpError(
         401,
-        "INVALID_LOGIN_CREDENTIALS",
+        "USER_LOGIN_INVALID_CREDENTIALS",
         "The username/email or password is incorrect.",
       );
     }
@@ -84,7 +84,7 @@ export async function loginUser(credentials: loginUserInput) {
     if (!hasMatchingPasswords) {
       throw new HttpError(
         401,
-        "INVALID_LOGIN_CREDENTIALS",
+        "USER_LOGIN_INVALID_CREDENTIALS",
         "The username/email or password is incorrect.",
       );
     }
@@ -181,7 +181,7 @@ export async function updateUser(
       if (query.lastEdition > threeDaysAgo) {
         throw new HttpError(
           403,
-          "USER_UPDATE_TOO_RECENT",
+          "USER_UPDATE_NOT_ALLOWED_TOO_SOON",
           "The user can only be updated once every three days.",
         );
       }
@@ -206,7 +206,7 @@ export async function updateUser(
       if (duplicateUser !== null) {
         throw new HttpError(
           409,
-          "USER_UPDATE_CONFLICT",
+          "USER_UPDATE_DETAILS_CONFLICT",
           "One or more user details are already in use.",
         );
       }
@@ -240,7 +240,7 @@ export async function updateUser(
     ) {
       throw new HttpError(
         409,
-        "USER_UPDATE_CONFLICT",
+        "USER_UPDATE_DETAILS_CONFLICT",
         "One or more user details are already in use.",
       );
     }
@@ -277,7 +277,7 @@ export async function deleteUser(username: string, password: string) {
     if (!hasMatchingPasswords) {
       throw new HttpError(
         403,
-        "FORBIDDEN_USER_DELETION_ATTEMPT",
+        "USER_DELETION_FORBIDDEN",
         `Passwords do not match. User deletion could not proceed.`,
       );
     }
