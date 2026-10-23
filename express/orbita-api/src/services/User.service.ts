@@ -18,6 +18,7 @@ export async function createUser(userInput: UserInput) {
         ...userInput,
         password: passwordHash,
       },
+      include: { links: true },
     });
 
     const token = generateToken(user.username);
@@ -117,6 +118,7 @@ export async function fetchUser(
       omit: {
         password: true,
       },
+      include: { links: true },
     });
 
     if (user === null) {
@@ -131,7 +133,7 @@ export async function fetchUser(
 
     const links = await prisma.link.findMany({
       where: {
-        authorId: user.id,
+        authorUsername: user.username,
         ...(!fetchPrivateLinks && { visibility: "PUBLIC" }),
       },
     });
