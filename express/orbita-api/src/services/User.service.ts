@@ -7,7 +7,7 @@ import {
 import prisma from "../lib/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 import HttpError from "../common/classes/HttpError";
-import jwt from "jsonwebtoken";
+import generateToken from "../common/utils/generateToken";
 
 export async function createUser(userInput: UserInput) {
   try {
@@ -20,11 +20,7 @@ export async function createUser(userInput: UserInput) {
       },
     });
 
-    const token = jwt.sign(
-      { authUsername: user.username },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1Day" },
-    );
+    const token = generateToken(user.username);
 
     return { user, token };
   } catch (error) {
@@ -92,11 +88,7 @@ export async function loginUser(credentials: loginUserInput) {
       );
     }
 
-    const token = jwt.sign(
-      { authUsername: username },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1Day" },
-    );
+    const token = generateToken(username);
 
     return token;
   } catch (error) {
@@ -232,7 +224,9 @@ export async function updateUser(
       },
     });
 
-    return updatedUser;
+    const token = generateToken(updatedUser.username);
+
+    return { updatedUser, token };
   } catch (error) {
     if (error instanceof HttpError) {
       throw error;

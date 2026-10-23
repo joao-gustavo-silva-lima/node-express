@@ -57,7 +57,19 @@ export async function fetchUser(req: Request, res: Response) {
 }
 
 export async function updateUser(req: Request, res: Response) {
-  const user = await userService.updateUser(req.authUsername!, req.body);
+  const { updatedUser: user, token } = await userService.updateUser(
+    req.authUsername!,
+    req.body,
+  );
+
+  res.cookie("orbitaAuthToken", token, {
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24,
+
+    secure: isProduction,
+    partitioned: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+  });
 
   res.json(user);
 }
