@@ -12,7 +12,7 @@ import tokenValidationMiddleware from "../middlewares/tokenValidation.middleware
 const router = express.Router();
 
 router.post(
-  "/user/auth/register",
+  "/user/auth",
   payloadValidationMiddleware(createUserSchema),
   userController.createUser,
 );
@@ -34,14 +34,14 @@ router.get(
 router.get("/user/:username", userController.fetchUser);
 
 router.patch(
-  "/user/auth/update",
+  "/user/auth",
   tokenValidationMiddleware,
   payloadValidationMiddleware(updateUserSchema),
   userController.updateUser,
 );
 
 router.delete(
-  "/user/auth/delete",
+  "/user/auth",
   payloadValidationMiddleware(deleteUserSchema),
   tokenValidationMiddleware,
   userController.deleteUser,
