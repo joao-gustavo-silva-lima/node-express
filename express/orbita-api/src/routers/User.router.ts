@@ -42,8 +42,8 @@ router.patch(
 
 router.delete(
   "/user/auth",
-  payloadValidationMiddleware(deleteUserSchema),
   tokenValidationMiddleware,
+  payloadValidationMiddleware(deleteUserSchema),
   userController.deleteUser,
 );
 

@@ -6,7 +6,7 @@ import { createLinkSchema, updateLinkSchema } from "../schemas/Link.schema";
 
 const router = express.Router();
 
-router.use(tokenValidationMiddleware);
+router.use("/link", tokenValidationMiddleware);
 
 router.post(
   "/link",

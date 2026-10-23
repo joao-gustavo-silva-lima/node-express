@@ -4,8 +4,15 @@ import userRouter from "./routers/User.router";
 import linkRouter from "./routers/Link.router";
 import handleErrorMiddleware from "./middlewares/handleError.middleware";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import cors from "cors";
+import corsOptionsMiddleware from "./middlewares/corsOptions.middleware";
 
 const app = express();
+
+app.use(helmet());
+
+app.use(cors(corsOptionsMiddleware));
 
 app.use(express.json());
 
