@@ -187,7 +187,7 @@ export async function updateUser(
       }
     }
 
-    const { name, username, email } = userInput;
+    const { name, username, email, password } = userInput;
 
     if (username !== undefined || email !== undefined) {
       const duplicateUser = await prisma.user.findFirst({
@@ -218,6 +218,7 @@ export async function updateUser(
         ...(name !== undefined && { name }),
         ...(username !== undefined && { username }),
         ...(email !== undefined && { email }),
+        ...(password !== undefined && { password }),
       },
       omit: {
         password: true,

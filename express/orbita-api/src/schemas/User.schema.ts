@@ -107,9 +107,7 @@ export const createUserSchema = userSchema.omit({
   lastEdition: true,
 });
 
-export const updateUserSchema = createUserSchema
-  .omit({ password: true })
-  .partial();
+export const updateUserSchema = createUserSchema.partial();
 
 export const deleteUserSchema = z.object({
   password: z.string(),
