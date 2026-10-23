@@ -118,7 +118,14 @@ export async function fetchUser(
       omit: {
         password: true,
       },
-      include: { links: true },
+      include: {
+        links: {
+          where: {
+            authorUsername: username,
+            ...(authenticatedUsername !== username && { visibility: "PUBLIC" }),
+          },
+        },
+      },
     });
 
     if (user === null) {
@@ -129,16 +136,7 @@ export async function fetchUser(
       );
     }
 
-    const fetchPrivateLinks = authenticatedUsername === user.username;
-
-    const links = await prisma.link.findMany({
-      where: {
-        authorUsername: user.username,
-        ...(!fetchPrivateLinks && { visibility: "PUBLIC" }),
-      },
-    });
-
-    return { ...user, links };
+    return user;
   } catch (error) {
     if (error instanceof HttpError) {
       throw error;
@@ -225,6 +223,7 @@ export async function updateUser(
       omit: {
         password: true,
       },
+      include: { links: true },
     });
 
     const token = generateToken(updatedUser.username);
