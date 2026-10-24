@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import HttpError from "../common/classes/HttpError";
+import HttpError from "../common/classes/HttpError.js";
 
 export default function handleErrorMiddleware(
   error: any,

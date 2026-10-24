@@ -3,11 +3,11 @@ import {
   type loginUserInput,
   type updateUserInput,
   type UserInput,
-} from "../schemas/User.schema";
-import prisma from "../lib/prisma";
+} from "../schemas/User.schema.js";
+import prisma from "../lib/prisma.js";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
-import HttpError from "../common/classes/HttpError";
-import generateToken from "../common/utils/generateToken";
+import HttpError from "../common/classes/HttpError.js";
+import generateToken from "../common/utils/generateToken.js";
 
 export async function createUser(userInput: UserInput) {
   try {

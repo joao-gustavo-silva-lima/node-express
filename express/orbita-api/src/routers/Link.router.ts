@@ -1,8 +1,8 @@
 import express from "express";
-import * as linkController from "../controllers/Link.controller";
-import tokenValidationMiddleware from "../middlewares/tokenValidation.middleware";
-import payloadValidationMiddleware from "../middlewares/payloadValidation.middleware";
-import { createLinkSchema, updateLinkSchema } from "../schemas/Link.schema";
+import * as linkController from "../controllers/Link.controller.js";
+import tokenValidationMiddleware from "../middlewares/tokenValidation.middleware.js";
+import payloadValidationMiddleware from "../middlewares/payloadValidation.middleware.js";
+import { createLinkSchema, updateLinkSchema } from "../schemas/Link.schema.js";
 
 const router = express.Router();
 

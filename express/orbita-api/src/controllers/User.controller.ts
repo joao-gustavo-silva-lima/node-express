@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import * as userService from "../services/User.service";
-import { isProduction } from "../common/constants/nodeEnv";
+import * as userService from "../services/User.service.js";
+import { isProduction } from "../common/constants/nodeEnv.js";
 
 export async function createUser(req: Request, res: Response) {
   const { user, token } = await userService.createUser(req.body);

@@ -1,6 +1,6 @@
 import * as z from "zod";
-import { timestampSchema, usernameSchema } from "./common.schema";
-import { linkSchema } from "./Link.schema";
+import { timestampSchema, usernameSchema } from "./common.schema.js";
+import { linkSchema } from "./Link.schema.js";
 
 const uuidSchema = z.uuid({
   error: "INVALID_UUID",

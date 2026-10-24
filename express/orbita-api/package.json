@@ -2,9 +2,11 @@
   "name": "orbita-api",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/src/server.js",
+  "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts"
+    "dev": "tsx watch src/server.ts",
+    "build": "npm install && tsc",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "type": "module",
