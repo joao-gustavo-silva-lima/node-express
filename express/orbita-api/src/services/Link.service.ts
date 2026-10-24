@@ -5,6 +5,18 @@ import type { LinkInput, LinkUpdateInput } from "../schemas/Link.schema.js";
 
 export async function createLink(authorUsername: string, linkInput: LinkInput) {
   try {
+    const linksQuantity = await prisma.link.count({
+      where: { authorUsername },
+    });
+
+    if (linksQuantity >= 10) {
+      throw new HttpError(
+        403,
+        "LINK_CREATION_QUOTA_EXCEEDED",
+        "The maximum allowed 10 links creation was reached by the user.",
+      );
+    }
+
     return await prisma.link.create({
       data: {
         ...linkInput,
@@ -12,6 +24,10 @@ export async function createLink(authorUsername: string, linkInput: LinkInput) {
       },
     });
   } catch (error) {
+    if (error instanceof HttpError) {
+      throw error;
+    }
+
     if (
       error instanceof PrismaClientKnownRequestError &&
       error.code === "P2002"
