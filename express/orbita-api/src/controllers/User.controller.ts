@@ -18,7 +18,7 @@ export async function createUser(req: Request, res: Response) {
 }
 
 export async function loginUser(req: Request, res: Response) {
-  const token = await userService.loginUser(req.body);
+  const { user, token } = await userService.loginUser(req.body);
 
   res.cookie("orbitaAuthToken", token, {
     httpOnly: true,
@@ -29,10 +29,7 @@ export async function loginUser(req: Request, res: Response) {
     sameSite: isProduction ? "none" : "lax",
   });
 
-  res.json({
-    code: "USER_LOGIN_SUCCESS",
-    message: "The user has logged in successfully",
-  });
+  res.json(user);
 }
 
 export async function logoutUser(req: Request, res: Response) {

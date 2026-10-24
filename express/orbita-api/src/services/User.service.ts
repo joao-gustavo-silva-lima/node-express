@@ -50,7 +50,7 @@ export async function createUser(userInput: UserInput) {
 
 export async function loginUser(credentials: loginUserInput) {
   try {
-    const query = await prisma.user.findFirst({
+    const user = await prisma.user.findFirst({
       where: {
         OR: [
           ...(credentials.username !== undefined
@@ -61,13 +61,12 @@ export async function loginUser(credentials: loginUserInput) {
             : []),
         ],
       },
-      select: {
-        username: true,
-        password: true,
+      include: {
+        links: true,
       },
     });
 
-    if (query === null) {
+    if (user === null) {
       throw new HttpError(
         401,
         "USER_LOGIN_INVALID_CREDENTIALS",
@@ -75,10 +74,9 @@ export async function loginUser(credentials: loginUserInput) {
       );
     }
 
-    const { password: passwordHash, username } = query;
     const hasMatchingPasswords = await compare(
       credentials.password,
-      passwordHash,
+      user.password,
     );
 
     if (!hasMatchingPasswords) {
@@ -89,9 +87,9 @@ export async function loginUser(credentials: loginUserInput) {
       );
     }
 
-    const token = generateToken(username);
+    const token = generateToken(user.username);
 
-    return token;
+    return { user, token };
   } catch (error) {
     if (error instanceof HttpError) {
       throw error;
