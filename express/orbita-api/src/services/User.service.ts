@@ -27,17 +27,10 @@ export async function createUser(userInput: UserInput) {
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === "P2002") {
-        const constraintName =
-          (error as any).meta?.driverAdapterError?.cause?.constraint?.index ||
-          "";
-        const duplicateField = constraintName.includes("username")
-          ? "USERNAME"
-          : "EMAIL";
-
         throw new HttpError(
           409,
-          `USER_CREATION_${duplicateField}_CONFLICT`,
-          `The ${duplicateField.toLowerCase()} is already in use.`,
+          `USER_CREATION_CONFLICT`,
+          `The email/username is already in use.`,
         );
       }
     }
