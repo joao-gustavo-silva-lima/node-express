@@ -9,7 +9,7 @@ const corsOptionsMiddleware: CorsOptionsDelegate = function (req, callback) {
     typeof route === "string" ? reqPath.includes(route) : route.test(reqPath),
   );
 
-  var corsOptions: CorsOptions = {
+  let corsOptions: CorsOptions = {
     origin: process.env.FRONT_END_URL!,
     credentials: isCredentialedRoute,
   };
