@@ -150,6 +150,7 @@ export async function updateUser(
     const query = await prisma.user.findUnique({
       where: { username: targetUsername },
       select: {
+        password: true,
         createdAt: true,
         lastEdition: true,
       },
@@ -160,6 +161,19 @@ export async function updateUser(
         404,
         "USER_NOT_FOUND_FOR_UPDATE",
         `The user update failed: a user with the username '${targetUsername}' was not found`,
+      );
+    }
+
+    const hasMatchingPasswords = await compare(
+      userInput.currentPassword,
+      query.password,
+    );
+
+    if (!hasMatchingPasswords) {
+      throw new HttpError(
+        403,
+        "USER_UPDATE_FORBIDDEN",
+        `Passwords do not match. User update could not proceed.`,
       );
     }
 
@@ -209,7 +223,7 @@ export async function updateUser(
         ...(name !== undefined && { name }),
         ...(username !== undefined && { username }),
         ...(email !== undefined && { email }),
-        ...(password !== undefined && { password }),
+        ...(password !== undefined && { password: await hash(password, 10) }),
       },
       omit: {
         password: true,

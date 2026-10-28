@@ -94,7 +94,11 @@ export const createUserSchema = userSchema.omit({
   lastEdition: true,
 });
 
-export const updateUserSchema = createUserSchema.partial();
+export const updateUserSchema = createUserSchema.partial().extend({
+  currentPassword: z.string({
+    error: "PASSWORD_REQUIRED",
+  }),
+});
 
 export const deleteUserSchema = z.object({
   password: z.string(),
