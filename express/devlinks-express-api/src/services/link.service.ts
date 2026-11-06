@@ -33,6 +33,18 @@ export class LinkService {
     });
   }
 
+  public static getByID(id: LinkID): Link {
+    return { ...this._getByID(id) };
+  }
+
+  private static _getByID(id: LinkID): Link {
+    if (!this.linksRepository.has(id)) {
+      throw new StatefulError(404, `Link within ID '${id}' not found`);
+    }
+
+    return this.linksRepository.get(id)!;
+  }
+
   private static validatePrototypeUniqueness(
     parsingLink: ProtoLink,
     exceptiveOwnId?: LinkID,
@@ -77,18 +89,6 @@ export class LinkService {
     this.linksRepository.set(newLink.id, newLink);
 
     return { ...newLink };
-  }
-
-  private static _getByID(id: LinkID): Link {
-    if (!this.linksRepository.has(id)) {
-      throw new StatefulError(404, `Link within ID '${id}' not found`);
-    }
-
-    return this.linksRepository.get(id)!;
-  }
-
-  public static getByID(id: LinkID): Link {
-    return { ...this._getByID(id) };
   }
 
   public static deleteByID(id: LinkID) {
