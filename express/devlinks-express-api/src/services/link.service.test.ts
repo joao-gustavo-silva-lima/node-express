@@ -110,4 +110,19 @@ describe("register link", () => {
 
     expect(link.title).not.toBe(linkInRepository.title);
   });
+
+  test("throws 409 when register link contains duplicate property against a link in repository", () => {
+    const query: Query = {};
+    LinkService.register(linkPrototype);
+
+    const error = getThrownError(() =>
+      LinkService.register(linkPrototype),
+    ) as StatefulError;
+    const links = LinkService.list(query);
+
+    expect(error).toBeInstanceOf(StatefulError);
+    expect(error.status).toBe(409);
+    expect(error.message).toMatch(/conflict/i);
+    expect(links.length).toBe(1);
+  });
 });
