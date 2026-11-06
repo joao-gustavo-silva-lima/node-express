@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { LinkService } from "./link.service.js";
-import { LinkID, linkSchema, Query } from "../types/link.types.js";
+import { LinkID, linkSchema, ProtoLink, Query } from "../types/link.types.js";
 import z from "zod";
 import { StatefulError } from "../utils/stateful-error.utils.js";
 
@@ -57,5 +57,30 @@ describe("read unique link by id", () => {
     expect(error).toBeInstanceOf(StatefulError);
     expect(error.status).toBe(404);
     expect(error.message).toMatch(/not found/i);
+  });
+});
+
+describe("register link", () => {
+  beforeEach(() => {
+    LinkService._clearRepositoryForTests();
+  });
+
+  test("saves new link object to repository and retrieves the link data", () => {
+    const linkPrototype: ProtoLink = {
+      title: "Google",
+      url: "https://www.google.com",
+      category: "search",
+      tags: ["search", "web"],
+    };
+
+    const link = LinkService.register(linkPrototype);
+    const linkInRepository = LinkService.getByID(link.id);
+    const { success: isLink } = linkSchema.safeParse(link);
+    const { success: isRepositoryLink } =
+      linkSchema.safeParse(linkInRepository);
+
+    expect(isLink).toBeTruthy();
+    expect(isRepositoryLink).toBeTruthy();
+    expect(link).toStrictEqual(linkInRepository);
   });
 });

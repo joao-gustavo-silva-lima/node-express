@@ -45,25 +45,6 @@ export class LinkService {
     return this.linksRepository.get(id)!;
   }
 
-  private static validatePrototypeUniqueness(
-    parsingLink: ProtoLink,
-    exceptiveOwnId?: LinkID,
-  ) {
-    for (const link of this.linksRepository.values()) {
-      if (
-        link.url !== parsingLink.url ||
-        (exceptiveOwnId ? link.id === exceptiveOwnId : false)
-      ) {
-        continue;
-      }
-
-      throw new StatefulError(
-        409,
-        `Write Conflict: A link within URL '${parsingLink.url}' already exists`,
-      );
-    }
-  }
-
   public static register(linkPrototype: ProtoLink) {
     this.validatePrototypeUniqueness(linkPrototype);
 
@@ -89,6 +70,25 @@ export class LinkService {
     this.linksRepository.set(newLink.id, newLink);
 
     return { ...newLink };
+  }
+
+  private static validatePrototypeUniqueness(
+    parsingLink: ProtoLink,
+    exceptiveOwnId?: LinkID,
+  ) {
+    for (const link of this.linksRepository.values()) {
+      if (
+        link.url !== parsingLink.url ||
+        (exceptiveOwnId ? link.id === exceptiveOwnId : false)
+      ) {
+        continue;
+      }
+
+      throw new StatefulError(
+        409,
+        `Write Conflict: A link within URL '${parsingLink.url}' already exists`,
+      );
+    }
   }
 
   public static deleteByID(id: LinkID) {
