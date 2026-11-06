@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const linkSchema = z.object({
+export const linkSchema = z.object({
   id: z.union([z.string(), z.uuid()]).default(""),
   title: z.string().default(""),
   url: z.url().default(""),

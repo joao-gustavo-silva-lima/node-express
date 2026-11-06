@@ -121,4 +121,46 @@ export class LinkService {
 
     return link.url;
   }
+
+  public static _clearRepositoryForTests() {
+    this.linksRepository.clear();
+  }
+
+  public static _mockRepositoryInitialDataForTests() {
+    this.linksRepository.clear();
+
+    const initialLinks: Link[] = [
+      {
+        id: "00000000-0000-0000-0000-000000000001",
+        title: "Google",
+        url: "https://www.google.com",
+        category: "search",
+        tags: ["search", "web"],
+        clicks: 0,
+        createdAt: new Date("2024-01-01T00:00:00.000Z"),
+      },
+      {
+        id: "00000000-0000-0000-0000-000000000002",
+        title: "GitHub",
+        url: "https://github.com",
+        category: "development",
+        tags: ["code", "git"],
+        clicks: 0,
+        createdAt: new Date("2024-01-02T00:00:00.000Z"),
+      },
+      {
+        id: "00000000-0000-0000-0000-000000000003",
+        title: "MDN Web Docs",
+        url: "https://developer.mozilla.org",
+        category: "documentation",
+        tags: ["web", "reference"],
+        clicks: 0,
+        createdAt: new Date("2024-01-03T00:00:00.000Z"),
+      },
+    ];
+
+    for (const link of initialLinks) {
+      this.linksRepository.set(link.id, link);
+    }
+  }
 }
