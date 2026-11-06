@@ -29,6 +29,15 @@ describe("read all links", () => {
     expect(Array.isArray(data)).toBeTruthy();
     expect(isLinkArray).toBeTruthy();
   });
+
+  test("protects the repository from mutating a returned link", () => {
+    const query: Query = {};
+    const data = LinkService.list(query);
+
+    data[0]!.title = "Externally Altered Title";
+
+    expect(LinkService.list(query)[0]!.title).toBe("Google");
+  });
 });
 
 describe("read unique link by id", () => {
@@ -58,6 +67,15 @@ describe("read unique link by id", () => {
     expect(error.status).toBe(404);
     expect(error.message).toMatch(/not found/i);
   });
+
+  test("protects the repository from mutating a returned link", () => {
+    const id: LinkID = "00000000-0000-0000-0000-000000000001";
+    const data = LinkService.getByID(id);
+
+    data.title = "Externally Altered Title";
+
+    expect(LinkService.getByID(id).title).toBe("Google");
+  });
 });
 
 describe("register link", () => {
@@ -84,7 +102,7 @@ describe("register link", () => {
     expect(link).toStrictEqual(linkInRepository);
   });
 
-  test("retrieves a clone of new link object and secures the in-repository reference against external mutability", () => {
+  test("protects the repository from mutating the returned new link", () => {
     const link = LinkService.register(linkPrototype);
     const linkInRepository = LinkService.getByID(link.id);
 
