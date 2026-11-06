@@ -61,18 +61,18 @@ describe("read unique link by id", () => {
 });
 
 describe("register link", () => {
+  const linkPrototype: ProtoLink = {
+    title: "Google",
+    url: "https://www.google.com",
+    category: "search",
+    tags: ["search", "web"],
+  };
+
   beforeEach(() => {
     LinkService._clearRepositoryForTests();
   });
 
   test("saves new link object to repository and retrieves the link data", () => {
-    const linkPrototype: ProtoLink = {
-      title: "Google",
-      url: "https://www.google.com",
-      category: "search",
-      tags: ["search", "web"],
-    };
-
     const link = LinkService.register(linkPrototype);
     const linkInRepository = LinkService.getByID(link.id);
     const { success: isLink } = linkSchema.safeParse(link);
@@ -82,5 +82,14 @@ describe("register link", () => {
     expect(isLink).toBeTruthy();
     expect(isRepositoryLink).toBeTruthy();
     expect(link).toStrictEqual(linkInRepository);
+  });
+
+  test("retrieves a clone of new link object and secures the in-repository reference against external mutability", () => {
+    const link = LinkService.register(linkPrototype);
+    const linkInRepository = LinkService.getByID(link.id);
+
+    link.title = "Externally Altered Title";
+
+    expect(link.title).not.toBe(linkInRepository.title);
   });
 });
