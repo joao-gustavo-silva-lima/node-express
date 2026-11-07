@@ -156,4 +156,53 @@ describe("update link by id", () => {
     expect(updatedLink.id).toBe(link.id);
     expect(repositoryUpdatedLink).toStrictEqual(expectedUpdatedLink);
   });
+
+  test("protects the repository from mutating the returned updated link", () => {
+    const link = LinkService.register(linkPrototype);
+    const updatedLink = LinkService.updateByID(link.id, {
+      title: "Updated Title",
+      url: link.url,
+    });
+    const repositoryUpdatedLink = LinkService.getByID(link.id);
+
+    updatedLink.title = "Externally Altered Title";
+
+    expect(repositoryUpdatedLink.title).not.toBe(updatedLink.title);
+  });
+
+  test("throws 404 when updating a link with a non-matching id", () => {
+    const id: LinkID = "not-matching-id";
+    const modifyingPrototype: ProtoLink = {
+      title: "Updated Title",
+      url: "https://updated.example.com",
+    };
+
+    const error = getThrownError(() =>
+      LinkService.updateByID(id, modifyingPrototype),
+    ) as StatefulError;
+
+    expect(error).toBeInstanceOf(StatefulError);
+    expect(error.status).toBe(404);
+    expect(error.message).toMatch(/not found/i);
+  });
+
+  test("throws 409 when updating a link with duplicate property against the repository", () => {
+    const firstLink = LinkService.register(linkPrototype);
+    const secondLink = LinkService.register({
+      ...linkPrototype,
+      title: "GitHub",
+      url: "https://github.com",
+    });
+
+    const error = getThrownError(() =>
+      LinkService.updateByID(secondLink.id, {
+        title: secondLink.title,
+        url: firstLink.url,
+      }),
+    ) as StatefulError;
+
+    expect(error).toBeInstanceOf(StatefulError);
+    expect(error.status).toBe(409);
+    expect(error.message).toMatch(/conflict/i);
+  });
 });
