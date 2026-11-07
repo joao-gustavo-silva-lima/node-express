@@ -1,8 +1,21 @@
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { LinkService } from "./link.service.js";
-import { LinkID, linkSchema, ProtoLink, Query } from "../types/link.types.js";
+import {
+  Link,
+  LinkID,
+  linkSchema,
+  ProtoLink,
+  Query,
+} from "../types/link.types.js";
 import z from "zod";
 import { StatefulError } from "../utils/stateful-error.utils.js";
+
+const linkPrototype: ProtoLink = {
+  title: "Google",
+  url: "https://www.google.com",
+  category: "search",
+  tags: ["search", "web"],
+};
 
 function getThrownError(fn: () => void) {
   try {
@@ -14,9 +27,12 @@ function getThrownError(fn: () => void) {
   throw "The test expected the tested function to throw, but nothing was thrown.";
 }
 
+beforeEach(() => {
+  LinkService._clearRepositoryForTests();
+});
+
 describe("read all links", () => {
   beforeEach(() => {
-    LinkService._clearRepositoryForTests();
     LinkService._mockRepositoryInitialDataForTests();
   });
 
@@ -42,7 +58,6 @@ describe("read all links", () => {
 
 describe("read unique link by id", () => {
   beforeEach(() => {
-    LinkService._clearRepositoryForTests();
     LinkService._mockRepositoryInitialDataForTests();
   });
 
@@ -79,17 +94,6 @@ describe("read unique link by id", () => {
 });
 
 describe("register link", () => {
-  const linkPrototype: ProtoLink = {
-    title: "Google",
-    url: "https://www.google.com",
-    category: "search",
-    tags: ["search", "web"],
-  };
-
-  beforeEach(() => {
-    LinkService._clearRepositoryForTests();
-  });
-
   test("saves new link object to repository and retrieves the link data", () => {
     const link = LinkService.register(linkPrototype);
     const linkInRepository = LinkService.getByID(link.id);
@@ -124,5 +128,32 @@ describe("register link", () => {
     expect(error.status).toBe(409);
     expect(error.message).toMatch(/conflict/i);
     expect(links.length).toBe(1);
+  });
+});
+
+describe("update link by id", () => {
+  test("updates link in repository and retrieves updated link data", () => {
+    const link = LinkService.register(linkPrototype);
+    const modifyingPrototype: ProtoLink = {
+      title: "Updated Title",
+      url: link.url,
+    };
+    const expectedUpdatedLink = {
+      ...link,
+      ...modifyingPrototype,
+    } as Link;
+
+    const updatedLink = LinkService.updateByID(link.id, modifyingPrototype);
+    const repositoryUpdatedLink = LinkService.getByID(link.id);
+    const { success: isLink } = linkSchema.safeParse(updatedLink);
+    const { success: isRepositoryUpdatedLink } = linkSchema.safeParse(
+      repositoryUpdatedLink,
+    );
+
+    expect(isLink).toBeTruthy();
+    expect(isRepositoryUpdatedLink).toBeTruthy();
+    expect(updatedLink).toStrictEqual(repositoryUpdatedLink);
+    expect(updatedLink.id).toBe(link.id);
+    expect(repositoryUpdatedLink).toStrictEqual(expectedUpdatedLink);
   });
 });
