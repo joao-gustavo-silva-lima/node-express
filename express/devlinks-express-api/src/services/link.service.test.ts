@@ -233,3 +233,27 @@ describe("delete link by id", () => {
     expect(error.message).toMatch(/not found/i);
   });
 });
+
+describe("redirect link by id", () => {
+  test("returns the link URL and increments its click count for an existing link", () => {
+    const link = LinkService.register(linkPrototype);
+
+    const redirectURL = LinkService.redirectByID(link.id);
+    const { clicks } = LinkService.getByID(link.id);
+
+    expect(redirectURL).toBe(link.url);
+    expect(clicks).toBe(1);
+  });
+
+  test("throws 404 when redirecting a link with a non-matching id", () => {
+    const id: LinkID = "not-matching-id";
+
+    const error = getThrownError(() =>
+      LinkService.redirectByID(id),
+    ) as StatefulError;
+
+    expect(error).toBeInstanceOf(StatefulError);
+    expect(error.status).toBe(404);
+    expect(error.message).toMatch(/not found/i);
+  });
+});
