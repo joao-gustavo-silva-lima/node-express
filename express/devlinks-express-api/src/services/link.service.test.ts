@@ -127,7 +127,7 @@ describe("register link", () => {
     expect(error).toBeInstanceOf(StatefulError);
     expect(error.status).toBe(409);
     expect(error.message).toMatch(/conflict/i);
-    expect(links.length).toBe(1);
+    expect(links).toHaveLength(1);
   });
 });
 
@@ -204,5 +204,32 @@ describe("update link by id", () => {
     expect(error).toBeInstanceOf(StatefulError);
     expect(error.status).toBe(409);
     expect(error.message).toMatch(/conflict/i);
+  });
+});
+
+describe("delete link by id", () => {
+  test("removes the link from the repository when the id matches an existing link", () => {
+    const link = LinkService.register(linkPrototype);
+
+    LinkService.deleteByID(link.id);
+    const links = LinkService.list({});
+    const error = getThrownError(() =>
+      LinkService.getByID(link.id),
+    ) as StatefulError;
+
+    expect(error.status).toBe(404);
+    expect(links).toHaveLength(0);
+  });
+
+  test("throws 404 when deleting a link with a non-matching id", () => {
+    const id: LinkID = "not-matching-id";
+
+    const error = getThrownError(() =>
+      LinkService.deleteByID(id),
+    ) as StatefulError;
+
+    expect(error).toBeInstanceOf(StatefulError);
+    expect(error.status).toBe(404);
+    expect(error.message).toMatch(/not found/i);
   });
 });
