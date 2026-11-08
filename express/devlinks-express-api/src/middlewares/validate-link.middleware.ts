@@ -7,7 +7,12 @@ export function validateLinkMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  //MISSING FEATURE: Expect HTTP header "Content-Type: application/json"
+  if (req.headers["content-type"] !== "application/json") {
+    throw new StatefulError(
+      400,
+      "Invalid Content-Type: The request must contain 'application/json' header",
+    );
+  }
 
   const validation = protoLinkSchema.safeParse(req.body);
 
