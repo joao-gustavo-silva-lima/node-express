@@ -3,7 +3,7 @@ import { ProtoLink } from "../types/link.types.js";
 import { NextFunction, Request, Response } from "express";
 import { validateLinkMiddleware } from "./validate-link.middleware.js";
 import { StatefulError } from "../utils/stateful-error.utils.js";
-import { getThrownError } from "../utils/test.utils.js";
+import { getThrownError } from "../utils/.test.utils.js";
 
 const req = {} as Request;
 const res = {} as Response;

@@ -9,7 +9,7 @@ import {
 } from "../types/link.types.js";
 import z from "zod";
 import { StatefulError } from "../utils/stateful-error.utils.js";
-import { getThrownError } from "../utils/test.utils.js";
+import { getThrownError } from "../utils/.test.utils.js";
 
 const linkPrototype: ProtoLink = {
   title: "Google",
