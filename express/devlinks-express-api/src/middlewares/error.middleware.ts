@@ -2,20 +2,25 @@ import { NextFunction, Request, Response } from "express";
 import { StatefulError } from "../utils/stateful-error.utils.js";
 
 export function errorMiddleware(
-  err: StatefulError,
+  error: any,
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
   //MISSING FEATURE: Handle JSON payload syntax error
 
-  const isInternalError = err.status === undefined;
+  const isHandledError = error instanceof StatefulError;
 
-  res.status(err.status ?? 500).json({
-    message: isInternalError ? `Internal Server Error` : err.message,
-  });
+  const status = isHandledError ? error.status : 500;
+  const message = isHandledError ? error.message : "Internal Server Error";
 
-  if (isInternalError) {
-    res.on("finish", () => console.error(`\n${err.stack ?? err.message}\n`));
+  res.status(status).json({ message });
+
+  if (!isHandledError) {
+    res.on("finish", () =>
+      console.error(
+        `\n${error.stack ?? error.message ?? "Unexpected Error"}\n`,
+      ),
+    );
   }
 }

@@ -46,7 +46,7 @@ describe("error middleware", () => {
         ...(errorProps ?? {}),
       };
 
-      errorMiddleware(error, req, res as Response, next);
+      errorMiddleware(error as StatefulError, req, res as Response, next);
 
       expect(res.status).toHaveBeenCalledExactlyOnceWith(500);
       expect(res.json).toHaveBeenCalledExactlyOnceWith(
