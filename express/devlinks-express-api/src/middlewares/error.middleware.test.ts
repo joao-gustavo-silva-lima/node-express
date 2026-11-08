@@ -33,4 +33,31 @@ describe("error middleware", () => {
       );
     },
   );
+
+  test.for([
+    ["Database connection failed"],
+    ["Internal Unhandled Error", { status: 500 }],
+    ["HINT: Sensitive Information", { status: 21505 }],
+  ] as [string, Record<string, unknown>][])(
+    "responds with a default 500 Internal Server Error and logs error for unhandled errors",
+    ([message, errorProps]) => {
+      const error = {
+        ...new Error(message),
+        ...(errorProps ?? {}),
+      };
+
+      errorMiddleware(error, req, res as Response, next);
+
+      expect(res.status).toHaveBeenCalledExactlyOnceWith(500);
+      expect(res.json).toHaveBeenCalledExactlyOnceWith(
+        expect.objectContaining({
+          message: expect.stringMatching(/internal server error/i),
+        }),
+      );
+      expect(res.on).toHaveBeenCalledExactlyOnceWith(
+        "finish",
+        expect.any(Function),
+      );
+    },
+  );
 });
