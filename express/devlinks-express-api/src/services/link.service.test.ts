@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test } from "vitest";
 import { LinkService } from "./link.service.js";
 import {
   Link,
@@ -9,6 +9,7 @@ import {
 } from "../types/link.types.js";
 import z from "zod";
 import { StatefulError } from "../utils/stateful-error.utils.js";
+import { getThrownError } from "../utils/test.utils.js";
 
 const linkPrototype: ProtoLink = {
   title: "Google",
@@ -16,16 +17,6 @@ const linkPrototype: ProtoLink = {
   category: "search",
   tags: ["search", "web"],
 };
-
-function getThrownError(fn: () => void) {
-  try {
-    fn();
-  } catch (error) {
-    return error;
-  }
-
-  throw "The test expected the tested function to throw, but nothing was thrown.";
-}
 
 beforeEach(() => {
   LinkService._clearRepositoryForTests();
