@@ -7,12 +7,15 @@ export function errorMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  //MISSING FEATURE: Handle JSON payload syntax error
-
   const isHandledError = error instanceof StatefulError;
+  const isSyntaxError = error instanceof SyntaxError;
 
-  const status = isHandledError ? error.status : 500;
-  const message = isHandledError ? error.message : "Internal Server Error";
+  const status = isHandledError ? error.status : isSyntaxError ? 400 : 500;
+  const message = isHandledError
+    ? error.message
+    : isSyntaxError
+      ? "Invalid JSON: The request payload format is unexpected."
+      : "Internal Server Error";
 
   res.status(status).json({ message });
 
