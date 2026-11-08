@@ -19,6 +19,7 @@ beforeEach(() => {
     category: "search",
     tags: ["search", "web"],
   } satisfies ProtoLink;
+  vi.clearAllMocks();
 });
 
 describe("validate link middleware", () => {
