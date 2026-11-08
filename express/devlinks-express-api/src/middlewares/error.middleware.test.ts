@@ -60,4 +60,17 @@ describe("error middleware", () => {
       );
     },
   );
+
+  test("responds with 400 for SyntaxError", () => {
+    const syntaxError = new SyntaxError();
+
+    errorMiddleware(syntaxError, req, res as Response, next);
+
+    expect(res.status).toHaveBeenCalledExactlyOnceWith(400);
+    expect(res.json).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/invalid JSON/i),
+      }),
+    );
+  });
 });
