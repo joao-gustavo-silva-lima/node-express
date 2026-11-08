@@ -7,6 +7,8 @@ export function validateLinkMiddleware(
   res: Response,
   next: NextFunction,
 ) {
+  //MISSING FEATURE: Expect HTTP header "Content-Type: application/json"
+
   const validation = protoLinkSchema.safeParse(req.body);
 
   if (validation.success) {

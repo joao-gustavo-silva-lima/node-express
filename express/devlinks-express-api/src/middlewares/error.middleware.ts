@@ -7,6 +7,8 @@ export function errorMiddleware(
   res: Response,
   next: NextFunction,
 ) {
+  //MISSING FEATURE: Handle JSON payload syntax error
+
   const isInternalError = err.status === undefined;
 
   res.status(err.status ?? 500).json({
