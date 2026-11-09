@@ -1,15 +1,9 @@
 import { beforeEach, describe, expect, test } from "vitest";
 import { LinkService } from "./link.service.js";
-import {
-  Link,
-  LinkID,
-  linkSchema,
-  ProtoLink,
-  Query,
-} from "../types/link.types.js";
+import { Link, LinkID, linkSchema, ProtoLink, Query } from "./link.types.js";
 import z from "zod";
-import { StatefulError } from "../utils/stateful-error.utils.js";
-import { getThrownError } from "../utils/.test.utils.js";
+import { StatefulError } from "../common/utils/stateful-error.utils.js";
+import { getThrownError } from "../common/utils/.test.utils.js";
 
 const linkPrototype: ProtoLink = {
   title: "Google",

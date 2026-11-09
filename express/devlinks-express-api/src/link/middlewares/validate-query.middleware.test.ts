@@ -1,9 +1,9 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
 import { NextFunction, Request, Response } from "express";
-import { Query } from "../types/link.types.js";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+import { getThrownError } from "../../common/utils/.test.utils.js";
+import { StatefulError } from "../../common/utils/stateful-error.utils.js";
+import { Query } from "../link.types.js";
 import { validateQueryMiddleware } from "./validate-query.middleware.js";
-import { getThrownError } from "../utils/.test.utils.js";
-import { StatefulError } from "../utils/stateful-error.utils.js";
 
 const req = {
   query: {} as Query,

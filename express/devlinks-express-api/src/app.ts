@@ -1,6 +1,6 @@
-import { errorMiddleware } from "./middlewares/error.middleware.js";
-import { loggerMiddleware } from "./middlewares/logger.middleware.js";
-import { router } from "./routes/link.routes.js";
+import { errorMiddleware } from "./common/middlewares/error.middleware.js";
+import { loggerMiddleware } from "./common/middlewares/logger.middleware.js";
+import { router } from "./link/link.router.js";
 import cors from "cors";
 import express from "express";
 

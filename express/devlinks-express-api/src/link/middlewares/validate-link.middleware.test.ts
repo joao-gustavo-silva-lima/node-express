@@ -1,9 +1,9 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
-import { ProtoLink } from "../types/link.types.js";
 import { NextFunction, Request, Response } from "express";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+import { getThrownError } from "../../common/utils/.test.utils.js";
+import { StatefulError } from "../../common/utils/stateful-error.utils.js";
+import { ProtoLink } from "../link.types.js";
 import { validateLinkMiddleware } from "./validate-link.middleware.js";
-import { StatefulError } from "../utils/stateful-error.utils.js";
-import { getThrownError } from "../utils/.test.utils.js";
 
 const req = {} as Request;
 const res = {} as Response;

@@ -6,8 +6,8 @@ import {
   LinkKeys,
   ProtoLink,
   Query,
-} from "../types/link.types.js";
-import { StatefulError } from "../utils/stateful-error.utils.js";
+} from "./link.types.js";
+import { StatefulError } from "../common/utils/stateful-error.utils.js";
 
 export class LinkService {
   private static readonly linksRepository = new Map<LinkID, Link>();

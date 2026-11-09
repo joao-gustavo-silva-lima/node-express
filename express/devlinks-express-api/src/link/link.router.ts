@@ -1,7 +1,7 @@
 import express from "express";
-import { LinkController } from "../controllers/link.controller.js";
-import { validateQueryMiddleware } from "../middlewares/validate-query.middleware.js";
-import { validateLinkMiddleware } from "../middlewares/validate-link.middleware.js";
+import { LinkController } from "./link.controller.js";
+import { validateQueryMiddleware } from "./middlewares/validate-query.middleware.js";
+import { validateLinkMiddleware } from "./middlewares/validate-link.middleware.js";
 
 export const router = express.Router();
 

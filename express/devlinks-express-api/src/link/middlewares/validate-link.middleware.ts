@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { protoLinkSchema } from "../types/link.types.js";
-import { StatefulError } from "../utils/stateful-error.utils.js";
+import { protoLinkSchema } from "../link.types.js";
+import { StatefulError } from "../../common/utils/stateful-error.utils.js";
 
 export function validateLinkMiddleware(
   req: Request,

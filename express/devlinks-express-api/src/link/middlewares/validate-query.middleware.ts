@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { LINK_KEYS, LinkKeys } from "../types/link.types.js";
-import { StatefulError } from "../utils/stateful-error.utils.js";
+import { LINK_KEYS, LinkKeys } from "../link.types.js";
+import { StatefulError } from "../../common/utils/stateful-error.utils.js";
 
 export function validateQueryMiddleware(
   req: Request,

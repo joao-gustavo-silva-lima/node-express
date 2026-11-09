@@ -1,6 +1,6 @@
-import { LinkService } from "../services/link.service.js";
+import { LinkService } from "./link.service.js";
 import { Request, Response } from "express";
-import { LinkID } from "../types/link.types.js";
+import { LinkID } from "./link.types.js";
 
 export class LinkController {
   public static list(req: Request, res: Response) {
