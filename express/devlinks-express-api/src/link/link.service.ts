@@ -15,22 +15,24 @@ export class LinkService {
   public static list(query: Query) {
     const links = [...this.linksRepository.values()].map((obj) => ({ ...obj }));
 
-    return links.filter((link) => {
-      const matchesTitle =
-        !query.title ||
-        query.title === "" ||
-        link.title.toLowerCase().includes(query.title.toLowerCase());
+    return links.filter((link) => this.linkSatisfiesQuery(link, query));
+  }
 
-      const matchesTags =
-        !query.tags || query.tags.some((tag) => link.tags.includes(tag));
+  public static linkSatisfiesQuery(link: Link, query: Query) {
+    const matchesTitle =
+      !query.title ||
+      query.title === "" ||
+      link.title.toLowerCase().includes(query.title.toLowerCase());
 
-      const matchesCategory =
-        !query.category ||
-        query.category === "" ||
-        link.category.toLowerCase() === query.category.toLowerCase();
+    const matchesTags =
+      !query.tags || query.tags.some((tag) => link.tags.includes(tag));
 
-      return matchesTitle && matchesTags && matchesCategory;
-    });
+    const matchesCategory =
+      !query.category ||
+      query.category === "" ||
+      link.category.toLowerCase() === query.category.toLowerCase();
+
+    return matchesTitle && matchesTags && matchesCategory;
   }
 
   public static getByID(id: LinkID): Link {

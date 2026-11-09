@@ -28,22 +28,7 @@ describe("GET /", () => {
     expect(response.status).toBe(200);
     expect(Array.isArray(links)).toBeTruthy();
     expect(
-      links.every((link) => {
-        const matchesTitle =
-          !query.title ||
-          query.title === "" ||
-          link.title.toLowerCase().includes(query.title.toLowerCase());
-
-        const matchesTags =
-          !query.tags || query.tags.some((tag) => link.tags.includes(tag));
-
-        const matchesCategory =
-          !query.category ||
-          query.category === "" ||
-          link.category.toLowerCase() === query.category.toLowerCase();
-
-        return matchesTitle && matchesTags && matchesCategory;
-      }),
+      links.every((link) => LinkService.linkSatisfiesQuery(link, query)),
     ).toBeTruthy();
   });
 
