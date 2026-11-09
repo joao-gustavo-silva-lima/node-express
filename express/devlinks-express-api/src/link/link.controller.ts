@@ -4,7 +4,7 @@ import { LinkID } from "./link.types.js";
 
 export class LinkController {
   public static list(req: Request, res: Response) {
-    res.json(LinkService.list(req.query));
+    res.json(LinkService.list(req.validQuery));
   }
 
   public static register(req: Request, res: Response) {

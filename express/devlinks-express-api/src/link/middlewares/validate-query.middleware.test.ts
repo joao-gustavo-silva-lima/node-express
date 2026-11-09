@@ -32,7 +32,8 @@ describe("validate query middleware", () => {
 
   test('throws 400 and "next()" is not called when req.query is invalid', () => {
     req.query = {
-      invalidQueryKey: "invalid-query-value",
+      tags: "invalid-tag",
+      title: ["invalid-title"],
     };
 
     const error = getThrownError(() =>

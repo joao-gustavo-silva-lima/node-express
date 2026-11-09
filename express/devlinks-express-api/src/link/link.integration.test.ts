@@ -33,8 +33,9 @@ describe("GET /", () => {
   });
 
   test.for([
-    { invalid: "query" },
-    { unexpected: "parameter" },
+    { title: ["Google", "GitHub"] },
+    { category: ["search", "development"] },
+    { title: ["Google"], tags: "search" },
   ] as ParsedUrlQuery[])("throws 400 for invalid queries", async (query) => {
     const response = await request(app).get(
       `/api/v1/links?${stringfyQuery(query)}`,

@@ -1,28 +1,22 @@
 import { NextFunction, Request, Response } from "express";
-import { LINK_KEYS, LinkKeys } from "../link.types.js";
 import { StatefulError } from "../../common/utils/stateful-error.utils.js";
+import { querySchema } from "../link.types.js";
 
 export function validateQueryMiddleware(
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
-  const queryKeys = Object.keys(req.query);
+  const { data, success } = querySchema.safeParse(req.query);
 
-  if (queryKeys.length === 0) {
-    return next();
+  if (!success) {
+    throw new StatefulError(
+      400,
+      `Invalid Query: the query triggers unexpected filters.`,
+    );
   }
 
-  const invalidQueryArgs = queryKeys.filter(
-    (key) => !LINK_KEYS.has(key as LinkKeys),
-  );
+  req.validQuery = data;
 
-  if (invalidQueryArgs.length === 0) {
-    return next();
-  }
-
-  throw new StatefulError(
-    400,
-    `Invalid Query: A link does not contain the following queried properties: ${invalidQueryArgs.map((param) => `'${param}'`).join(", ")}`,
-  );
+  next();
 }

@@ -31,7 +31,19 @@ export const protoLinkSchema = linkSchema
     tags: true,
   });
 
+export const querySchema = linkSchema
+  .pick({
+    title: true,
+    category: true,
+  })
+  .extend({
+    tags: z
+      .union([z.string(), z.array(z.string())])
+      .transform((input) => (typeof input === "string" ? [input] : input)),
+  })
+  .partial();
+
 export type ProtoLink = z.infer<typeof protoLinkSchema>;
 export type ProtoLinkKeys = keyof ProtoLink;
 
-export type Query = Partial<Pick<Link, "title" | "category" | "tags">>;
+export type Query = z.infer<typeof querySchema>;
