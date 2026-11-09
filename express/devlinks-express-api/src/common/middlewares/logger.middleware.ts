@@ -5,6 +5,11 @@ export function loggerMiddleware(
   res: Response,
   next: NextFunction,
 ) {
+  if (process.env.NODE_ENV === "test") {
+    next();
+    return;
+  }
+
   const requestTime = performance.now();
 
   res.on("finish", () => {
