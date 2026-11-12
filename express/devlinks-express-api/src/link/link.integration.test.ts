@@ -148,3 +148,32 @@ describe("GET /:id", () => {
     expect(response.body.message).toMatch(/not found/i);
   });
 });
+
+describe("DELETE /:id", () => {
+  beforeEach(() => {
+    LinkService._mockRepositoryInitialDataForTests();
+  });
+
+  test("deletes the link with the matching id", async () => {
+    const id = "123e4567-e89b-12d3-a456-426614174001";
+
+    const response = await request(app).delete(`/api/v1/links/${id}`);
+    const retrievalResponse = await request(app).get(`/api/v1/links/${id}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toMatch(/deleted successfully/i);
+    expect(retrievalResponse.status).toBe(404);
+    expect(retrievalResponse.body.message).toMatch(/not found/i);
+  });
+
+  test("throws 404 when the link does not exist", async () => {
+    const notMatchingId = "no-match-id";
+
+    const response = await request(app).delete(
+      `/api/v1/links/${notMatchingId}`,
+    );
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toMatch(/not found/i);
+  });
+});
