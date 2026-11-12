@@ -177,3 +177,88 @@ describe("DELETE /:id", () => {
     expect(response.body.message).toMatch(/not found/i);
   });
 });
+
+describe("PUT /:id", () => {
+  beforeEach(() => {
+    LinkService._mockRepositoryInitialDataForTests();
+  });
+
+  test.for([
+    {
+      title: "Updated Google",
+      url: "https://updated-google.example",
+      category: "updated",
+      tags: ["updated", "search"],
+    },
+    {
+      title: "Google Search",
+      url: "https://www.google.com",
+    },
+  ] as ProtoLink[])(
+    "updates the link and returns its persisted data",
+    async (modifyingPrototype) => {
+      const id = "123e4567-e89b-12d3-a456-426614174001";
+      const originalLink = LinkService.getByID(id);
+      const expectedUpdatedLink = {
+        ...originalLink,
+        ...modifyingPrototype,
+      };
+
+      const response = await request(app)
+        .put(`/api/v1/links/${id}`)
+        .send(modifyingPrototype);
+      const updatedLink = response.body as Link;
+      const { success: isLink } = linkSchema.safeParse(updatedLink);
+      const retrievalResponse = await request(app).get(`/api/v1/links/${id}`);
+      const retrievedUpdatedLink = retrievalResponse.body as Link;
+
+      expect(response.status).toBe(200);
+      expect(isLink).toBeTruthy();
+      expect(updatedLink).toMatchObject(expectedUpdatedLink);
+      expect(retrievedUpdatedLink).toStrictEqual(updatedLink);
+    },
+  );
+
+  test.for(["", "image/PNG", "text/plain"])(
+    "throws 400 when the content type is not JSON",
+    async (contentType) => {
+      const response = await request(app)
+        .put("/api/v1/links/123e4567-e89b-12d3-a456-426614174001")
+        .set("Content-Type", contentType);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(/invalid content-type/i);
+    },
+  );
+
+  test.for([
+    { title: "Invalid URL", url: "not-a-url" },
+    { title: 42, url: "https://example.com" },
+    { url: "https://example.com" },
+  ] as any[])("throws 400 for an invalid link", async (invalidLink) => {
+    const response = await request(app)
+      .put("/api/v1/links/123e4567-e89b-12d3-a456-426614174001")
+      .send(invalidLink);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toMatch(/invalidly formatted object/i);
+  });
+
+  test("throws 404 when the link does not exist", async () => {
+    const response = await request(app)
+      .put("/api/v1/links/no-match-id")
+      .send({ title: "Example", url: "https://example.com" });
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toMatch(/not found/i);
+  });
+
+  test("throws 409 when the URL already belongs to another link", async () => {
+    const response = await request(app)
+      .put("/api/v1/links/123e4567-e89b-12d3-a456-426614174001")
+      .send({ title: "Google", url: "https://github.com" });
+
+    expect(response.status).toBe(409);
+    expect(response.body.message).toMatch(/conflict/i);
+  });
+});
