@@ -25,13 +25,7 @@ export const createLinkSchema = linkSchema.pick({
   tags: true,
 });
 
-export const LINK_KEYS = new Set(
-  Object.keys(linkSchema.shape),
-) as Set<LinkKeys>;
-
 export type Link = z.infer<typeof linkSchema>;
-export type LinkKeys = keyof Link;
-export type LinkID = Link["id"];
 
 export const protoLinkSchema = linkSchema
   .omit({

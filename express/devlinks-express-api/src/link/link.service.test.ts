@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test } from "vitest";
 import { LinkService } from "./link.service.js";
-import { Link, LinkID, linkSchema, ProtoLink, Query } from "./link.types.js";
+import { Link, linkSchema, ProtoLink, Query } from "./link.types.js";
 import z from "zod";
 import { StatefulError } from "../common/utils/stateful-error.utils.js";
 import { getThrownError } from "../common/utils/.test.utils.js";
@@ -25,9 +25,8 @@ describe("read all links", () => {
     const query: Query = {};
 
     const data = LinkService.list(query);
-    const { success: isLinkArray } = z.array(linkSchema).safeParse(data);
+    const { success: isLinkArray, error } = z.array(linkSchema).safeParse(data);
 
-    expect(Array.isArray(data)).toBeTruthy();
     expect(isLinkArray).toBeTruthy();
   });
 
@@ -47,7 +46,7 @@ describe("read unique link by id", () => {
   });
 
   test("retrieves the link for the matching id", () => {
-    const id: LinkID = "00000000-0000-0000-0000-000000000001";
+    const id: string = "123e4567-e89b-12d3-a456-426614174001";
 
     const data = LinkService.getByID(id);
     const { success: isLink } = linkSchema.safeParse(data);
@@ -69,7 +68,7 @@ describe("read unique link by id", () => {
   });
 
   test("protects the repository from mutating a returned link", () => {
-    const id: LinkID = "00000000-0000-0000-0000-000000000001";
+    const id: string = "123e4567-e89b-12d3-a456-426614174001";
     const data = LinkService.getByID(id);
 
     data.title = "Externally Altered Title";
@@ -156,7 +155,7 @@ describe("update link by id", () => {
   });
 
   test("throws 404 when updating a link with a non-matching id", () => {
-    const id: LinkID = "not-matching-id";
+    const id: string = "not-matching-id";
     const modifyingPrototype: ProtoLink = {
       title: "Updated Title",
       url: "https://updated.example.com",
@@ -207,7 +206,7 @@ describe("delete link by id", () => {
   });
 
   test("throws 404 when deleting a link with a non-matching id", () => {
-    const id: LinkID = "not-matching-id";
+    const id: string = "not-matching-id";
 
     const error = getThrownError(() =>
       LinkService.deleteByID(id),
@@ -231,7 +230,7 @@ describe("redirect link by id", () => {
   });
 
   test("throws 404 when redirecting a link with a non-matching id", () => {
-    const id: LinkID = "not-matching-id";
+    const id: string = "not-matching-id";
 
     const error = getThrownError(() =>
       LinkService.redirectByID(id),

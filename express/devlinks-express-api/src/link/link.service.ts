@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { Link, LinkID, LinkKeys, ProtoLink, Query } from "./link.types.js";
+import { Link, ProtoLink, Query } from "./link.types.js";
 import { StatefulError } from "../common/utils/stateful-error.utils.js";
 
 export class LinkService {
-  private static readonly linksRepository = new Map<LinkID, Link>();
+  private static readonly linksRepository = new Map<string, Link>();
 
   public static list(query: Query) {
     const links = [...this.linksRepository.values()].map((obj) => ({ ...obj }));
@@ -28,11 +28,11 @@ export class LinkService {
     return matchesTitle && matchesTags && matchesCategory;
   }
 
-  public static getByID(id: LinkID): Link {
+  public static getByID(id: string): Link {
     return { ...this._getByID(id) };
   }
 
-  private static _getByID(id: LinkID): Link {
+  private static _getByID(id: string): Link {
     if (!this.linksRepository.has(id)) {
       throw new StatefulError(404, `Link within ID '${id}' not found`);
     }
@@ -69,7 +69,7 @@ export class LinkService {
 
   private static validatePrototypeUniqueness(
     parsingLink: ProtoLink,
-    exceptiveOwnId?: LinkID,
+    exceptiveOwnId?: string,
   ) {
     for (const link of this.linksRepository.values()) {
       if (
@@ -86,12 +86,12 @@ export class LinkService {
     }
   }
 
-  public static deleteByID(id: LinkID) {
+  public static deleteByID(id: string) {
     this._getByID(id);
     this.linksRepository.delete(id);
   }
 
-  public static updateByID(id: LinkID, modifyingPrototype: ProtoLink) {
+  public static updateByID(id: string, modifyingPrototype: ProtoLink) {
     this.validatePrototypeUniqueness(modifyingPrototype, id);
 
     const updatingLink = {
@@ -104,7 +104,7 @@ export class LinkService {
     return { ...updatingLink };
   }
 
-  public static redirectByID(id: LinkID): string {
+  public static redirectByID(id: string): string {
     const link = this._getByID(id);
 
     link.clicks++;
@@ -121,7 +121,7 @@ export class LinkService {
 
     const initialLinks: Link[] = [
       {
-        id: "00000000-0000-0000-0000-000000000001",
+        id: "123e4567-e89b-12d3-a456-426614174001",
         title: "Google",
         url: "https://www.google.com",
         category: "search",
@@ -130,7 +130,7 @@ export class LinkService {
         createdAt: new Date("2024-01-01T00:00:00.000Z"),
       },
       {
-        id: "00000000-0000-0000-0000-000000000002",
+        id: "123e4567-e89b-12d3-a456-426614174002",
         title: "GitHub",
         url: "https://github.com",
         category: "development",
@@ -139,7 +139,7 @@ export class LinkService {
         createdAt: new Date("2024-01-02T00:00:00.000Z"),
       },
       {
-        id: "00000000-0000-0000-0000-000000000003",
+        id: "123e4567-e89b-12d3-a456-426614174003",
         title: "MDN Web Docs",
         url: "https://developer.mozilla.org",
         category: "documentation",
