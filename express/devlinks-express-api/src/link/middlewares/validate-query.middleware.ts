@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { StatefulError } from "../../common/utils/stateful-error.utils.js";
 import { querySchema } from "../link.types.js";
 
-export function validateQueryMiddleware(
+export default function validateQueryMiddleware(
   req: Request,
   res: Response,
   next: NextFunction,

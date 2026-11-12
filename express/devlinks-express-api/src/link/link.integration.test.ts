@@ -3,8 +3,8 @@ import request from "supertest";
 import { beforeEach, describe, expect, test } from "vitest";
 import { app } from "../app";
 import { stringfyQuery } from "../common/utils/.test.utils";
-import { LinkService } from "./link.service";
-import { Link, linkSchema, ProtoLink, Query } from "./link.types";
+import * as LinkService from "./link.service";
+import { Link, linkSchema, LinkInput, Query } from "./link.types";
 
 beforeEach(() => {
   LinkService._clearRepositoryForTests();
@@ -59,7 +59,7 @@ describe("POST /", () => {
       title: "Minimal",
       url: "https://minimal.example",
     },
-  ] as ProtoLink[])(
+  ] as LinkInput[])(
     "creates a link and returns its persisted data",
     async (linkPrototype) => {
       const response = await request(app)
@@ -105,7 +105,7 @@ describe("POST /", () => {
   });
 
   test("throws 409 when the URL already exists", async () => {
-    const linkPrototype: ProtoLink = {
+    const linkPrototype: LinkInput = {
       title: "Example",
       url: "https://example.com",
     };
@@ -193,8 +193,9 @@ describe("PUT /:id", () => {
     {
       title: "Google Search",
       url: "https://www.google.com",
+      tags: ["search", "web"],
     },
-  ] as ProtoLink[])(
+  ] as LinkInput[])(
     "updates the link and returns its persisted data",
     async (modifyingPrototype) => {
       const id = "123e4567-e89b-12d3-a456-426614174001";

@@ -50,7 +50,6 @@ export const querySchema = linkSchema
   })
   .partial();
 
-export type ProtoLink = z.infer<typeof protoLinkSchema>;
-export type ProtoLinkKeys = keyof ProtoLink;
+export type LinkInput = z.infer<typeof protoLinkSchema>;
 
 export type Query = z.infer<typeof querySchema>;

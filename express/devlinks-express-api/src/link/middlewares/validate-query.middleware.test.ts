@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { getThrownError } from "../../common/utils/.test.utils.js";
 import { StatefulError } from "../../common/utils/stateful-error.utils.js";
 import { Query } from "../link.types.js";
-import { validateQueryMiddleware } from "./validate-query.middleware.js";
+import validateQueryMiddleware from "./validate-query.middleware.js";
 
 const req = {
   query: {} as Query,

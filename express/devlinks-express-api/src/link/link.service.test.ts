@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import { LinkService } from "./link.service.js";
-import { Link, linkSchema, ProtoLink, Query } from "./link.types.js";
+import * as LinkService from "./link.service.js";
+import { Link, linkSchema, LinkInput, Query } from "./link.types.js";
 import z from "zod";
 import { StatefulError } from "../common/utils/stateful-error.utils.js";
 import { getThrownError } from "../common/utils/.test.utils.js";
 
-const linkPrototype: ProtoLink = {
+const linkPrototype: LinkInput = {
   title: "Google",
   url: "https://www.google.com",
   category: "search",
@@ -118,7 +118,7 @@ describe("register link", () => {
 describe("update link by id", () => {
   test("updates link in repository and retrieves updated link data", () => {
     const link = LinkService.register(linkPrototype);
-    const modifyingPrototype: ProtoLink = {
+    const modifyingPrototype: LinkInput = {
       title: "Updated Title",
       url: link.url,
     };
@@ -156,7 +156,7 @@ describe("update link by id", () => {
 
   test("throws 404 when updating a link with a non-matching id", () => {
     const id: string = "not-matching-id";
-    const modifyingPrototype: ProtoLink = {
+    const modifyingPrototype: LinkInput = {
       title: "Updated Title",
       url: "https://updated.example.com",
     };
