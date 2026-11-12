@@ -1,132 +1,175 @@
 # DevLinks Express API
 
-Welcome to my DevLinks API project! This repository represents a hands-on exploration of building a robust, scalable API using Express.js and TypeScript. Here, I'm focusing on implementing best practices for API development, including clean architecture, comprehensive error handling, and middleware patterns.
+DevLinks Express API is a REST API for managing links. It is built with Express 5 and TypeScript, validates request data with Zod, and separates HTTP handlers, business logic, and in-memory storage.
 
-## 🚀 Repository Overview
+## Requirements
 
-This project is a REST API built with Express.js and TypeScript, designed to handle link management operations. The application demonstrates modern backend development patterns including middleware chaining, service-oriented architecture, and type-safe implementations.
+- Node.js and npm
 
-### 📁 Project Structure
+## Getting started
 
-The project follows a clean, modular architecture that separates concerns across different layers. Here's the directory breakdown:
-
-```text
-devlinks-express-api/
-├── src/
-│   ├── app.ts                      # Express application setup and middleware initialization
-│   ├── server.ts                   # Server entry point and listener configuration
-│   ├── controllers/
-│   │   └── link.controller.ts      # Request handlers and business logic orchestration
-│   ├── middlewares/
-│   │   ├── error.middleware.ts     # Centralized error handling and response formatting
-│   │   ├── logger.middleware.ts    # Request/response logging and debugging
-│   │   ├── validate-link.middleware.ts   # Link payload validation logic
-│   │   └── validate-query.middleware.ts  # Query parameter validation logic
-│   ├── routes/
-│   │   └── link.routes.ts          # API endpoint definitions and route mapping
-│   ├── services/
-│   │   └── link.service.ts         # Business logic and data processing layer
-│   ├── types/
-│   │   └── link.types.ts           # TypeScript type definitions and interfaces
-│   └── utils/
-│       └── stateful-error.utils.ts # Custom error class implementations
-├── package.json                    # Scripts and dependencies definition
-├── tsconfig.json                   # TypeScript compilation settings
-└── README.md                       # This file
-```
-
----
-
-## 🔑 Core Files & Their Purpose
-
-When navigating this codebase, here are the essential files you should understand:
-
-1. 📝 **`app.ts`**: The heart of the Express application. Configures middleware stack, routes, and application-wide settings.
-2. 🚀 **`server.ts`**: Entry point that starts the HTTP server and binds it to the configured port.
-3. 🛣️ **`link.routes.ts`**: Defines all API endpoints related to link operations (GET, POST, PUT, DELETE, etc.).
-4. 🎮 **`link.controller.ts`**: Handles incoming requests, delegates to services, and formats responses.
-5. ⚙️ **`link.service.ts`**: Contains the core business logic and data manipulation operations.
-6. 📊 **`link.types.ts`**: Centralized TypeScript interfaces and type definitions for type safety.
-7. 🛡️ **`error.middleware.ts`**: Provides consistent error handling and error response formatting.
-
----
-
-## 🛠️ Getting Started & How to Run
-
-To run the API locally and explore the implementation, ensure you have **Node.js** and **npm** installed.
-
-### 1. Clone the Repository
+Clone the repository and move into this project directory:
 
 ```bash
 git clone https://github.com/joao-gustavo-silva-lima/node-express.git
 cd node-express/express/devlinks-express-api
 ```
 
-### 2. Install Dependencies
-
-Install all required packages:
+Install dependencies and start the development server:
 
 ```bash
 npm install
-```
-
-### 3. Build TypeScript
-
-Compile TypeScript to JavaScript:
-
-```bash
-npm run build
-```
-
-### 4. Start the Server
-
-Run the API server in development mode:
-
-```bash
 npm run dev
 ```
 
-The server will typically start on `http://localhost:3000` (or the configured port). You should see log output confirming the server is running.
+The API listens on `http://localhost:3000` by default. Set the `PORT` environment variable to use a different port.
 
----
+## Scripts
 
-## 📈 Learning Goals & Objectives
+| Command         | Description                                                     |
+| --------------- | --------------------------------------------------------------- |
+| `npm run dev`   | Runs the TypeScript server with `tsx watch`.                    |
+| `npm run build` | Installs dependencies and compiles the source into `dist`.      |
+| `npm start`     | Starts the compiled server from `dist/server.js`.               |
+| `npm test`      | Runs the Vitest suite once, without watch mode.                 |
 
-- **Type Safety**: Leveraging TypeScript's strong type system to catch errors at compile time and ensure API contracts are properly defined.
-- **Clean Architecture**: Separating concerns across controllers, services, and middleware layers for maintainability and testability.
-- **Error Handling**: Implementing comprehensive error handling strategies with custom error utilities and centralized middleware.
-- **Middleware Mastery**: Understanding middleware composition, middleware chaining, and how to build reusable request processing pipelines.
-- **API Best Practices**: Following REST conventions, proper HTTP status codes, and consistent response formatting.
+Build the project before running the production start command:
 
----
+```bash
+npm run build
+npm start
+```
 
-## 🚦 API Endpoints
+## Architecture
 
-The API exposes link management endpoints following RESTful conventions:
+```text
+src/
+├── app.ts                                  Express application and middleware registration
+├── server.ts                               HTTP server entry point and port configuration
+├── common/
+│   ├── express.d.ts                        Express request type augmentation
+│   ├── middlewares/
+│   │   ├── error.middleware.ts             Centralized error responses
+│   │   └── logger.middleware.ts            Request method, URL, and timing logger
+│   └── utils/
+│       └── stateful-error.utils.ts          HTTP error with a status code
+└── link/
+    ├── link.controller.ts                  HTTP handlers and response formatting
+    ├── link.repository.ts                  In-memory link store
+    ├── link.router.ts                      Link route definitions
+    ├── link.service.ts                     Link operations and filtering
+    ├── link.types.ts                       Zod schemas and inferred TypeScript types
+    └── middlewares/
+        ├── validate-link.middleware.ts     Link payload validation
+        └── validate-query.middleware.ts    List query validation
+```
 
-| Method   | Endpoint                  | Description                             |
-| -------- | ------------------------- | --------------------------------------- |
-| `GET`    | `/api/links`              | Retrieve all links                      |
-| `GET`    | `/api/links/:id`          | Retrieve a specific link                |
-| `GET`    | `/api/links/:id/redirect` | Retrieve a specific link's redirect URL |
-| `POST`   | `/api/links`              | Create a new link                       |
-| `PUT`    | `/api/links/:id`          | Update an existing link                 |
-| `DELETE` | `/api/links/:id`          | Delete a link                           |
+The application registers CORS, JSON parsing, request logging, the link router, and the error handler in that order. All endpoints are mounted under `/api/v1/links`.
 
-Each endpoint is validated, logged, and includes proper error handling through the middleware stack.
+## Data model and storage
 
----
+Each link response contains:
 
-## 🎓 Development Workflow
+| Field       | Type       | Description                                             |
+| ----------- | ---------- | ------------------------------------------------------- |
+| `id`        | `string`   | UUID generated by the server.                           |
+| `title`     | `string`   | Link title.                                             |
+| `url`       | `string`   | Valid URL; must be unique among stored links.           |
+| `category`  | `string`   | Link category.                                          |
+| `tags`      | `string[]` | Tags associated with the link; defaults to an empty list. |
+| `clicks`    | `integer`  | Redirect request count; starts at `0`.                  |
+| `createdAt` | `string`   | Creation time as an ISO 8601 timestamp.                 |
 
-This project follows a structured development approach:
+Links are stored in a process-local `Map`; there is no database or durable persistence. Data is lost when the server process stops or restarts, and separate server processes do not share data. The API currently has no authentication or authorization. CORS uses the default configuration from the `cors` package.
 
-1. **Define Types First**: Start with clear TypeScript interfaces in `link.types.ts`
-2. **Build Services**: Implement business logic in the service layer
-3. **Create Controllers**: Wire services to HTTP request/response handling
-4. **Add Validation**: Use middleware for input validation and sanitization
-5. **Test & Iterate**: Validate implementations and refactor for clarity and performance
+## API reference
 
----
+Base URL: `http://localhost:3000/api/v1/links`
 
-Enjoy coding! 🚀
+| Method   | Path            | Description                                      | Success |
+| -------- | --------------- | ------------------------------------------------ | ------- |
+| `GET`    | `/`             | Lists links, optionally filtered by query.       | `200`   |
+| `POST`   | `/`             | Creates a link.                                  | `201`   |
+| `GET`    | `/:id`          | Retrieves a link by its UUID.                    | `200`   |
+| `PUT`    | `/:id`          | Replaces the editable fields of a link.          | `200`   |
+| `DELETE` | `/:id`          | Deletes a link.                                  | `200`   |
+| `GET`    | `/:id/redirect` | Returns the link URL and increments its clicks.  | `200`   |
+
+### Link payload
+
+`POST /` and `PUT /:id` accept a JSON object with `title`, `url`, and `category`. The `url` must be valid according to Zod's URL validator. `tags` is optional and defaults to `[]`.
+
+Write requests must use the exact `Content-Type: application/json` header.
+
+Example create request:
+
+```http
+POST /api/v1/links
+Content-Type: application/json
+```
+
+```json
+{
+  "title": "TypeScript",
+  "url": "https://www.typescriptlang.org/",
+  "category": "development",
+  "tags": ["typescript", "documentation"]
+}
+```
+
+The response has status `201` and includes the submitted fields plus a generated `id`, `clicks: 0`, and `createdAt`.
+
+`PUT /:id` uses the same payload validation as creation: `title`, `url`, and `category` are required. It replaces the editable fields; if `tags` is omitted, the updated link receives an empty tag list. To retain existing tags, include them in the request.
+
+### List filters
+
+`GET /` accepts these optional query parameters:
+
+| Parameter  | Matching behavior                                            |
+| ---------- | ------------------------------------------------------------ |
+| `title`    | Case-insensitive partial match.                              |
+| `category` | Case-insensitive exact match.                                |
+| `tags`     | Matches a link if it contains any requested tag.             |
+
+When multiple filter types are supplied, a link must match every supplied filter. Repeat `tags` to provide multiple alternatives:
+
+```text
+GET /api/v1/links?title=script&category=development&tags=typescript&tags=web
+```
+
+### Redirect tracking
+
+`GET /:id/redirect` does not issue an HTTP redirect. It returns a JSON response containing the URL and increments the link's `clicks` count:
+
+```json
+{
+  "redirectURL": "https://www.typescriptlang.org/"
+}
+```
+
+### Errors
+
+Errors use a JSON object with a `message` field. The API returns:
+
+| Status | Meaning                                                                     |
+| ------ | --------------------------------------------------------------------------- |
+| `400`  | Invalid JSON, link payload, content type, or list query.                    |
+| `404`  | The requested link does not exist.                                          |
+| `409`  | Another stored link already uses the submitted URL.                         |
+| `500`  | Unexpected server error.                                                    |
+
+Example:
+
+```json
+{
+  "message": "Link within ID 'unknown' not found"
+}
+```
+
+## Testing
+
+Run the unit and HTTP integration tests with:
+
+```bash
+npm test
+```
