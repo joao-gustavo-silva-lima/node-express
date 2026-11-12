@@ -5,7 +5,7 @@ import z from "zod";
 import { StatefulError } from "../common/utils/stateful-error.utils.js";
 import { getThrownError } from "../common/utils/.test.utils.js";
 
-const linkPrototype: LinkInput = {
+const linklinkInput: LinkInput = {
   title: "Google",
   url: "https://www.google.com",
   category: "search",
@@ -79,7 +79,7 @@ describe("read unique link by id", () => {
 
 describe("register link", () => {
   test("saves new link object to repository and retrieves the link data", () => {
-    const link = LinkService.register(linkPrototype);
+    const link = LinkService.register(linklinkInput);
     const linkInRepository = LinkService.getByID(link.id);
     const { success: isLink } = linkSchema.safeParse(link);
     const { success: isRepositoryLink } =
@@ -91,7 +91,7 @@ describe("register link", () => {
   });
 
   test("protects the repository from mutating the returned new link", () => {
-    const link = LinkService.register(linkPrototype);
+    const link = LinkService.register(linklinkInput);
     const linkInRepository = LinkService.getByID(link.id);
 
     link.title = "Externally Altered Title";
@@ -101,10 +101,10 @@ describe("register link", () => {
 
   test("throws 409 when register link contains duplicate property against a link in repository", () => {
     const query: Query = {};
-    LinkService.register(linkPrototype);
+    LinkService.register(linklinkInput);
 
     const error = getThrownError(() =>
-      LinkService.register(linkPrototype),
+      LinkService.register(linklinkInput),
     ) as StatefulError;
     const links = LinkService.list(query);
 
@@ -117,17 +117,17 @@ describe("register link", () => {
 
 describe("update link by id", () => {
   test("updates link in repository and retrieves updated link data", () => {
-    const link = LinkService.register(linkPrototype);
-    const modifyingPrototype: LinkInput = {
+    const link = LinkService.register(linklinkInput);
+    const modifyinglinkInput: LinkInput = {
       title: "Updated Title",
       url: link.url,
     };
     const expectedUpdatedLink = {
       ...link,
-      ...modifyingPrototype,
+      ...modifyinglinkInput,
     } as Link;
 
-    const updatedLink = LinkService.updateByID(link.id, modifyingPrototype);
+    const updatedLink = LinkService.updateByID(link.id, modifyinglinkInput);
     const repositoryUpdatedLink = LinkService.getByID(link.id);
     const { success: isLink } = linkSchema.safeParse(updatedLink);
     const { success: isRepositoryUpdatedLink } = linkSchema.safeParse(
@@ -142,7 +142,7 @@ describe("update link by id", () => {
   });
 
   test("protects the repository from mutating the returned updated link", () => {
-    const link = LinkService.register(linkPrototype);
+    const link = LinkService.register(linklinkInput);
     const updatedLink = LinkService.updateByID(link.id, {
       title: "Updated Title",
       url: link.url,
@@ -156,13 +156,13 @@ describe("update link by id", () => {
 
   test("throws 404 when updating a link with a non-matching id", () => {
     const id: string = "not-matching-id";
-    const modifyingPrototype: LinkInput = {
+    const modifyinglinkInput: LinkInput = {
       title: "Updated Title",
       url: "https://updated.example.com",
     };
 
     const error = getThrownError(() =>
-      LinkService.updateByID(id, modifyingPrototype),
+      LinkService.updateByID(id, modifyinglinkInput),
     ) as StatefulError;
 
     expect(error).toBeInstanceOf(StatefulError);
@@ -171,9 +171,9 @@ describe("update link by id", () => {
   });
 
   test("throws 409 when updating a link with duplicate property against the repository", () => {
-    const firstLink = LinkService.register(linkPrototype);
+    const firstLink = LinkService.register(linklinkInput);
     const secondLink = LinkService.register({
-      ...linkPrototype,
+      ...linklinkInput,
       title: "GitHub",
       url: "https://github.com",
     });
@@ -193,7 +193,7 @@ describe("update link by id", () => {
 
 describe("delete link by id", () => {
   test("removes the link from the repository when the id matches an existing link", () => {
-    const link = LinkService.register(linkPrototype);
+    const link = LinkService.register(linklinkInput);
 
     LinkService.deleteByID(link.id);
     const links = LinkService.list({});
@@ -220,7 +220,7 @@ describe("delete link by id", () => {
 
 describe("redirect link by id", () => {
   test("returns the link URL and increments its click count for an existing link", () => {
-    const link = LinkService.register(linkPrototype);
+    const link = LinkService.register(linklinkInput);
 
     const redirectURL = LinkService.redirectByID(link.id);
     const { clicks } = LinkService.getByID(link.id);

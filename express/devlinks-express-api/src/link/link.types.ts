@@ -18,25 +18,11 @@ export const linkSchema = z.object({
   createdAt: createdAtSchema,
 });
 
-export const createLinkSchema = linkSchema.pick({
-  title: true,
-  url: true,
-  category: true,
-  tags: true,
+export const linkInputSchema = linkSchema.omit({
+  id: true,
+  clicks: true,
+  createdAt: true,
 });
-
-export type Link = z.infer<typeof linkSchema>;
-
-export const protoLinkSchema = linkSchema
-  .omit({
-    id: true,
-    clicks: true,
-    createdAt: true,
-  })
-  .partial({
-    category: true,
-    tags: true,
-  });
 
 export const querySchema = linkSchema
   .pick({
@@ -50,6 +36,6 @@ export const querySchema = linkSchema
   })
   .partial();
 
-export type LinkInput = z.infer<typeof protoLinkSchema>;
-
+export type Link = z.infer<typeof linkSchema>;
 export type Query = z.infer<typeof querySchema>;
+export type LinkInput = z.input<typeof linkInputSchema>;

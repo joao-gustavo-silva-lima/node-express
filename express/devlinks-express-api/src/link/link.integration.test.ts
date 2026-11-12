@@ -58,13 +58,14 @@ describe("POST /", () => {
     {
       title: "Minimal",
       url: "https://minimal.example",
+      category: "example",
     },
   ] as LinkInput[])(
     "creates a link and returns its persisted data",
-    async (linkPrototype) => {
+    async (linklinkInput) => {
       const response = await request(app)
         .post("/api/v1/links")
-        .send(linkPrototype);
+        .send(linklinkInput);
       const createdLink = response.body as Link;
       const { success: isLink } = linkSchema.safeParse(createdLink);
 
@@ -105,17 +106,18 @@ describe("POST /", () => {
   });
 
   test("throws 409 when the URL already exists", async () => {
-    const linkPrototype: LinkInput = {
+    const linklinkInput: LinkInput = {
       title: "Example",
       url: "https://example.com",
+      category: "example",
     };
 
     const initialResponse = await request(app)
       .post("/api/v1/links")
-      .send(linkPrototype);
+      .send(linklinkInput);
     const duplicateResponse = await request(app)
       .post("/api/v1/links")
-      .send(linkPrototype);
+      .send(linklinkInput);
 
     expect(initialResponse.status).toBe(201);
     expect(duplicateResponse.status).toBe(409);
@@ -193,21 +195,22 @@ describe("PUT /:id", () => {
     {
       title: "Google Search",
       url: "https://www.google.com",
+      category: "search",
       tags: ["search", "web"],
     },
   ] as LinkInput[])(
     "updates the link and returns its persisted data",
-    async (modifyingPrototype) => {
+    async (modifyinglinkInput) => {
       const id = "123e4567-e89b-12d3-a456-426614174001";
       const originalLink = LinkService.getByID(id);
       const expectedUpdatedLink = {
         ...originalLink,
-        ...modifyingPrototype,
+        ...modifyinglinkInput,
       };
 
       const response = await request(app)
         .put(`/api/v1/links/${id}`)
-        .send(modifyingPrototype);
+        .send(modifyinglinkInput);
       const updatedLink = response.body as Link;
       const { success: isLink } = linkSchema.safeParse(updatedLink);
       const retrievalResponse = await request(app).get(`/api/v1/links/${id}`);
@@ -248,7 +251,11 @@ describe("PUT /:id", () => {
   test("throws 404 when the link does not exist", async () => {
     const response = await request(app)
       .put("/api/v1/links/no-match-id")
-      .send({ title: "Example", url: "https://example.com" });
+      .send({
+        title: "Example",
+        url: "https://example.com",
+        category: "example",
+      } as LinkInput);
 
     expect(response.status).toBe(404);
     expect(response.body.message).toMatch(/not found/i);
@@ -257,7 +264,11 @@ describe("PUT /:id", () => {
   test("throws 409 when the URL already belongs to another link", async () => {
     const response = await request(app)
       .put("/api/v1/links/123e4567-e89b-12d3-a456-426614174001")
-      .send({ title: "Google", url: "https://github.com" });
+      .send({
+        title: "Google",
+        url: "https://github.com",
+        category: "example",
+      } as LinkInput);
 
     expect(response.status).toBe(409);
     expect(response.body.message).toMatch(/conflict/i);

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { StatefulError } from "../../common/utils/stateful-error.utils.js";
-import { protoLinkSchema } from "../link.types.js";
+import { linkInputSchema } from "../link.types.js";
 
 export default function validateLinkMiddleware(
   req: Request,
@@ -14,7 +14,7 @@ export default function validateLinkMiddleware(
     );
   }
 
-  const validation = protoLinkSchema.safeParse(req.body);
+  const validation = linkInputSchema.safeParse(req.body);
 
   if (!validation.success) {
     throw new StatefulError(

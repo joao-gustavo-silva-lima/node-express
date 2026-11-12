@@ -10,6 +10,70 @@ export function list(query: Query) {
   return links.filter((link) => linkSatisfiesQuery(link, query));
 }
 
+export function getByID(id: string): Link {
+  if (!linksRepository.has(id)) {
+    throw new StatefulError(404, `Link within ID '${id}' not found`);
+  }
+
+  return { ...linksRepository.get(id)! };
+}
+
+export function register(linkInput: LinkInput) {
+  validateLinkUniqueness(linkInput);
+
+  const newID = randomUUID();
+
+  if (linksRepository.has(newID)) {
+    throw new StatefulError(
+      500,
+      `Server Internal Error: The server-side generated ID '${newID}' collided a pre-existent one`,
+    );
+  }
+
+  const newLink: Link = {
+    id: newID,
+    title: linkInput.title,
+    url: linkInput.url,
+    category: linkInput.category ?? "",
+    tags: linkInput.tags ?? [],
+    clicks: 0,
+    createdAt: new Date().toISOString(),
+  };
+
+  linksRepository.set(newLink.id, newLink);
+
+  return { ...newLink };
+}
+
+export function updateByID(id: string, linkInput: LinkInput) {
+  validateLinkUniqueness(linkInput, id);
+
+  const updatingLink = {
+    ...getByID(id),
+    ...linkInput,
+  } as Link;
+
+  linksRepository.set(id, updatingLink);
+
+  return { ...updatingLink };
+}
+
+export function deleteByID(id: string) {
+  getByID(id);
+  linksRepository.delete(id);
+}
+
+export function redirectByID(id: string): string {
+  const link = getByID(id);
+
+  linksRepository.set(id, {
+    ...link,
+    clicks: link.clicks + 1,
+  });
+
+  return link.url;
+}
+
 export function linkSatisfiesQuery(link: Link, query: Query) {
   const matchesTitle =
     !query.title ||
@@ -27,46 +91,7 @@ export function linkSatisfiesQuery(link: Link, query: Query) {
   return matchesTitle && matchesTags && matchesCategory;
 }
 
-export function getByID(id: string): Link {
-  return { ..._getByID(id) };
-}
-
-function _getByID(id: string): Link {
-  if (!linksRepository.has(id)) {
-    throw new StatefulError(404, `Link within ID '${id}' not found`);
-  }
-
-  return linksRepository.get(id)!;
-}
-
-export function register(linkPrototype: LinkInput) {
-  validatePrototypeUniqueness(linkPrototype);
-
-  const newID = randomUUID();
-
-  if (linksRepository.has(newID)) {
-    throw new StatefulError(
-      500,
-      `Server Internal Error: The server-side generated ID '${newID}' collided a pre-existent one`,
-    );
-  }
-
-  const newLink: Link = {
-    id: newID,
-    title: linkPrototype.title,
-    url: linkPrototype.url,
-    category: linkPrototype.category ?? "",
-    tags: linkPrototype.tags ?? [],
-    clicks: 0,
-    createdAt: new Date().toISOString(),
-  };
-
-  linksRepository.set(newLink.id, newLink);
-
-  return { ...newLink };
-}
-
-function validatePrototypeUniqueness(
+function validateLinkUniqueness(
   parsingLink: LinkInput,
   exceptiveOwnId?: string,
 ) {
@@ -83,32 +108,6 @@ function validatePrototypeUniqueness(
       `Write Conflict: A link within URL '${parsingLink.url}' already exists`,
     );
   }
-}
-
-export function deleteByID(id: string) {
-  _getByID(id);
-  linksRepository.delete(id);
-}
-
-export function updateByID(id: string, modifyingPrototype: LinkInput) {
-  validatePrototypeUniqueness(modifyingPrototype, id);
-
-  const updatingLink = {
-    ...getByID(id),
-    ...modifyingPrototype,
-  } as Link;
-
-  linksRepository.set(id, updatingLink);
-
-  return { ...updatingLink };
-}
-
-export function redirectByID(id: string): string {
-  const link = _getByID(id);
-
-  link.clicks++;
-
-  return link.url;
 }
 
 export function _clearRepositoryForTests() {
