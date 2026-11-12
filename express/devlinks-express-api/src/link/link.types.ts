@@ -6,7 +6,7 @@ const urlSchema = z.url();
 const categorySchema = z.string();
 const tagsSchema = z.array(z.string()).default([]);
 const clicksSchema = z.number().int();
-const createdAtSchema = z.union([z.string(), z.date()]);
+const createdAtSchema = z.iso.datetime();
 
 export const linkSchema = z.object({
   id: idSchema,

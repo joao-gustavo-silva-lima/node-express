@@ -23,10 +23,7 @@ export class LinkController {
   }
 
   public static updateByID(req: Request, res: Response) {
-    res.json({
-      message: `The link was updated successfully`,
-      link: LinkService.updateByID(req.params.id as string, req.body),
-    });
+    res.json(LinkService.updateByID(req.params.id as string, req.body));
   }
 
   public static redirectByID(req: Request, res: Response) {

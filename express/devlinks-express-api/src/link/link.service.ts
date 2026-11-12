@@ -59,7 +59,7 @@ export class LinkService {
       category: linkPrototype.category ?? "",
       tags: linkPrototype.tags ?? [],
       clicks: 0,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     };
 
     this.linksRepository.set(newLink.id, newLink);
@@ -127,7 +127,7 @@ export class LinkService {
         category: "search",
         tags: ["search", "web"],
         clicks: 0,
-        createdAt: new Date("2024-01-01T00:00:00.000Z"),
+        createdAt: new Date("2024-01-01T00:00:00.000Z").toISOString(),
       },
       {
         id: "123e4567-e89b-12d3-a456-426614174002",
@@ -136,7 +136,7 @@ export class LinkService {
         category: "development",
         tags: ["code", "git"],
         clicks: 0,
-        createdAt: new Date("2024-01-02T00:00:00.000Z"),
+        createdAt: new Date("2024-01-02T00:00:00.000Z").toISOString(),
       },
       {
         id: "123e4567-e89b-12d3-a456-426614174003",
@@ -145,7 +145,7 @@ export class LinkService {
         category: "documentation",
         tags: ["web", "reference"],
         clicks: 0,
-        createdAt: new Date("2024-01-03T00:00:00.000Z"),
+        createdAt: new Date("2024-01-03T00:00:00.000Z").toISOString(),
       },
     ];
 
