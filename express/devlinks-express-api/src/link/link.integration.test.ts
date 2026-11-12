@@ -6,9 +6,12 @@ import { stringfyQuery } from "../common/utils/.test.utils";
 import { LinkService } from "./link.service";
 import { Link, linkSchema, ProtoLink, Query } from "./link.types";
 
+beforeEach(() => {
+  LinkService._clearRepositoryForTests();
+});
+
 describe("GET /", () => {
   beforeEach(() => {
-    LinkService._clearRepositoryForTests();
     LinkService._mockRepositoryInitialDataForTests();
   });
 
@@ -45,10 +48,6 @@ describe("GET /", () => {
 });
 
 describe("POST /", () => {
-  beforeEach(() => {
-    LinkService._clearRepositoryForTests();
-  });
-
   test.for([
     {
       title: "Example",
@@ -121,5 +120,31 @@ describe("POST /", () => {
     expect(initialResponse.status).toBe(201);
     expect(duplicateResponse.status).toBe(409);
     expect(duplicateResponse.body.message).toMatch(/conflict/i);
+  });
+});
+
+describe("GET /:id", () => {
+  beforeEach(() => {
+    LinkService._mockRepositoryInitialDataForTests();
+  });
+
+  test("retrieves the link with the matching id", async () => {
+    const id = "123e4567-e89b-12d3-a456-426614174001";
+
+    const response = await request(app).get(`/api/v1/links/${id}`);
+    const link = response.body as Link;
+    const { success: isLink } = linkSchema.safeParse(link);
+
+    expect(response.status).toBe(200);
+    expect(isLink).toBeTruthy();
+    expect(link.id).toBe(id);
+  });
+
+  test("throws 404 when the link does not exist", async () => {
+    const notMatchingId = "no-match-id";
+    const response = await request(app).get(`/api/v1/links/${notMatchingId}`);
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toMatch(/not found/i);
   });
 });
