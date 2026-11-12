@@ -3,7 +3,11 @@ import * as LinkService from "./link.service.js";
 import { Link, linkSchema, LinkInput, Query } from "./link.types.js";
 import z from "zod";
 import { StatefulError } from "../common/utils/stateful-error.utils.js";
-import { getThrownError } from "../common/utils/.test.utils.js";
+import {
+  getThrownError,
+  mockRepositoryInitialDataForTests,
+} from "../common/utils/.test.utils.js";
+import linksRepository from "./link.repository.js";
 
 const linklinkInput: LinkInput = {
   title: "Google",
@@ -13,12 +17,12 @@ const linklinkInput: LinkInput = {
 };
 
 beforeEach(() => {
-  LinkService._clearRepositoryForTests();
+  linksRepository.clear();
 });
 
 describe("read all links", () => {
   beforeEach(() => {
-    LinkService._mockRepositoryInitialDataForTests();
+    mockRepositoryInitialDataForTests();
   });
 
   test("retrieves a link array", () => {
@@ -42,7 +46,7 @@ describe("read all links", () => {
 
 describe("read unique link by id", () => {
   beforeEach(() => {
-    LinkService._mockRepositoryInitialDataForTests();
+    mockRepositoryInitialDataForTests();
   });
 
   test("retrieves the link for the matching id", () => {
@@ -121,6 +125,7 @@ describe("update link by id", () => {
     const modifyinglinkInput: LinkInput = {
       title: "Updated Title",
       url: link.url,
+      category: "example",
     };
     const expectedUpdatedLink = {
       ...link,
@@ -146,6 +151,7 @@ describe("update link by id", () => {
     const updatedLink = LinkService.updateByID(link.id, {
       title: "Updated Title",
       url: link.url,
+      category: "example",
     });
     const repositoryUpdatedLink = LinkService.getByID(link.id);
 
@@ -159,6 +165,7 @@ describe("update link by id", () => {
     const modifyinglinkInput: LinkInput = {
       title: "Updated Title",
       url: "https://updated.example.com",
+      category: "example",
     };
 
     const error = getThrownError(() =>
@@ -182,6 +189,7 @@ describe("update link by id", () => {
       LinkService.updateByID(secondLink.id, {
         title: secondLink.title,
         url: firstLink.url,
+        category: firstLink.category,
       }),
     ) as StatefulError;
 

@@ -2,17 +2,21 @@ import { ParsedUrlQuery } from "querystring";
 import request from "supertest";
 import { beforeEach, describe, expect, test } from "vitest";
 import { app } from "../app";
-import { stringfyQuery } from "../common/utils/.test.utils";
+import {
+  mockRepositoryInitialDataForTests,
+  stringfyQuery,
+} from "../common/utils/.test.utils";
+import linksRepository from "./link.repository";
 import * as LinkService from "./link.service";
-import { Link, linkSchema, LinkInput, Query } from "./link.types";
+import { Link, LinkInput, linkSchema, Query } from "./link.types";
 
 beforeEach(() => {
-  LinkService._clearRepositoryForTests();
+  linksRepository.clear();
 });
 
 describe("GET /", () => {
   beforeEach(() => {
-    LinkService._mockRepositoryInitialDataForTests();
+    mockRepositoryInitialDataForTests();
   });
 
   test.for([
@@ -127,7 +131,7 @@ describe("POST /", () => {
 
 describe("GET /:id", () => {
   beforeEach(() => {
-    LinkService._mockRepositoryInitialDataForTests();
+    mockRepositoryInitialDataForTests();
   });
 
   test("retrieves the link with the matching id", async () => {
@@ -153,7 +157,7 @@ describe("GET /:id", () => {
 
 describe("DELETE /:id", () => {
   beforeEach(() => {
-    LinkService._mockRepositoryInitialDataForTests();
+    mockRepositoryInitialDataForTests();
   });
 
   test("deletes the link with the matching id", async () => {
@@ -182,7 +186,7 @@ describe("DELETE /:id", () => {
 
 describe("PUT /:id", () => {
   beforeEach(() => {
-    LinkService._mockRepositoryInitialDataForTests();
+    mockRepositoryInitialDataForTests();
   });
 
   test.for([
@@ -277,7 +281,7 @@ describe("PUT /:id", () => {
 
 describe("GET /:id/redirect", () => {
   beforeEach(() => {
-    LinkService._mockRepositoryInitialDataForTests();
+    mockRepositoryInitialDataForTests();
   });
 
   test("returns the link URL and increments its click count", async () => {
