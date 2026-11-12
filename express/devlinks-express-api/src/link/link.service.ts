@@ -1,12 +1,5 @@
 import { randomUUID } from "node:crypto";
-import {
-  EMPTY_LINK,
-  Link,
-  LinkID,
-  LinkKeys,
-  ProtoLink,
-  Query,
-} from "./link.types.js";
+import { Link, LinkID, LinkKeys, ProtoLink, Query } from "./link.types.js";
 import { StatefulError } from "../common/utils/stateful-error.utils.js";
 
 export class LinkService {
@@ -103,13 +96,8 @@ export class LinkService {
 
     const updatingLink = {
       ...this.getByID(id),
-      ...Object.fromEntries(
-        Object.entries(modifyingPrototype).map(([key, value]) => [
-          key,
-          value ?? EMPTY_LINK[key as LinkKeys],
-        ]),
-      ),
-    };
+      ...modifyingPrototype,
+    } as Link;
 
     this.linksRepository.set(id, updatingLink);
 

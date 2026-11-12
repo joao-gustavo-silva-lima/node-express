@@ -8,10 +8,7 @@ export class LinkController {
   }
 
   public static register(req: Request, res: Response) {
-    res.status(201).json({
-      message: `The link was created successfully`,
-      link: LinkService.register(req.body),
-    });
+    res.status(201).json(LinkService.register(req.body));
   }
 
   public static getByID(req: Request, res: Response) {

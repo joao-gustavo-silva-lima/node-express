@@ -1,16 +1,29 @@
 import { z } from "zod";
 
+const idSchema = z.uuid();
+const titleSchema = z.string();
+const urlSchema = z.url();
+const categorySchema = z.string();
+const tagsSchema = z.array(z.string()).default([]);
+const clicksSchema = z.number().int();
+const createdAtSchema = z.union([z.string(), z.date()]);
+
 export const linkSchema = z.object({
-  id: z.union([z.string(), z.uuid()]).default(""),
-  title: z.string().default(""),
-  url: z.url().default(""),
-  category: z.string().default(""),
-  tags: z.array(z.string()).default([]),
-  clicks: z.number().int().default(0),
-  createdAt: z.union([z.string(), z.date()]).default(""),
+  id: idSchema,
+  title: titleSchema,
+  url: urlSchema,
+  category: categorySchema,
+  tags: tagsSchema,
+  clicks: clicksSchema,
+  createdAt: createdAtSchema,
 });
 
-export const EMPTY_LINK = linkSchema.parse({});
+export const createLinkSchema = linkSchema.pick({
+  title: true,
+  url: true,
+  category: true,
+  tags: true,
+});
 
 export const LINK_KEYS = new Set(
   Object.keys(linkSchema.shape),
