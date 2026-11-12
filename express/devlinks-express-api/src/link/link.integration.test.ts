@@ -262,3 +262,37 @@ describe("PUT /:id", () => {
     expect(response.body.message).toMatch(/conflict/i);
   });
 });
+
+describe("GET /:id/redirect", () => {
+  beforeEach(() => {
+    LinkService._mockRepositoryInitialDataForTests();
+  });
+
+  test("returns the link URL and increments its click count", async () => {
+    const id = "123e4567-e89b-12d3-a456-426614174001";
+    const originalLink = LinkService.getByID(id);
+    const expectedBody = {
+      redirectURL: originalLink.url,
+    };
+
+    const response = await request(app).get(`/api/v1/links/${id}/redirect`);
+    const retrievalResponse = await request(app).get(`/api/v1/links/${id}`);
+    const retrievedLink = retrievalResponse.body as Link;
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject(expectedBody);
+    expect(retrievalResponse.status).toBe(200);
+    expect(retrievedLink.clicks).toBe(originalLink.clicks + 1);
+  });
+
+  test("throws 404 when the link does not exist", async () => {
+    const notMatchingId = "no-match-id";
+
+    const response = await request(app).get(
+      `/api/v1/links/${notMatchingId}/redirect`,
+    );
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toMatch(/not found/i);
+  });
+});
