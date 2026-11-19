@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import HttpError from "../common/classes/HttpError.js";
+import HttpError from "../classes/HttpError.js";
 
 export default function tokenValidationMiddleware(
   req: Request,

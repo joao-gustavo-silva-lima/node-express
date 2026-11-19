@@ -1,12 +1,12 @@
 import express from "express";
-import loggerMiddleware from "./middlewares/logger.middleware.js";
-import userRouter from "./routers/User.router.js";
-import linkRouter from "./routers/Link.router.js";
-import handleErrorMiddleware from "./middlewares/handleError.middleware.js";
+import loggerMiddleware from "./common/middlewares/logger.middleware.js";
+import userRouter from "./user/User.router.js";
+import linkRouter from "./link/Link.router.js";
+import handleErrorMiddleware from "./common/middlewares/handleError.middleware.js";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import cors from "cors";
-import corsOptionsMiddleware from "./middlewares/corsOptions.middleware.js";
+import corsOptionsMiddleware from "./common/middlewares/corsOptions.middleware.js";
 
 const app = express();
 

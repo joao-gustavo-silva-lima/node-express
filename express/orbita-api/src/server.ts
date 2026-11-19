@@ -1,7 +1,7 @@
 import { configDotenv } from "dotenv";
-import prisma from "./lib/prisma.js";
-import app from "./main.js";
 import HttpError from "./common/classes/HttpError.js";
+import app from "./main.js";
+import prisma from "./prisma/prisma.js";
 
 configDotenv({ quiet: true });
 

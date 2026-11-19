@@ -1,7 +1,7 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 import HttpError from "../common/classes/HttpError.js";
-import prisma from "../lib/prisma.js";
-import type { LinkInput, LinkUpdateInput } from "../schemas/Link.schema.js";
+import prisma from "../prisma/prisma.js";
+import type { LinkInput, LinkUpdateInput } from "./Link.schema.js";
 
 export async function createLink(authorUsername: string, linkInput: LinkInput) {
   try {

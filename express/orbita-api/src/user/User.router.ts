@@ -1,13 +1,13 @@
 import express from "express";
-import payloadValidationMiddleware from "../middlewares/payloadValidation.middleware.js";
+import payloadValidationMiddleware from "../common/middlewares/payloadValidation.middleware.js";
 import {
   createUserSchema,
   deleteUserSchema,
   loginUserSchema,
   updateUserSchema,
-} from "../schemas/User.schema.js";
-import * as userController from "../controllers/User.controller.js";
-import tokenValidationMiddleware from "../middlewares/tokenValidation.middleware.js";
+} from "./User.schema.js";
+import * as userController from "./User.controller.js";
+import tokenValidationMiddleware from "../common/middlewares/tokenValidation.middleware.js";
 
 const router = express.Router();
 

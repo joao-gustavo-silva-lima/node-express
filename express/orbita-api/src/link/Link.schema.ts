@@ -1,6 +1,5 @@
 import * as z from "zod";
-
-import { timestampSchema, usernameSchema } from "./common.schema.js";
+import { usernameSchema, timestampSchema } from "../common/common.schema.js";
 
 const titleSchema = z
   .string({

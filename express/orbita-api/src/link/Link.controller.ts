@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import HttpError from "../common/classes/HttpError.js";
-import * as linkService from "../services/Link.service.js";
-import { linkIdSchema } from "../schemas/Link.schema.js";
+import * as linkService from "./Link.service.js";
+import { linkIdSchema } from "./Link.schema.js";
 
 function parseLinkId(id: string | undefined) {
   const result = linkIdSchema.safeParse(id);
