@@ -86,4 +86,28 @@ describe("createUser", () => {
     expect(error.status).toBe(409);
     expect(error.code).toMatch(/conflict/i);
   });
+
+  it("1", async () => {
+    const consoleErrorFn = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    const expectedError = new Error("Unknown Error");
+
+    vi.mocked(prisma.user.create).mockRejectedValue(expectedError);
+
+    const error = (await userService
+      .createUser({
+        name: mockUser.name,
+        email: mockUser.email,
+        username: mockUser.username,
+        password: mockUser.password,
+      })
+      .catch((e) => e)) as Error;
+
+    expect(consoleErrorFn).toHaveBeenCalledExactlyOnceWith(
+      expect.stringMatching(/unknown error/i),
+      error,
+    );
+    expect(error).toBe(expectedError);
+  });
 });
