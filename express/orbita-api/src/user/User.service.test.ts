@@ -5,7 +5,7 @@ import prisma from "../prisma/prisma";
 import type { UserInput } from "./User.schema";
 import * as userService from "./User.service";
 
-const { mockUser } = vi.hoisted(() => ({
+const { mockUser, mockUserInput } = vi.hoisted(() => ({
   mockUser: {
     id: "550e8400-e29b-41d4-a716-446655440000",
     name: "João Silva",
@@ -15,6 +15,12 @@ const { mockUser } = vi.hoisted(() => ({
     links: [],
     createdAt: "2026-11-19T14:00:00.000Z",
     lastEdition: "2026-11-19T14:00:00.000Z",
+  },
+  mockUserInput: {
+    name: "João Silva",
+    email: "joao.silva@example.com",
+    username: "joaosilva",
+    password: "passwordExample@123",
   },
 }));
 
@@ -42,12 +48,6 @@ beforeEach(() => {
 
 describe("createUser", () => {
   it("should call prisma create for the User model and return and user and an authentication token", async () => {
-    const mockUserInput: UserInput = {
-      name: mockUser.name,
-      email: mockUser.email,
-      username: mockUser.username,
-      password: "non-hashed-password",
-    };
     const { password, ...expectedUser } = mockUser;
 
     const { user, token } = await userService.createUser(mockUserInput);
@@ -74,12 +74,7 @@ describe("createUser", () => {
     );
 
     const error = (await userService
-      .createUser({
-        name: mockUser.name,
-        email: mockUser.email,
-        username: mockUser.username,
-        password: mockUser.password,
-      })
+      .createUser(mockUserInput)
       .catch((e) => e)) as HttpError;
 
     expect(error).toBeInstanceOf(HttpError);
@@ -87,7 +82,7 @@ describe("createUser", () => {
     expect(error.code).toMatch(/conflict/i);
   });
 
-  it("1", async () => {
+  it("should log and rethrow error when caught is unhandled", async () => {
     const consoleErrorFn = vi
       .spyOn(console, "error")
       .mockImplementation(() => {});
@@ -96,12 +91,7 @@ describe("createUser", () => {
     vi.mocked(prisma.user.create).mockRejectedValue(expectedError);
 
     const error = (await userService
-      .createUser({
-        name: mockUser.name,
-        email: mockUser.email,
-        username: mockUser.username,
-        password: mockUser.password,
-      })
+      .createUser(mockUserInput)
       .catch((e) => e)) as Error;
 
     expect(consoleErrorFn).toHaveBeenCalledExactlyOnceWith(
