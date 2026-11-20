@@ -1,17 +1,20 @@
-import { compare, hash } from "bcrypt";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
+import HttpError from "../common/classes/HttpError.js";
+import prisma from "../prisma/prisma.js";
 import {
   type loginUserInput,
   type updateUserInput,
   type UserInput,
 } from "./User.schema.js";
-import prisma from "../prisma/prisma.js";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
-import HttpError from "../common/classes/HttpError.js";
-import generateToken from "../common/utils/generateToken.js";
+import {
+  generateAuthenticationToken,
+  hashPassword,
+  comparePasswords,
+} from "./User.utils.js";
 
 export async function createUser(userInput: UserInput) {
   try {
-    const passwordHash = await hash(userInput.password, 10);
+    const passwordHash = await hashPassword(userInput.password);
 
     const { password, ...user } = await prisma.user.create({
       data: {
@@ -21,7 +24,7 @@ export async function createUser(userInput: UserInput) {
       include: { links: true },
     });
 
-    const token = generateToken(user.username);
+    const token = generateAuthenticationToken(user.username);
 
     return { user, token };
   } catch (error) {
@@ -59,7 +62,10 @@ export async function loginUser(credentials: loginUserInput) {
       },
     });
 
-    if (user === null) {
+    if (
+      user === null ||
+      !(await comparePasswords(credentials.password, user.password))
+    ) {
       throw new HttpError(
         401,
         "USER_LOGIN_INVALID_CREDENTIALS",
@@ -67,20 +73,7 @@ export async function loginUser(credentials: loginUserInput) {
       );
     }
 
-    const hasMatchingPasswords = await compare(
-      credentials.password,
-      user.password,
-    );
-
-    if (!hasMatchingPasswords) {
-      throw new HttpError(
-        401,
-        "USER_LOGIN_INVALID_CREDENTIALS",
-        "The username/email or password is incorrect.",
-      );
-    }
-
-    const token = generateToken(user.username);
+    const token = generateAuthenticationToken(user.username);
 
     return { user, token };
   } catch (error) {
@@ -164,7 +157,7 @@ export async function updateUser(
       );
     }
 
-    const hasMatchingPasswords = await compare(
+    const hasMatchingPasswords = await comparePasswords(
       userInput.currentPassword,
       query.password,
     );
@@ -223,7 +216,9 @@ export async function updateUser(
         ...(name !== undefined && { name }),
         ...(username !== undefined && { username }),
         ...(email !== undefined && { email }),
-        ...(password !== undefined && { password: await hash(password, 10) }),
+        ...(password !== undefined && {
+          password: await hashPassword(password),
+        }),
       },
       omit: {
         password: true,
@@ -231,7 +226,7 @@ export async function updateUser(
       include: { links: true },
     });
 
-    const token = generateToken(updatedUser.username);
+    const token = generateAuthenticationToken(updatedUser.username);
 
     return { updatedUser, token };
   } catch (error) {
@@ -277,7 +272,7 @@ export async function deleteUser(username: string, password: string) {
     }
 
     const { password: passwordHash } = query;
-    const hasMatchingPasswords = await compare(password, passwordHash);
+    const hasMatchingPasswords = await comparePasswords(password, passwordHash);
 
     if (!hasMatchingPasswords) {
       throw new HttpError(

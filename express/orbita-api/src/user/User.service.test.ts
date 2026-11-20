@@ -1,45 +1,37 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
+import { configDotenv } from "dotenv";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import HttpError from "../common/classes/HttpError";
 import prisma from "../prisma/prisma";
-import type { UserInput } from "./User.schema";
+import type { loginUserInput, User, UserInput } from "./User.schema";
 import * as userService from "./User.service";
+import { generateAuthenticationToken, hashPassword } from "./User.utils";
 
-const { mockUser, mockUserInput } = vi.hoisted(() => ({
-  mockUser: {
-    id: "550e8400-e29b-41d4-a716-446655440000",
-    name: "João Silva",
-    email: "joao.silva@example.com",
-    username: "joaosilva",
-    password: "$2b$10$hashedPasswordExample1234567890",
-    links: [],
-    createdAt: "2026-11-19T14:00:00.000Z",
-    lastEdition: "2026-11-19T14:00:00.000Z",
-  },
-  mockUserInput: {
-    name: "João Silva",
-    email: "joao.silva@example.com",
-    username: "joaosilva",
-    password: "passwordExample@123",
-  },
-}));
+configDotenv({ path: "config/.env.development", quiet: true });
+
+const mockUserInput: UserInput = {
+  name: "João Silva",
+  email: "joao.silva@example.com",
+  username: "joaosilva",
+  password: "passwordExample@123",
+};
+const mockUser: User = {
+  id: "550e8400-e29b-41d4-a716-446655440000",
+  name: mockUserInput.name,
+  email: mockUserInput.email,
+  username: mockUserInput.username,
+  password: await hashPassword(mockUserInput.password),
+  links: [],
+  createdAt: "2026-11-19T14:00:00.000Z",
+  lastEdition: "2026-11-19T14:00:00.000Z",
+};
 
 vi.mock("../prisma/prisma", () => ({
   default: {
     user: {
-      create: vi.fn().mockReturnValue(mockUser),
+      create: vi.fn(),
+      findFirst: vi.fn(),
     },
   },
-}));
-
-vi.mock("jsonwebtoken", () => ({
-  default: {
-    sign: vi.fn().mockReturnValue("authentication-token"),
-  },
-}));
-
-vi.mock("bcrypt", () => ({
-  hash: vi.fn().mockReturnValue(mockUser.password),
 }));
 
 beforeEach(() => {
@@ -47,39 +39,40 @@ beforeEach(() => {
 });
 
 describe("createUser", () => {
-  it("should call prisma create for the User model and return and user and an authentication token", async () => {
-    const { password, ...expectedUser } = mockUser;
+  it("should create an user record in database and return the user and it's authentication token", async () => {
+    const { password: hash, ...resultUser } = mockUser;
 
-    const { user, token } = await userService.createUser(mockUserInput);
+    vi.mocked(prisma.user.create).mockResolvedValue(mockUser as never);
+
+    const result = await userService.createUser(mockUserInput);
 
     expect(vi.mocked(prisma.user.create)).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({
         data: {
           ...mockUserInput,
-          password: "$2b$10$hashedPasswordExample1234567890",
+          password: hash,
         },
       }),
     );
 
-    expect(user).toStrictEqual(expectedUser);
-    expect(token).toBe("authentication-token");
+    expect(result).toStrictEqual({
+      user: resultUser,
+      token: generateAuthenticationToken(mockUser.username),
+    });
   });
 
-  it("should throw 409 while attempting to create duplicate user (Prisma Error P2002)", async () => {
+  it("should throw 409 while attempting to create duplicate user record", async () => {
     vi.mocked(prisma.user.create).mockRejectedValue(
-      new PrismaClientKnownRequestError("", {
+      new PrismaClientKnownRequestError("unique constraint violation", {
         code: "P2002",
-        clientVersion: "",
+        clientVersion: "test",
       }),
     );
 
-    const error = (await userService
-      .createUser(mockUserInput)
-      .catch((e) => e)) as HttpError;
-
-    expect(error).toBeInstanceOf(HttpError);
-    expect(error.status).toBe(409);
-    expect(error.code).toMatch(/conflict/i);
+    await expect(userService.createUser(mockUserInput)).rejects.toMatchObject({
+      status: 409,
+      code: "USER_CREATION_CONFLICT",
+    });
   });
 
   it("should log and rethrow error when caught is unhandled", async () => {
@@ -90,14 +83,82 @@ describe("createUser", () => {
 
     vi.mocked(prisma.user.create).mockRejectedValue(expectedError);
 
-    const error = (await userService
-      .createUser(mockUserInput)
-      .catch((e) => e)) as Error;
+    await expect(userService.createUser(mockUserInput)).rejects.toBe(
+      expectedError,
+    );
 
     expect(consoleErrorFn).toHaveBeenCalledExactlyOnceWith(
       expect.stringMatching(/unknown error/i),
-      error,
+      expectedError,
     );
-    expect(error).toBe(expectedError);
+  });
+});
+
+describe("loginUser", () => {
+  it("should return user and their authentication token", async () => {
+    const credentials: loginUserInput = {
+      username: mockUserInput.username,
+      password: mockUserInput.password,
+    };
+
+    vi.mocked(prisma.user.findFirst).mockResolvedValue(mockUser as never);
+
+    const result = await userService.loginUser(credentials);
+
+    expect(prisma.user.findFirst).toHaveBeenCalledExactlyOnceWith({
+      where: {
+        OR: [{ username: mockUser.username }],
+      },
+      include: { links: true },
+    });
+
+    expect(result).toStrictEqual({
+      user: mockUser,
+      token: generateAuthenticationToken(mockUser.username),
+    });
+  });
+
+  it("should throw 401 when no user is found and skip password comparison", async () => {
+    vi.mocked(prisma.user.findFirst).mockResolvedValue(null);
+
+    await expect(
+      userService.loginUser({
+        username: mockUser.username,
+        password: "passwordExample@123",
+      }),
+    ).rejects.toMatchObject({
+      status: 401,
+      code: "USER_LOGIN_INVALID_CREDENTIALS",
+    });
+  });
+
+  it("should throw 401 when the password does not match", async () => {
+    vi.mocked(prisma.user.findFirst).mockResolvedValue(mockUser as never);
+
+    await expect(
+      userService.loginUser({
+        username: mockUser.username,
+        password: "wrong-password",
+      }),
+    ).rejects.toMatchObject({
+      status: 401,
+      code: "USER_LOGIN_INVALID_CREDENTIALS",
+    });
+  });
+
+  it("should throw 503 for unexpected Prisma errors", async () => {
+    const databaseError = new Error("Database unavailable");
+    vi.mocked(prisma.user.findFirst).mockRejectedValue(databaseError);
+
+    await expect(
+      userService.loginUser({
+        username: mockUser.username,
+        password: "passwordExample@123",
+      }),
+    ).rejects.toMatchObject({
+      status: 503,
+      code: "UNEXPECTED_DATABASE_ERROR",
+      rawError: databaseError,
+    });
   });
 });
