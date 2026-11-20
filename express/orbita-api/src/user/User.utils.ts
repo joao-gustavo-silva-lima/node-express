@@ -15,3 +15,9 @@ export function generateAuthenticationToken(username: string) {
     expiresIn: "1Day",
   });
 }
+export function updatedTooRecently(createdAt: Date, updatedAt: Date) {
+  return (
+    createdAt.getTime() !== updatedAt.getTime() &&
+    updatedAt > new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+  );
+}

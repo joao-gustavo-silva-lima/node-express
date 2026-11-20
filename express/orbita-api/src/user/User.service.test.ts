@@ -2,7 +2,12 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 import { configDotenv } from "dotenv";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import prisma from "../prisma/prisma";
-import type { loginUserInput, User, UserInput } from "./User.schema";
+import type {
+  loginUserInput,
+  updateUserInput,
+  User,
+  UserInput,
+} from "./User.schema";
 import * as userService from "./User.service";
 import { generateAuthenticationToken, hashPassword } from "./User.utils";
 
@@ -49,6 +54,7 @@ vi.mock("../prisma/prisma", () => ({
       create: vi.fn(),
       findFirst: vi.fn(),
       findUnique: vi.fn(),
+      update: vi.fn(),
     },
   },
 }));
@@ -282,6 +288,201 @@ describe("fetchUser", () => {
 
     await expect(
       userService.fetchUser(mockUser.username, null),
+    ).rejects.toMatchObject({
+      status: 503,
+      code: "UNEXPECTED_DATABASE_ERROR",
+      rawError: databaseError,
+    });
+  });
+});
+
+describe("updateUser", () => {
+  const currentPassword = mockUserInput.password;
+  const targetUsername = mockUser.username;
+  const lastUnchangedAt = new Date("2026-11-19T14:00:00.000Z");
+
+  function mockExistingUser(lastEdition = lastUnchangedAt) {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      password: mockUser.password,
+      createdAt: lastUnchangedAt,
+      lastEdition,
+    } as never);
+  }
+
+  it("should update only provided fields and return the user and token", async () => {
+    mockExistingUser();
+    const updatedUser = {
+      ...mockUser,
+      name: "João Atualizado",
+    };
+    vi.mocked(prisma.user.update).mockResolvedValue(updatedUser as never);
+
+    const result = await userService.updateUser(targetUsername, {
+      currentPassword,
+      name: updatedUser.name,
+    });
+
+    expect(prisma.user.findUnique).toHaveBeenCalledExactlyOnceWith({
+      where: { username: targetUsername },
+      select: {
+        password: true,
+        createdAt: true,
+        lastEdition: true,
+      },
+    });
+    expect(prisma.user.findFirst).not.toHaveBeenCalled();
+    expect(prisma.user.update).toHaveBeenCalledExactlyOnceWith({
+      where: { username: targetUsername },
+      data: { name: updatedUser.name },
+      omit: { password: true },
+      include: { links: true },
+    });
+    expect(result).toStrictEqual({
+      updatedUser,
+      token: generateAuthenticationToken(updatedUser.username),
+    });
+  });
+
+  it("should check username and email conflicts before updating", async () => {
+    mockExistingUser();
+    vi.mocked(prisma.user.findFirst).mockResolvedValue(null);
+    vi.mocked(prisma.user.update).mockResolvedValue(mockUser as never);
+
+    const userInput: updateUserInput = {
+      currentPassword,
+      username: "joaosilva-novo",
+      email: "novo@example.com",
+    };
+
+    await userService.updateUser(targetUsername, userInput);
+
+    expect(prisma.user.findFirst).toHaveBeenCalledExactlyOnceWith({
+      where: {
+        OR: [{ username: userInput.username }, { email: userInput.email }],
+        NOT: { username: targetUsername },
+      },
+      select: { id: true },
+    });
+    expect(prisma.user.update).toHaveBeenCalledExactlyOnceWith({
+      where: { username: targetUsername },
+      data: {
+        username: userInput.username,
+        email: userInput.email,
+      },
+      omit: { password: true },
+      include: { links: true },
+    });
+  });
+
+  it("should hash a new password before sending it to Prisma", async () => {
+    mockExistingUser();
+    vi.mocked(prisma.user.update).mockResolvedValue(mockUser as never);
+    const newPassword = "NewPassword@123";
+
+    await userService.updateUser(targetUsername, {
+      currentPassword,
+      password: newPassword,
+    });
+
+    expect(prisma.user.update).toHaveBeenCalledExactlyOnceWith({
+      where: { username: targetUsername },
+      data: { password: await hashPassword(newPassword) },
+      omit: { password: true },
+      include: { links: true },
+    });
+  });
+
+  it("should throw 404 when the target user does not exist", async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
+
+    await expect(
+      userService.updateUser(targetUsername, { currentPassword }),
+    ).rejects.toMatchObject({
+      status: 404,
+      code: "USER_NOT_FOUND_FOR_UPDATE",
+    });
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it("should throw 403 when the current password is incorrect", async () => {
+    mockExistingUser();
+
+    await expect(
+      userService.updateUser(targetUsername, {
+        currentPassword: "wrong-current-password",
+        name: "João Atualizado",
+      }),
+    ).rejects.toMatchObject({
+      status: 403,
+      code: "USER_UPDATE_FORBIDDEN",
+    });
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it("should throw 403 when the user was updated less than three days ago", async () => {
+    mockExistingUser(new Date(Date.now() - 24 * 60 * 60 * 1000));
+
+    await expect(
+      userService.updateUser(targetUsername, {
+        currentPassword,
+        name: "João Atualizado",
+      }),
+    ).rejects.toMatchObject({
+      status: 403,
+      code: "USER_UPDATE_FORBIDDEN",
+    });
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it("should throw 409 when a username or email is already in use", async () => {
+    mockExistingUser();
+    vi.mocked(prisma.user.findFirst).mockResolvedValue({
+      id: "duplicate",
+    } as never);
+
+    await expect(
+      userService.updateUser(targetUsername, {
+        currentPassword,
+        email: "already-used@example.com",
+      }),
+    ).rejects.toMatchObject({
+      status: 409,
+      code: "USER_UPDATE_DETAILS_CONFLICT",
+    });
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it("should throw 409 while attempting to update user record within duplicate details", async () => {
+    mockExistingUser();
+    vi.mocked(prisma.user.findFirst).mockResolvedValue(null);
+    vi.mocked(prisma.user.update).mockRejectedValue(
+      new PrismaClientKnownRequestError("unique constraint violation", {
+        code: "P2002",
+        clientVersion: "test",
+      }),
+    );
+
+    await expect(
+      userService.updateUser(targetUsername, {
+        currentPassword,
+        email: "new@example.com",
+      }),
+    ).rejects.toMatchObject({
+      status: 409,
+      code: "USER_UPDATE_DETAILS_CONFLICT",
+    });
+  });
+
+  it("should throw 503 for unexpected Prisma errors", async () => {
+    mockExistingUser();
+    const databaseError = new Error("Database unavailable");
+    vi.mocked(prisma.user.update).mockRejectedValue(databaseError);
+
+    await expect(
+      userService.updateUser(targetUsername, {
+        currentPassword,
+        name: "João Atualizado",
+      }),
     ).rejects.toMatchObject({
       status: 503,
       code: "UNEXPECTED_DATABASE_ERROR",

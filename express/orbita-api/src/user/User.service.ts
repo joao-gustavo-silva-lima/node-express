@@ -10,6 +10,7 @@ import {
   generateAuthenticationToken,
   hashPassword,
   comparePasswords,
+  updatedTooRecently,
 } from "./User.utils.js";
 
 export async function createUser(userInput: UserInput) {
@@ -157,32 +158,15 @@ export async function updateUser(
       );
     }
 
-    const hasMatchingPasswords = await comparePasswords(
-      userInput.currentPassword,
-      query.password,
-    );
-
-    if (!hasMatchingPasswords) {
+    if (
+      !(await comparePasswords(userInput.currentPassword, query.password)) ||
+      updatedTooRecently(query.createdAt, query.lastEdition)
+    ) {
       throw new HttpError(
         403,
         "USER_UPDATE_FORBIDDEN",
         `Passwords do not match. User update could not proceed.`,
       );
-    }
-
-    const hasBeenUpdated =
-      query.createdAt.getTime() !== query.lastEdition.getTime();
-
-    if (hasBeenUpdated) {
-      const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
-
-      if (query.lastEdition > threeDaysAgo) {
-        throw new HttpError(
-          403,
-          "USER_UPDATE_NOT_ALLOWED_TOO_SOON",
-          "The user can only be updated once every three days.",
-        );
-      }
     }
 
     const { name, username, email, password } = userInput;
