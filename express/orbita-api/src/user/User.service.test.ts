@@ -55,6 +55,7 @@ vi.mock("../prisma/prisma", () => ({
       findFirst: vi.fn(),
       findUnique: vi.fn(),
       update: vi.fn(),
+      delete: vi.fn(),
     },
   },
 }));
@@ -299,12 +300,12 @@ describe("fetchUser", () => {
 describe("updateUser", () => {
   const currentPassword = mockUserInput.password;
   const targetUsername = mockUser.username;
-  const lastUnchangedAt = new Date("2026-11-19T14:00:00.000Z");
+  const createdAt = new Date("2026-11-19T14:00:00.000Z");
 
-  function mockExistingUser(lastEdition = lastUnchangedAt) {
+  function mockExistingUser(lastEdition = createdAt) {
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       password: mockUser.password,
-      createdAt: lastUnchangedAt,
+      createdAt: createdAt,
       lastEdition,
     } as never);
   }
@@ -487,6 +488,77 @@ describe("updateUser", () => {
       status: 503,
       code: "UNEXPECTED_DATABASE_ERROR",
       rawError: databaseError,
+    });
+  });
+});
+
+describe("deleteUser", () => {
+  const username = mockUser.username;
+  const password = mockUserInput.password;
+
+  it("should delete the user after verifying the password", async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      password: mockUser.password,
+    } as never);
+    vi.mocked(prisma.user.delete).mockResolvedValue(mockUser as never);
+
+    await userService.deleteUser(username, password);
+
+    expect(prisma.user.findUnique).toHaveBeenCalledExactlyOnceWith({
+      where: { username },
+      select: { password: true },
+    });
+    expect(prisma.user.delete).toHaveBeenCalledExactlyOnceWith({
+      where: { username },
+    });
+  });
+
+  it("should throw 404 and skip deletion when the user does not exist", async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
+
+    await expect(
+      userService.deleteUser(username, password),
+    ).rejects.toMatchObject({
+      status: 404,
+      code: "USER_NOT_FOUND_FOR_DELETION",
+    });
+    expect(prisma.user.findUnique).toHaveBeenCalledExactlyOnceWith({
+      where: { username },
+      select: { password: true },
+    });
+    expect(prisma.user.delete).not.toHaveBeenCalled();
+  });
+
+  it("should throw 403 and skip deletion when the password does not match", async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      password: mockUser.password,
+    } as never);
+
+    await expect(
+      userService.deleteUser(username, "wrong-password"),
+    ).rejects.toMatchObject({
+      status: 403,
+      code: "USER_DELETION_FORBIDDEN",
+    });
+    expect(prisma.user.delete).not.toHaveBeenCalled();
+  });
+
+  it("should throw 503 for unexpected Prisma errors", async () => {
+    const databaseError = new Error("Database unavailable");
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      password: mockUser.password,
+    } as never);
+    vi.mocked(prisma.user.delete).mockRejectedValue(databaseError);
+
+    await expect(
+      userService.deleteUser(username, password),
+    ).rejects.toMatchObject({
+      status: 503,
+      code: "UNEXPECTED_DATABASE_ERROR",
+      rawError: databaseError,
+    });
+    expect(prisma.user.delete).toHaveBeenCalledExactlyOnceWith({
+      where: { username },
     });
   });
 });
