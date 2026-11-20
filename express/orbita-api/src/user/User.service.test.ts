@@ -14,13 +14,31 @@ const mockUserInput: UserInput = {
   username: "joaosilva",
   password: "passwordExample@123",
 };
+const mockPublicLink: User["links"][number] = {
+  id: 1,
+  authorUsername: mockUserInput.username,
+  ref: "public-link",
+  title: "Public link",
+  visibility: "PUBLIC",
+  createdAt: "2026-11-19T14:00:00.000Z",
+  lastEdition: "2026-11-19T14:00:00.000Z",
+};
+const mockPrivateLink: User["links"][number] = {
+  id: 2,
+  authorUsername: mockUserInput.username,
+  ref: "private-link",
+  title: "Private link",
+  visibility: "PRIVATE",
+  createdAt: "2026-11-19T14:00:00.000Z",
+  lastEdition: "2026-11-19T14:00:00.000Z",
+};
 const mockUser: User = {
   id: "550e8400-e29b-41d4-a716-446655440000",
   name: mockUserInput.name,
   email: mockUserInput.email,
   username: mockUserInput.username,
   password: await hashPassword(mockUserInput.password),
-  links: [],
+  links: [mockPublicLink, mockPrivateLink],
   createdAt: "2026-11-19T14:00:00.000Z",
   lastEdition: "2026-11-19T14:00:00.000Z",
 };
@@ -30,6 +48,7 @@ vi.mock("../prisma/prisma", () => ({
     user: {
       create: vi.fn(),
       findFirst: vi.fn(),
+      findUnique: vi.fn(),
     },
   },
 }));
@@ -155,6 +174,114 @@ describe("loginUser", () => {
         username: mockUser.username,
         password: "passwordExample@123",
       }),
+    ).rejects.toMatchObject({
+      status: 503,
+      code: "UNEXPECTED_DATABASE_ERROR",
+      rawError: databaseError,
+    });
+  });
+});
+
+describe("fetchUser", () => {
+  const publicUserData: User = {
+    ...mockUser,
+    links: mockUser.links.filter(({ visibility }) => visibility === "PUBLIC"),
+  };
+  const authenticatedUserData: User = {
+    ...mockUser,
+  };
+
+  it("should fetch the user without password and only public links for unauthenticated visitors", async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(
+      publicUserData as never,
+    );
+
+    const result = await userService.fetchUser(mockUser.username, null);
+
+    expect(prisma.user.findUnique).toHaveBeenCalledExactlyOnceWith({
+      where: { username: mockUser.username },
+      omit: { password: true },
+      include: {
+        links: {
+          where: {
+            authorUsername: mockUser.username,
+            visibility: "PUBLIC",
+          },
+        },
+      },
+    });
+    expect(result).toStrictEqual(publicUserData);
+  });
+
+  it("should fetch all links when the authenticated user is the profile owner", async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(
+      authenticatedUserData as never,
+    );
+
+    const result = await userService.fetchUser(
+      mockUser.username,
+      mockUser.username,
+    );
+
+    expect(prisma.user.findUnique).toHaveBeenCalledExactlyOnceWith({
+      where: { username: mockUser.username },
+      omit: { password: true },
+      include: {
+        links: {
+          where: { authorUsername: mockUser.username },
+        },
+      },
+    });
+    expect(result).toStrictEqual(authenticatedUserData);
+  });
+
+  it("should only include public links when another user is authenticated", async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(
+      publicUserData as never,
+    );
+
+    const result = await userService.fetchUser(
+      mockUser.username,
+      "anotheruser",
+    );
+
+    expect(prisma.user.findUnique).toHaveBeenCalledExactlyOnceWith({
+      where: { username: mockUser.username },
+      omit: { password: true },
+      include: {
+        links: {
+          where: {
+            authorUsername: mockUser.username,
+            visibility: "PUBLIC",
+          },
+        },
+      },
+    });
+    expect(result).toStrictEqual(publicUserData);
+  });
+
+  it("should throw 404 when the user does not exist", async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
+
+    await expect(
+      userService.fetchUser(mockUser.username, null),
+    ).rejects.toMatchObject({
+      status: 404,
+      code: "USER_NOT_FOUND",
+    });
+    expect(prisma.user.findUnique).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        where: { username: mockUser.username },
+      }),
+    );
+  });
+
+  it("should throw 503 for unexpected Prisma errors", async () => {
+    const databaseError = new Error("Database unavailable");
+    vi.mocked(prisma.user.findUnique).mockRejectedValue(databaseError);
+
+    await expect(
+      userService.fetchUser(mockUser.username, null),
     ).rejects.toMatchObject({
       status: 503,
       code: "UNEXPECTED_DATABASE_ERROR",
