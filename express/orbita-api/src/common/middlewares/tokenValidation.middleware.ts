@@ -7,7 +7,7 @@ export default function tokenValidationMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  if (req.cookies.orbitaAuthToken === undefined) {
+  if (req.cookies?.orbitaAuthToken === undefined) {
     throw new HttpError(
       401,
       "AUTH_TOKEN_REQUIRED",
