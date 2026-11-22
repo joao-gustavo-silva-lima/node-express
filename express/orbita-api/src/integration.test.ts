@@ -78,14 +78,16 @@ describe("POST /user/auth", () => {
 describe("POST /user/auth/login", () => {
   const endpoint = "/api/v1/user/auth/login";
 
-  beforeEach(async () => {
-    await request(app)
+  const mockSeedData = () => {
+    return request(app)
       .post("/api/v1/user/auth")
       .set("Content-Type", "application/json")
       .send(mockUserInput);
-  });
+  };
 
   it("should assign an authorization token to a cookie and respond with the authenticated user object when authentication succeeds", async () => {
+    await mockSeedData();
+
     const response = await request(app)
       .post(endpoint)
       .set("Content-Type", "application/json")
@@ -98,6 +100,38 @@ describe("POST /user/auth/login", () => {
     expect(
       userSchema.omit({ password: true }).safeParse(response.body).success,
     ).toBeTruthy();
+  });
+
+  it("should throw 401 when username matches no user", async () => {
+    await mockSeedData();
+
+    const response = await request(app)
+      .post(endpoint)
+      .set("Content-Type", "application/json")
+      .send({
+        username: "non-existent-user",
+        password: mockUserInput.password,
+      } satisfies loginUserInput);
+
+    expect(response.get("Set-Cookie")).not.toBeDefined();
+    expect(response.status).toBe(401);
+    expect(response.body.code).toBe("USER_LOGIN_INVALID_CREDENTIALS");
+  });
+
+  it("should throw 401 when password is incorrect", async () => {
+    await mockSeedData();
+
+    const response = await request(app)
+      .post(endpoint)
+      .set("Content-Type", "application/json")
+      .send({
+        username: mockUserInput.username,
+        password: "wrongPassword@123",
+      } satisfies loginUserInput);
+
+    expect(response.get("Set-Cookie")).not.toBeDefined();
+    expect(response.status).toBe(401);
+    expect(response.body.code).toBe("USER_LOGIN_INVALID_CREDENTIALS");
   });
 
   it("should throw 415 when content type is not application/json", async () => {
@@ -120,18 +154,20 @@ describe("POST /user/auth/login", () => {
     expect(response.status).toBe(400);
     expect(response.body.code).toBe("INVALID_REQUEST_BODY");
   });
+});
 
-  it("should throw 401 when password is incorrect", async () => {
-    const response = await request(app)
-      .post(endpoint)
-      .set("Content-Type", "application/json")
-      .send({
-        username: mockUserInput.username,
-        password: "wrongPassword@123",
-      } satisfies loginUserInput);
+describe("POST /user/auth/logout", () => {
+  const endpoint = "/api/v1/user/auth/logout";
 
-    expect(response.get("Set-Cookie")).not.toBeDefined();
-    expect(response.status).toBe(401);
-    expect(response.body.code).toBe("USER_LOGIN_INVALID_CREDENTIALS");
+  it("should send a remotion cookie", async () => {
+    const response = await request(app).post(endpoint);
+    const cookies = response.get("Set-Cookie");
+
+    expect(response.status).toBe(200);
+    expect(cookies).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("Expires=Thu, 01 Jan 1970 00:00:00 GMT"),
+      ]),
+    );
   });
 });

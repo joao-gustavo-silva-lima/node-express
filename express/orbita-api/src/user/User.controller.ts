@@ -34,7 +34,12 @@ export async function loginUser(req: Request, res: Response) {
 }
 
 export async function logoutUser(req: Request, res: Response) {
-  res.clearCookie("orbitaAuthToken");
+  res.clearCookie("orbitaAuthToken", {
+    httpOnly: true,
+    secure: isProduction,
+    partitioned: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+  });
 
   res.json({
     code: "USER_LOGOUT_SUCCESS",
