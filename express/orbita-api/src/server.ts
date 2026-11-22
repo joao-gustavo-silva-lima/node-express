@@ -3,7 +3,7 @@ import HttpError from "./common/classes/HttpError.js";
 import app from "./main.js";
 import prisma from "./prisma/prisma.js";
 
-configDotenv({ quiet: true });
+configDotenv({ quiet: true, path: "config/.env.development" });
 
 async function bootstrap() {
   try {

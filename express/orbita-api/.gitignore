@@ -5,3 +5,4 @@ config
 **/*.ignore*
 docker-compose*.yml
 dist/
+.vscode

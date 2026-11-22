@@ -1,7 +1,13 @@
 import { configDotenv } from "dotenv";
 import { defineConfig } from "prisma/config";
 
-configDotenv({ quiet: true, path: "config/.env.development" });
+const envFile =
+  ".env." + (process.env.NODE_ENV === "test" ? "test" : "development");
+
+configDotenv({
+  quiet: true,
+  path: `config/${envFile}`,
+});
 
 export default defineConfig({
   schema: "src/prisma/schema.prisma",

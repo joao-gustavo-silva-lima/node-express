@@ -8,7 +8,7 @@
     "build": "npm install && tsc",
     "start": "node dist/server.js",
     "test": "vitest --no-watch --exclude 'src/integration.test.ts'",
-    "test:integration": "vitest run src/integration.test.ts"
+    "test:integration": "(NODE_ENV=test; prisma db push && vitest run src/integration.test.ts)"
   },
   "keywords": [],
   "type": "module",
@@ -28,6 +28,7 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
+    "@types/supertest": "^7.2.1",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -36,12 +37,13 @@
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.23.1",
+    "supertest": "^7.3.2",
     "zod": "^4.6.7"
   },
   "allowScripts": {
-    "@prisma/engines@7.10.1": true,
     "esbuild@0.28.2": true,
+    "bcrypt@6.0.0": true,
     "prisma@7.10.1": true,
-    "bcrypt@6.0.0": true
+    "@prisma/engines@7.10.1": true
   }
 }
