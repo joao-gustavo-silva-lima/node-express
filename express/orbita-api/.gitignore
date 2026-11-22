@@ -3,5 +3,5 @@ node_modules
 config
 **/*-ignore*/
 **/*.ignore*
-docker-compose.yml
+docker-compose*.yml
 dist/
