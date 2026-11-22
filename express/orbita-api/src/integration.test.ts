@@ -1,14 +1,56 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import request from "supertest";
+import request, { agent } from "supertest";
 import app from "./main";
-import { loginUserInput, UserInput, userSchema } from "./user/User.schema";
+import {
+  loginUserInput,
+  User,
+  UserInput,
+  userSchema,
+} from "./user/User.schema";
 import prisma from "./prisma/prisma";
+import { Link, LinkInput } from "./link/Link.schema";
 
 const mockUserInput: UserInput = {
   name: "Test Test",
   email: "test@email.com",
   username: "test_username",
   password: "testPassword@123",
+};
+
+const mockUserCreation = () => {
+  return request(app)
+    .post("/api/v1/user/auth")
+    .set("Content-Type", "application/json")
+    .send(mockUserInput);
+};
+
+const mockLinksCreation = async () => {
+  if (
+    (await prisma.user.findUnique({
+      where: { username: mockUserInput.username },
+    })) === null
+  ) {
+    throw new Error(
+      "Mocking link creation expects a previously mocked user creation",
+    );
+  }
+
+  await prisma.link.createMany({
+    data: [
+      {
+        title: "Public Link",
+        visibility: "PUBLIC",
+        ref: "https://example.com",
+        authorUsername: mockUserInput.username,
+      },
+      {
+        title: "Private Link",
+        visibility: "PRIVATE",
+        ref: "https://example.com/private",
+        authorUsername: mockUserInput.username,
+      },
+    ],
+  });
 };
 
 beforeEach(async () => {
@@ -78,15 +120,8 @@ describe("POST /user/auth", () => {
 describe("POST /user/auth/login", () => {
   const endpoint = "/api/v1/user/auth/login";
 
-  const mockSeedData = () => {
-    return request(app)
-      .post("/api/v1/user/auth")
-      .set("Content-Type", "application/json")
-      .send(mockUserInput);
-  };
-
   it("should assign an authorization token to a cookie and respond with the authenticated user object when authentication succeeds", async () => {
-    await mockSeedData();
+    await mockUserCreation();
 
     const response = await request(app)
       .post(endpoint)
@@ -103,7 +138,7 @@ describe("POST /user/auth/login", () => {
   });
 
   it("should throw 401 when username matches no user", async () => {
-    await mockSeedData();
+    await mockUserCreation();
 
     const response = await request(app)
       .post(endpoint)
@@ -119,7 +154,7 @@ describe("POST /user/auth/login", () => {
   });
 
   it("should throw 401 when password is incorrect", async () => {
-    await mockSeedData();
+    await mockUserCreation();
 
     const response = await request(app)
       .post(endpoint)
@@ -169,5 +204,29 @@ describe("POST /user/auth/logout", () => {
         expect.stringContaining("Expires=Thu, 01 Jan 1970 00:00:00 GMT"),
       ]),
     );
+  });
+});
+
+describe("GET /user/auth/profile", () => {
+  const endpoint = "/api/v1/user/auth/profile";
+
+  it("should return the authenticated user profile including private links", async () => {
+    const creationResponse = await mockUserCreation();
+
+    expect(creationResponse.status).toBe(201);
+
+    await mockLinksCreation();
+
+    const { links: _, ...expectedUser } = creationResponse.body as User;
+    const cookies = creationResponse.get("Set-Cookie");
+    const response = await request(app).get(endpoint).set("Cookie", cookies!);
+
+    const profileLinks: Link[] = response.body.links;
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject(expectedUser);
+    expect(
+      profileLinks.some(({ visibility }) => visibility === "PRIVATE"),
+    ).toBeTruthy();
   });
 });
