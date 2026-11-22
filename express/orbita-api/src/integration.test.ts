@@ -1,24 +1,28 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import request from "supertest";
 import app from "./main";
-import { UserInput, userSchema } from "./user/User.schema";
+import { loginUserInput, UserInput, userSchema } from "./user/User.schema";
 import prisma from "./prisma/prisma";
+
+const mockUserInput: UserInput = {
+  name: "Test Test",
+  email: "test@email.com",
+  username: "test_username",
+  password: "testPassword@123",
+};
 
 beforeEach(async () => {
   await prisma.user.deleteMany();
 });
 
 describe("POST /user/auth", () => {
-  it("should create user record in database, assign the authentication token to a cookie and respond with the created user object", async () => {
+  const endpoint = "/api/v1/user/auth";
+
+  it("should create user record in database, assign the authentication token to a cookie and respond with the created user object when the mutation succeeds", async () => {
     const response = await request(app)
-      .post("/api/v1/user/auth")
+      .post(endpoint)
       .set("Content-Type", "application/json")
-      .send({
-        name: "Test Test",
-        email: "test@email.com",
-        username: "test_username",
-        password: "testPassword@123",
-      } satisfies UserInput);
+      .send(mockUserInput);
 
     expect(response.status).toBe(201);
     expect(response.get("Set-Cookie")).toBeDefined();
@@ -27,7 +31,7 @@ describe("POST /user/auth", () => {
     ).toBeTruthy();
 
     const record = await prisma.user.findUnique({
-      where: { username: "test_username" },
+      where: { username: mockUserInput.username },
       select: { id: true },
     });
 
@@ -37,7 +41,7 @@ describe("POST /user/auth", () => {
 
   it("should throw 415 when content type is not application/json", async () => {
     const response = await request(app)
-      .post("/api/v1/user/auth")
+      .post(endpoint)
       .set("Content-Type", "text/html");
 
     expect(response.status).toBe(415);
@@ -46,7 +50,7 @@ describe("POST /user/auth", () => {
 
   it("should throw 400 when the payload does not match the expected structure", async () => {
     const response = await request(app)
-      .post("/api/v1/user/auth")
+      .post(endpoint)
       .set("Content-Type", "application/json")
       .send({
         unknownField: "unknown_value",
@@ -57,23 +61,77 @@ describe("POST /user/auth", () => {
   });
 
   it("should throw 409 when attempt to create an user containing duplicate details", async () => {
-    const userInput: UserInput = {
-      name: "Test Test",
-      email: "test@email.com",
-      username: "test_username",
-      password: "testPassword@123",
-    };
-
     await prisma.user.create({
-      data: userInput,
+      data: mockUserInput,
     });
 
     const response = await request(app)
-      .post("/api/v1/user/auth")
+      .post(endpoint)
       .set("Content-Type", "application/json")
-      .send(userInput);
+      .send(mockUserInput);
 
     expect(response.status).toBe(409);
     expect(response.body.code).toBe("USER_CREATION_CONFLICT");
+  });
+});
+
+describe("POST /user/auth/login", () => {
+  const endpoint = "/api/v1/user/auth/login";
+
+  beforeEach(async () => {
+    await request(app)
+      .post("/api/v1/user/auth")
+      .set("Content-Type", "application/json")
+      .send(mockUserInput);
+  });
+
+  it("should assign an authorization token to a cookie and respond with the authenticated user object when authentication succeeds", async () => {
+    const response = await request(app)
+      .post(endpoint)
+      .set("Content-Type", "application/json")
+      .send({
+        username: mockUserInput.username,
+        password: mockUserInput.password,
+      } satisfies loginUserInput);
+
+    expect(response.get("Set-Cookie")).toBeDefined();
+    expect(
+      userSchema.omit({ password: true }).safeParse(response.body).success,
+    ).toBeTruthy();
+  });
+
+  it("should throw 415 when content type is not application/json", async () => {
+    const response = await request(app)
+      .post(endpoint)
+      .set("Content-Type", "text/html");
+
+    expect(response.status).toBe(415);
+    expect(response.body.code).toBe("INVALID_CONTENT_TYPE");
+  });
+
+  it("should throw 400 when the payload does not match the expected structure", async () => {
+    const response = await request(app)
+      .post(endpoint)
+      .set("Content-Type", "application/json")
+      .send({
+        unknownField: "unknown_value",
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.code).toBe("INVALID_REQUEST_BODY");
+  });
+
+  it("should throw 401 when password is incorrect", async () => {
+    const response = await request(app)
+      .post(endpoint)
+      .set("Content-Type", "application/json")
+      .send({
+        username: mockUserInput.username,
+        password: "wrongPassword@123",
+      } satisfies loginUserInput);
+
+    expect(response.get("Set-Cookie")).not.toBeDefined();
+    expect(response.status).toBe(401);
+    expect(response.body.code).toBe("USER_LOGIN_INVALID_CREDENTIALS");
   });
 });
