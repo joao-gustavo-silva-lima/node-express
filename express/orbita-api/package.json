@@ -7,8 +7,8 @@
     "dev": "tsx watch src/server.ts",
     "build": "npm install && tsc",
     "start": "node dist/server.js",
-    "test": "vitest --no-watch --exclude 'src/integration.test.ts'",
-    "test:integration": "(NODE_ENV=test; prisma db push && vitest run src/integration.test.ts)"
+    "test": "vitest --no-watch --exclude src/tests/*.integration.test.ts",
+    "test:integration": "(NODE_ENV=test; prisma db push && vitest --no-watch src/tests/*.integration.test.ts)"
   },
   "keywords": [],
   "type": "module",

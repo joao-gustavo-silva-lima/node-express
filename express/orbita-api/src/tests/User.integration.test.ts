@@ -1,57 +1,14 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
-import { Link } from "./link/Link.schema";
-import app from "./main";
-import prisma from "./prisma/prisma";
+import { Link } from "../link/Link.schema";
+import app from "../main";
+import prisma from "../prisma/prisma";
+import { loginUserInput, User, userSchema } from "../user/User.schema";
 import {
-  loginUserInput,
-  User,
-  UserInput,
-  userSchema,
-} from "./user/User.schema";
-
-const mockUserInput: UserInput = {
-  name: "Test Test",
-  email: "test@email.com",
-  username: "test_username",
-  password: "testPassword@123",
-};
-
-const mockUserCreation = () => {
-  return request(app)
-    .post("/api/v1/user/auth")
-    .set("Content-Type", "application/json")
-    .send(mockUserInput);
-};
-
-const mockLinksCreation = async () => {
-  if (
-    (await prisma.user.findUnique({
-      where: { username: mockUserInput.username },
-    })) === null
-  ) {
-    throw new Error(
-      "Mocking link creation expects a previously mocked user creation",
-    );
-  }
-
-  await prisma.link.createMany({
-    data: [
-      {
-        title: "Public Link",
-        visibility: "PUBLIC",
-        ref: "https://example.com",
-        authorUsername: mockUserInput.username,
-      },
-      {
-        title: "Private Link",
-        visibility: "PRIVATE",
-        ref: "https://example.com/private",
-        authorUsername: mockUserInput.username,
-      },
-    ],
-  });
-};
+  mockUserLinksCreation,
+  mockUserCreation,
+  mockUserInput,
+} from "./.test.utils";
 
 beforeEach(async () => {
   await prisma.user.deleteMany();
@@ -216,7 +173,7 @@ describe("GET /user/auth/profile", () => {
 
     expect(creationResponse.status).toBe(201);
 
-    await mockLinksCreation();
+    await mockUserLinksCreation();
 
     const { links: _, ...expectedUser } = creationResponse.body as User;
     const cookies = creationResponse.get("Set-Cookie");
@@ -240,7 +197,7 @@ describe("GET /user/:username", () => {
     const createdUser: User = creationResponse.body;
 
     expect(creationResponse.status).toBe(201);
-    await mockLinksCreation();
+    await mockUserLinksCreation();
 
     const response = await request(app).get(endpoint);
     const publicLinks: Link[] = response.body.links;
@@ -383,7 +340,7 @@ describe("DELETE /user/auth", () => {
     const creationResponse = await mockUserCreation();
 
     expect(creationResponse.status).toBe(201);
-    await mockLinksCreation();
+    await mockUserLinksCreation();
 
     const response = await request(app)
       .delete(endpoint)
