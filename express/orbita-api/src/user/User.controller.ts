@@ -1,19 +1,14 @@
 import type { Request, Response } from "express";
 import * as userService from "./User.service.js";
-
-const isProduction = process.env.NODE_ENV === "production";
+import {
+  assignAuthenticationCookie,
+  clearAuthenticationCookie,
+} from "./User.utils.js";
 
 export async function createUser(req: Request, res: Response) {
   const { user, token } = await userService.createUser(req.body);
 
-  res.cookie("orbitaAuthToken", token, {
-    httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24,
-
-    secure: isProduction,
-    partitioned: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-  });
+  assignAuthenticationCookie(res, token);
 
   res.status(201).json(user);
 }
@@ -21,25 +16,13 @@ export async function createUser(req: Request, res: Response) {
 export async function loginUser(req: Request, res: Response) {
   const { user, token } = await userService.loginUser(req.body);
 
-  res.cookie("orbitaAuthToken", token, {
-    httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24,
-
-    secure: isProduction,
-    partitioned: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-  });
+  assignAuthenticationCookie(res, token);
 
   res.json(user);
 }
 
 export async function logoutUser(req: Request, res: Response) {
-  res.clearCookie("orbitaAuthToken", {
-    httpOnly: true,
-    secure: isProduction,
-    partitioned: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-  });
+  clearAuthenticationCookie(res);
 
   res.json({
     code: "USER_LOGOUT_SUCCESS",
@@ -65,14 +48,7 @@ export async function updateUser(req: Request, res: Response) {
     req.body,
   );
 
-  res.cookie("orbitaAuthToken", token, {
-    httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24,
-
-    secure: isProduction,
-    partitioned: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-  });
+  assignAuthenticationCookie(res, token);
 
   res.json(user);
 }
@@ -82,7 +58,7 @@ export async function deleteUser(req: Request, res: Response) {
 
   await userService.deleteUser(req.authUsername!, password);
 
-  res.clearCookie("orbitaAuthToken");
+  clearAuthenticationCookie(res);
 
   res.json({
     code: "USER_DELETION_SUCCESS",

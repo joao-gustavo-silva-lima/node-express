@@ -1,5 +1,14 @@
 import { compare, genSalt, hash } from "bcrypt";
+import type { CookieOptions, Response } from "express";
 import jwt from "jsonwebtoken";
+
+const isProduction = process.env.NODE_ENV === "production";
+const baseCookiesOptions: CookieOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  partitioned: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+};
 
 const salt = await genSalt(10);
 
@@ -14,6 +23,17 @@ export function generateAuthenticationToken(username: string) {
   return jwt.sign({ authUsername: username }, process.env.JWT_SECRET!, {
     expiresIn: "1Day",
   });
+}
+
+export function assignAuthenticationCookie(res: Response, token: string) {
+  res.cookie("orbitaAuthToken", token, {
+    ...baseCookiesOptions,
+    maxAge: 1000 * 60 * 60 * 24,
+  });
+}
+
+export function clearAuthenticationCookie(res: Response) {
+  res.clearCookie("orbitaAuthToken", baseCookiesOptions);
 }
 export function updatedTooRecently(createdAt: Date, updatedAt: Date) {
   return (
