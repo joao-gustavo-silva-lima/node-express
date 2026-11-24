@@ -4,35 +4,50 @@ Orbita API is a REST API for user accounts and personal links. It is built with 
 
 ## Requirements
 
-- Node.js with npm
-- PostgreSQL 16 or a compatible PostgreSQL database
-- A `.env` file containing the required environment variables
+- Node.js and npm
+- PostgreSQL 16 or Docker with Docker Compose
+- A valid environment file in `config/`
 
 ## Environment variables
 
-The server loads environment variables with `dotenv` during startup. Create a `.env` file in the project root with values similar to:
+The server loads `config/.env.development` for normal execution and `config/.env.test` for test execution.
+
+Development environment example:
 
 ```bash
 NODE_ENV=development
 PORT=3000
 FRONT_END_URL=http://localhost:5173
-DATABASE_URL=postgresql://...
+DATABASE_URL=postgresql://orbita_user:orbita_password@localhost:5432/orbita_db
 JWT_SECRET=replace-this-with-a-long-random-secret
 ```
 
-| Variable        | Description                                                                                                        |
-| --------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `NODE_ENV`      | Runtime environment. Production changes the authentication cookie to `secure`, `SameSite=None`, and `partitioned`. |
-| `PORT`          | Local HTTP port used by the API. The examples below assume `3000`.                                                 |
-| `FRONT_END_URL` | Allowed front-end origin used by CORS.                                                                             |
-| `DATABASE_URL`  | PostgreSQL connection string used by Prisma.                                                                       |
-| `JWT_SECRET`    | Secret used to sign and verify authentication tokens.                                                              |
+Test environment example:
 
-`PORT`, `JWT_SECRET`, `DATABASE_URL`, and `FRONT_END_URL` are required. The application validates them before opening the HTTP server.
+```bash
+NODE_ENV=test
+DATABASE_URL=postgresql://orbita_test_user:orbita_test_password@localhost:5454/orbita_test_db
+JWT_SECRET=replace-this-with-a-test-secret
+```
+
+| Variable        | Description                                                                                                          |
+| --------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `NODE_ENV`      | Runtime environment. Production enables secure, partitioned, and `SameSite=None` authentication cookies.             |
+| `PORT`          | Local HTTP port used by the API. Development examples use `3000`.                                                    |
+| `FRONT_END_URL` | Allowed browser origin used by CORS.                                                                                |
+| `DATABASE_URL`  | PostgreSQL connection string used by Prisma.                                                                         |
+| `JWT_SECRET`    | Secret used to sign and verify JWT authentication tokens.                                                             |
+
+`PORT`, `JWT_SECRET`, `DATABASE_URL`, and `FRONT_END_URL` are required during server bootstrap. The test environment does not require `PORT` or `FRONT_END_URL`.
 
 ## Getting started
 
-Start the local PostgreSQL database;
+Clone the repository and move into this project directory:
+
+```bash
+git clone https://github.com/joao-gustavo-silva-lima/node-express.git
+cd node-express/express/orbita-api
+```
 
 Install dependencies:
 
@@ -40,10 +55,18 @@ Install dependencies:
 npm install
 ```
 
-Apply the Prisma migrations when setting up a new database:
+Start the development PostgreSQL database:
 
 ```bash
-npx prisma migrate deploy
+docker compose up -d
+```
+
+The Compose service exposes PostgreSQL on `localhost:5432` with the values declared in `docker-compose.yml`.
+
+Create `config/.env.development`, then synchronize the database with the Prisma schema:
+
+```bash
+npx prisma db push
 ```
 
 Start the API in development mode:
@@ -52,53 +75,64 @@ Start the API in development mode:
 npm run dev
 ```
 
-The API will be available at `http://localhost:3000`.
+The API listens on `http://localhost:3000` by default.
 
 ## Scripts
 
-| Command         | Description                                                              |
-| --------------- | ------------------------------------------------------------------------ |
-| `npm run dev`   | Starts the API with `tsx watch` and reloads it when source files change. |
-| `npm run build` | Installs dependencies and compiles the TypeScript source into `dist`.    |
-| `npm start`     | Starts the compiled server from `dist/server.js`.                        |
+| Command                   | Description                                                                  |
+| ------------------------- | ---------------------------------------------------------------------------- |
+| `npm run dev`             | Starts the API with `tsx watch` and reloads it after source changes.         |
+| `npm run build`           | Installs dependencies and compiles the TypeScript source into `dist`.         |
+| `npm start`               | Starts the compiled server from `dist/server.js`.                            |
+| `npm test`                | Runs unit tests once and excludes HTTP integration tests.                     |
+| `npm run test:integration` | Pushes the Prisma schema, then runs the HTTP integration tests with Vitest. |
+
+Build and run the compiled project:
+
+```bash
+npm run build
+npm start
+```
 
 ## Architecture
 
 ```text
 src/
-├── main.ts                              Express application, security, CORS, parsers and routers
-├── server.ts                            Environment validation, database check and HTTP bootstrap
+├── main.ts                             Express application and middleware registration
+├── server.ts                           Environment validation and HTTP bootstrap
 ├── common/
-│   ├── classes/HttpError.ts              Typed application error
-│   ├── constants/nodeEnv.ts              Production-environment helper
-│   └── utils/generateToken.ts             JWT creation
-├── controllers/
-│   ├── Link.controller.ts                 Link request handlers
-│   └── User.controller.ts                 User and authentication handlers
-├── lib/prisma.ts                         Prisma client and PostgreSQL adapter
-├── middlewares/
-│   ├── corsOptions.middleware.ts          Origin and credential configuration
-│   ├── handleError.middleware.ts          Centralized error responses
-│   ├── logger.middleware.ts              Request timing logger
-│   ├── payloadValidation.middleware.ts    Content-Type and Zod validation
-│   └── tokenValidation.middleware.ts      JWT cookie validation
+│   ├── common.schema.ts                Shared Zod username and timestamp schemas
+│   ├── classes/HttpError.ts            Typed application error
+│   └── middlewares/
+│       ├── corsOptions.middleware.ts   Origin and credential configuration
+│       ├── handleError.middleware.ts   Centralized error responses
+│       ├── logger.middleware.ts        Request timing logger
+│       ├── payloadValidation.middleware.ts
+│       └── tokenValidation.middleware.ts
+├── link/
+│   ├── Link.controller.ts              HTTP handlers
+│   ├── Link.router.ts                  Link route definitions
+│   ├── Link.schema.ts                  Zod schemas and TypeScript types
+│   ├── Link.service.ts                 Link business logic and Prisma queries
+│   └── Link.service.test.ts
+├── user/
+│   ├── User.controller.ts              Authentication and user HTTP handlers
+│   ├── User.router.ts                  User and authentication routes
+│   ├── User.schema.ts                  Zod schemas and TypeScript types
+│   ├── User.service.ts                 User business logic and Prisma queries
+│   ├── User.service.test.ts
+│   └── User.utils.ts                   Password and JWT helpers
 ├── prisma/
-│   ├── schema.prisma                      Prisma data model
-│   └── migrations/                        Database migrations
-├── routers/
-│   ├── Link.router.ts                     Link routes
-│   └── User.router.ts                     User and authentication routes
-├── schemas/
-│   ├── Link.schema.ts                     Link validation schemas
-│   ├── User.schema.ts                     User validation schemas
-│   └── common.schema.ts                   Shared username and timestamp schemas
-├── services/
-│   ├── Link.service.ts                    Link business logic and queries
-│   └── User.service.ts                    User business logic and queries
-└── types/express.d.ts                     Authenticated request type augmentation
+│   ├── prisma.ts                       Prisma PostgreSQL client
+│   ├── schema.prisma                   Data model
+│   ├── generated/                      Generated Prisma client
+│   └── migrations/                     Database migration history
+└── tests/
+    ├── Link.integration.test.ts
+    └── User.integration.test.ts
 ```
 
-Middleware is registered in the following order: Helmet, CORS, JSON parsing, cookie parsing, request logging, versioned routers, the route-not-found response, and the centralized error handler.
+Middleware is registered in this order: Helmet, CORS, JSON parsing, cookie parsing, request logging, versioned routers, route-not-found handling, and the centralized error handler.
 
 All API routes are mounted under `/api/v1`.
 
@@ -113,23 +147,21 @@ Cookie behavior:
 - Development: `secure: false`, `sameSite: "lax"`
 - Production: `secure: true`, `sameSite: "none"`, `partitioned: true`
 
-Authenticated requests must send the cookie. Browser clients should enable credentials for cross-origin requests, for example with `credentials: "include"` in `fetch`. CORS allows the origin configured by `FRONT_END_URL` and enables credentials for authentication and link routes.
+Authenticated requests must send the cookie. Browser clients should enable credentials for cross-origin requests, for example with `credentials: "include"`. CORS allows the origin configured by `FRONT_END_URL` and enables credentials for `/user/auth` and `/link` routes.
 
 ## Data model
 
-The Prisma schema defines two resources.
-
 ### User
 
-| Field         | Type       | Rules                                                                                                  |
-| ------------- | ---------- | ------------------------------------------------------------------------------------------------------ |
-| `id`          | `UUID`     | Generated automatically.                                                                               |
-| `username`    | `string`   | Required, 3-30 characters, lowercase, and limited to letters, numbers, `.`, `_`, and `-`. Unique.      |
-| `name`        | `string`   | Required, 2-255 characters, and must contain at least one letter.                                      |
-| `email`       | `string`   | Required, valid email, lowercase, and up to 255 characters. Unique.                                    |
-| `password`    | `string`   | 12-72 characters, with uppercase, lowercase, number, and special character; whitespace is not allowed. |
-| `createdAt`   | `datetime` | Generated automatically.                                                                               |
-| `lastEdition` | `datetime` | Updated automatically by Prisma.                                                                       |
+| Field         | Type       | Rules                                                                                                    |
+| ------------- | ---------- | -------------------------------------------------------------------------------------------------------- |
+| `id`          | `UUID`     | Generated automatically.                                                                                 |
+| `username`    | `string`   | 3-30 characters, lowercase, unique, and limited to letters, numbers, `.`, `_`, and `-`.                  |
+| `name`        | `string`   | 2-255 characters and must contain at least one letter.                                                   |
+| `email`       | `string`   | Valid email, lowercase, up to 255 characters, and unique.                                                |
+| `password`    | `string`   | 12-72 characters with uppercase, lowercase, number, and special character; whitespace is not allowed.    |
+| `createdAt`   | `datetime` | Generated automatically.                                                                                 |
+| `lastEdition` | `datetime` | Updated automatically by Prisma.                                                                         |
 
 Passwords are hashed with `bcrypt` and are omitted from user responses.
 
@@ -145,21 +177,21 @@ Passwords are hashed with `bcrypt` and are omitted from user responses.
 | `createdAt`      | `datetime` | Generated automatically.                         |
 | `lastEdition`    | `datetime` | Updated automatically by Prisma.                 |
 
-Users may create at most 10 links. Public links can be viewed by other authenticated users; private links are returned only to their owner. Deleting a user cascades to that user's links.
+Users may create at most 10 links. Public links can be viewed by other users, while private links are returned only to their owner. Deleting a user cascades to that user's links.
 
 ## API
 
-All routes below are relative to `http://localhost:PORT`.
+All routes below are relative to `http://localhost:3000`.
 
 ### User and authentication endpoints
 
 | Method   | Path                        | Auth | Description                                                        | Success |
 | -------- | --------------------------- | ---- | ------------------------------------------------------------------ | ------- |
 | `POST`   | `/api/v1/user/auth`         | No   | Creates a user and sets the authentication cookie.                 | `201`   |
-| `POST`   | `/api/v1/user/auth/login`   | No   | Authenticates with a username or email and sets the cookie.        | `200`   |
+| `POST`   | `/api/v1/user/auth/login`   | No   | Logs in with a username or email and sets the cookie.              | `200`   |
 | `POST`   | `/api/v1/user/auth/logout`  | No   | Clears the authentication cookie.                                  | `200`   |
 | `GET`    | `/api/v1/user/auth/profile` | Yes  | Returns the authenticated user's profile and links.                | `200`   |
-| `GET`    | `/api/v1/user/:username`    | No   | Returns a public user profile and public links.                    | `200`   |
+| `GET`    | `/api/v1/user/:username`    | No   | Returns a public profile and that user's public links.             | `200`   |
 | `PATCH`  | `/api/v1/user/auth`         | Yes  | Updates the authenticated user's profile and refreshes the cookie. | `200`   |
 | `DELETE` | `/api/v1/user/auth`         | Yes  | Deletes the authenticated user after password confirmation.        | `200`   |
 
@@ -170,7 +202,7 @@ All link endpoints require the `orbitaAuthToken` cookie.
 | Method   | Path               | Description                                      | Success |
 | -------- | ------------------ | ------------------------------------------------ | ------- |
 | `POST`   | `/api/v1/link`     | Creates a link for the authenticated user.       | `201`   |
-| `GET`    | `/api/v1/link`     | Lists all links owned by the authenticated user. | `200`   |
+| `GET`    | `/api/v1/link`     | Lists links owned by the authenticated user.     | `200`   |
 | `GET`    | `/api/v1/link/:id` | Returns an owned or public link.                 | `200`   |
 | `PATCH`  | `/api/v1/link/:id` | Updates an owned link.                           | `200`   |
 | `DELETE` | `/api/v1/link/:id` | Deletes an owned link.                           | `200`   |
@@ -194,21 +226,20 @@ Content-Type: application/json
 }
 ```
 
-The response contains the created user, its links array, and timestamps. The password is not returned, and the response sets `orbitaAuthToken`.
+The response contains the created user and links array, omits the password, and sets `orbitaAuthToken`.
 
-### Login with username or email
+### Login
 
 `POST /api/v1/user/auth/login`
 
 ```json
 {
   "username": "davolias",
-  "email": "golias.davis@gmail.com",
   "password": "Davolias@123"
 }
 ```
 
-At least one of `username` or `email` is required. The response contains the authenticated user and refreshes `orbitaAuthToken`.
+Login also accepts `email` instead of `username`. At least one of these fields is required. The response contains the authenticated user and refreshes the cookie.
 
 ### Create a link
 
@@ -233,7 +264,7 @@ At least one of `username` or `email` is required. The response contains the aut
 }
 ```
 
-All fields are optional for updates. `title`, `ref`, and `visibility` are validated when present.
+All link update fields are optional. `title`, `ref`, and `visibility` are validated when present.
 
 ### Update a user
 
@@ -247,18 +278,7 @@ All fields are optional for updates. `title`, `ref`, and `visibility` are valida
 }
 ```
 
-`currentPassword` is always required. A user update can be performed at most once every three days after the first edition, and a successful update issues a new authentication token.
-
-### Logout
-
-`POST /api/v1/user/auth/logout`
-
-```json
-{
-  "code": "USER_LOGOUT_SUCCESS",
-  "message": "The user has logged out successfully"
-}
-```
+`currentPassword` is always required. A profile update is allowed only after the service's update interval check passes.
 
 ### Delete a user
 
@@ -270,7 +290,7 @@ All fields are optional for updates. `title`, `ref`, and `visibility` are valida
 }
 ```
 
-Successful deletion clears the cookie and returns:
+Successful deletion clears the authentication cookie and returns:
 
 ```json
 {
@@ -281,7 +301,7 @@ Successful deletion clears the cookie and returns:
 
 ## Responses and errors
 
-Successful resource operations return the resource directly. Action-only operations return a compact response envelope:
+Resource operations return the resource directly. Action-only operations return:
 
 ```json
 {
@@ -290,7 +310,7 @@ Successful resource operations return the resource directly. Action-only operati
 }
 ```
 
-Invalid JSON, unsupported content types, validation failures, authentication failures, and database failures use the same error shape:
+Validation and application errors use this shape:
 
 ```json
 {
@@ -306,30 +326,29 @@ Request-body validation requires the exact `Content-Type: application/json` head
 
 ### Common status codes
 
-| Status | Code                               | Meaning                                                     |
-| ------ | ---------------------------------- | ----------------------------------------------------------- |
-| `400`  | `INVALID_JSON`                     | The request body is not valid JSON.                         |
-| `400`  | `INVALID_REQUEST_BODY`             | The request body does not satisfy its Zod schema.           |
-| `400`  | `INVALID_LINK_ID`                  | The link ID is not a positive integer.                      |
-| `401`  | `AUTH_TOKEN_REQUIRED`              | The authentication cookie was not provided.                 |
-| `401`  | `USER_LOGIN_INVALID_CREDENTIALS`   | The username/email or password is incorrect.                |
-| `403`  | `INVALID_AUTH_TOKEN`               | The JWT is invalid or expired.                              |
-| `403`  | `LINK_CREATION_QUOTA_EXCEEDED`     | The user already owns 10 links.                             |
-| `403`  | `USER_UPDATE_FORBIDDEN`            | The current password does not match.                        |
-| `403`  | `USER_UPDATE_NOT_ALLOWED_TOO_SOON` | The three-day update interval has not elapsed.              |
-| `403`  | `USER_DELETION_FORBIDDEN`          | The deletion password does not match.                       |
-| `404`  | `ROUTE_NOT_FOUND`                  | The requested route does not exist.                         |
-| `404`  | `USER_NOT_FOUND`                   | The requested public user does not exist.                   |
-| `404`  | `LINK_NOT_FOUND`                   | The link does not exist or is not visible to the requester. |
-| `409`  | `USER_CREATION_CONFLICT`           | The email or username is already in use.                    |
-| `409`  | `USER_UPDATE_DETAILS_CONFLICT`     | An updated email or username is already in use.             |
-| `409`  | `LINK_CONFLICT`                    | A link title or reference is already in use.                |
-| `415`  | `INVALID_CONTENT_TYPE`             | The request Content-Type is not `application/json`.         |
-| `503`  | `UNEXPECTED_DATABASE_ERROR`        | An unexpected database operation failed.                    |
-| `500`  | `ENV_VARS_MISSING`                 | Required environment variables are missing during startup.  |
-| `500`  | `INTERNAL_SERVER_ERROR`            | An unhandled server error occurred.                         |
+| Status | Code                             | Meaning                                                     |
+| ------ | -------------------------------- | ----------------------------------------------------------- |
+| `400`  | `INVALID_JSON`                   | The request body is not valid JSON.                         |
+| `400`  | `INVALID_REQUEST_BODY`           | The request body does not satisfy its Zod schema.           |
+| `400`  | `INVALID_LINK_ID`                | The link ID is not a positive integer.                      |
+| `401`  | `AUTH_TOKEN_REQUIRED`            | The authentication cookie was not provided.                 |
+| `401`  | `USER_LOGIN_INVALID_CREDENTIALS` | The username/email or password is incorrect.                |
+| `403`  | `INVALID_AUTH_TOKEN`             | The JWT is invalid or expired.                              |
+| `403`  | `LINK_CREATION_QUOTA_EXCEEDED`   | The user already owns 10 links.                             |
+| `403`  | `USER_UPDATE_FORBIDDEN`          | The current password does not match or update is too recent. |
+| `403`  | `USER_DELETION_FORBIDDEN`        | The deletion password does not match.                       |
+| `404`  | `ROUTE_NOT_FOUND`                | The requested route does not exist.                         |
+| `404`  | `USER_NOT_FOUND`                 | The requested public user does not exist.                   |
+| `404`  | `LINK_NOT_FOUND`                 | The link does not exist or is not visible to the requester. |
+| `409`  | `USER_CREATION_CONFLICT`         | The email or username is already in use.                    |
+| `409`  | `USER_UPDATE_DETAILS_CONFLICT`   | An updated email or username is already in use.             |
+| `409`  | `LINK_CONFLICT`                  | A link title or reference is already in use.                |
+| `415`  | `INVALID_CONTENT_TYPE`           | The request Content-Type is not `application/json`.         |
+| `503`  | `UNEXPECTED_DATABASE_ERROR`      | An unexpected database operation failed.                    |
+| `500`  | `ENV_VARS_MISSING`               | Required environment variables are missing during startup.  |
+| `500`  | `INTERNAL_SERVER_ERROR`          | An unhandled server error occurred.                         |
 
-Unknown routes return a response similar to:
+Unknown routes return:
 
 ```json
 {
@@ -338,11 +357,24 @@ Unknown routes return a response similar to:
 }
 ```
 
-## Development notes
+## Testing
 
-- Prisma uses the PostgreSQL adapter configured in `src/lib/prisma.ts`.
-- The server checks the database connection with `SELECT 1` before listening.
-- `FRONT_END_URL` must match the browser application's origin exactly when credentials are used.
-- Authenticated browser requests must include cookies; configure the client and server for credentialed CORS.
-- `NODE_ENV=production` requires HTTPS because the authentication cookie is marked `secure`.
-- Request logs include the HTTP method, URL, and response time. Logging is skipped when `NODE_ENV=test`.
+Start the test database:
+
+```bash
+docker compose -f docker-compose.test.yml up -d
+```
+
+Run unit tests:
+
+```bash
+npm test
+```
+
+Run HTTP integration tests:
+
+```bash
+npm run test:integration
+```
+
+Integration tests use `config/.env.test`, clear the test database before relevant suites, and should be run only against the disposable test database.
